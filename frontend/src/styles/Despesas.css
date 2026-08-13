@@ -1,0 +1,53 @@
+.despesas-container {
+  max-width: 1200px;
+}
+
+.despesas-container h1 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: var(--text-dark);
+}
+
+.filtros {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--bg-white);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.filtros select {
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background-color: white;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+.filtros select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.erro {
+  background-color: #fee2e2;
+  color: var(--error-color);
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .despesas-container h1 {
+    font-size: 1.5rem;
+  }
+
+  .filtros {
+    grid-template-columns: 1fr;
+  }
+}

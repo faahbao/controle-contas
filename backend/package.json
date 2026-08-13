@@ -1,0 +1,22 @@
+{
+  "name": "controle-contas-backend",
+  "version": "1.0.0",
+  "description": "API para gerenciar receitas e despesas pessoais",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "keywords": ["contas", "receitas", "despesas"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "node-schedule": "^2.1.1"
+  },
+  "devDependencies": {}
+}

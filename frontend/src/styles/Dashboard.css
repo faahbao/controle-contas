@@ -1,0 +1,112 @@
+.dashboard-container {
+  max-width: 1400px;
+}
+
+.dashboard-container h1 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: var(--text-dark);
+}
+
+.cards-resumo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.card {
+  background: var(--bg-white);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  border-left: 4px solid var(--primary-color);
+}
+
+.card h3 {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-light);
+  margin-bottom: 1rem;
+}
+
+.card.receitas {
+  border-left-color: var(--success-color);
+}
+
+.card.despesas {
+  border-left-color: var(--error-color);
+}
+
+.card.saldo {
+  border-left-color: var(--primary-color);
+}
+
+.card.saldo.positivo {
+  border-left-color: var(--success-color);
+}
+
+.card.saldo.negativo {
+  border-left-color: var(--error-color);
+}
+
+.card .valor {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.card.saldo.positivo .valor {
+  color: var(--success-color);
+}
+
+.card.saldo.negativo .valor {
+  color: var(--error-color);
+}
+
+.graficos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+}
+
+.grafico {
+  background: var(--bg-white);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+}
+
+.grafico h3 {
+  margin-bottom: 1.5rem;
+  color: var(--text-dark);
+  font-size: 1.1rem;
+}
+
+.erro {
+  background-color: #fee2e2;
+  color: var(--error-color);
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .cards-resumo {
+    grid-template-columns: 1fr;
+  }
+
+  .graficos {
+    grid-template-columns: 1fr;
+  }
+
+  .card {
+    padding: 1.5rem;
+  }
+
+  .card .valor {
+    font-size: 1.5rem;
+  }
+}
