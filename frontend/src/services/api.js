@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  'http://localhost:5000/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -10,54 +12,92 @@ const api = axios.create({
 });
 
 /**
- * Criar nova transação
+ * =========================================================
+ * TRANSAÇÕES
+ * =========================================================
  */
+
 export const criarTransacao = (transacao) => {
-  return api.post('/receitas', transacao); // Ambas as rotas recebem via POST
+  return api.post('/receitas', transacao);
 };
 
-/**
- * Listar transações
- */
 export const listarTransacoes = (params) => {
   return api.get('/receitas', { params });
 };
 
-/**
- * Obter uma transação
- */
 export const obterTransacao = (id) => {
   return api.get(`/receitas/${id}`);
 };
 
-/**
- * Atualizar transação
- */
 export const atualizarTransacao = (id, dados) => {
   return api.put(`/receitas/${id}`, dados);
 };
 
-/**
- * Deletar transação
- */
 export const deletarTransacao = (id) => {
   return api.delete(`/receitas/${id}`);
 };
 
 /**
- * Obter dashboard
+ * =========================================================
+ * DASHBOARD
+ * =========================================================
  */
+
 export const obterDashboard = (params) => {
   return api.get('/dashboard', { params });
 };
 
 /**
- * Exportar em CSV
+ * =========================================================
+ * EXPORTAÇÃO
+ * =========================================================
  */
+
 export const exportarCSV = (filtros) => {
   return api.post('/export/csv', filtros, {
     responseType: 'blob'
   });
 };
 
-export default api;
+/**
+ * =========================================================
+ * CATEGORIAS
+ * =========================================================
+ */
+
+/**
+ * Listar categorias por tipo
+ */
+export const listarCategorias = (tipo) => {
+  return api.get('/categorias', {
+    params: {
+      tipo
+    }
+  });
+};
+
+/**
+ * Criar nova categoria
+ */
+export const criarCategoria = (tipo, nome) => {
+  return api.post('/categorias', {
+    tipo,
+    nome
+  });
+};
+
+/**
+ * Atualizar categoria
+ */
+export const atualizarCategoria = (id, nome) => {
+  return api.put(`/categorias/${id}`, {
+    nome
+  });
+};
+
+/**
+ * Remover categoria
+ */
+export const removerCategoria = (id) => {
+  return api.delete(`/categorias/${id}`);
+};

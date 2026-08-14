@@ -6,6 +6,7 @@ import { iniciarJobRecorrencia } from './jobs/recurrenceJob.js';
 import transacaoRoutes from './routes/transacao.js';
 import dashboardRoutes from './routes/dashboard.js';
 import exportRoutes from './routes/export.js';
+import categoriasRoutes from './routes/categorias.js';
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.use('/api/receitas', transacaoRoutes);
 app.use('/api/despesas', transacaoRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/export', exportRoutes);
+app.use('/api/categorias', categoriasRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
