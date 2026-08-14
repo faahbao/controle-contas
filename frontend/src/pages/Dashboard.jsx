@@ -16,34 +16,124 @@ import {
 import '../styles/Dashboard.css';
 
 function Dashboard() {
+  const agora = new Date();
+
+  const anoAtual = agora.getFullYear();
+
+  const mesAtualNumero = String(
+    agora.getMonth() + 1
+  ).padStart(2, '0');
+
+  const [mesSelecionado, setMesSelecionado] = useState(
+    `${anoAtual}-${mesAtualNumero}`
+  );
+
   const [dashboard, setDashboard] = useState(null);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
 
-  useEffect(() => {
-    carregarDashboard();
-  }, []);
+  // =========================================================
+  // MESES DO ANO
+  // =========================================================
 
-  const carregarDashboard = async () => {
+  const meses = [
+    {
+      valor: `${anoAtual}-01`,
+      nome: 'Janeiro'
+    },
+    {
+      valor: `${anoAtual}-02`,
+      nome: 'Fevereiro'
+    },
+    {
+      valor: `${anoAtual}-03`,
+      nome: 'Março'
+    },
+    {
+      valor: `${anoAtual}-04`,
+      nome: 'Abril'
+    },
+    {
+      valor: `${anoAtual}-05`,
+      nome: 'Maio'
+    },
+    {
+      valor: `${anoAtual}-06`,
+      nome: 'Junho'
+    },
+    {
+      valor: `${anoAtual}-07`,
+      nome: 'Julho'
+    },
+    {
+      valor: `${anoAtual}-08`,
+      nome: 'Agosto'
+    },
+    {
+      valor: `${anoAtual}-09`,
+      nome: 'Setembro'
+    },
+    {
+      valor: `${anoAtual}-10`,
+      nome: 'Outubro'
+    },
+    {
+      valor: `${anoAtual}-11`,
+      nome: 'Novembro'
+    },
+    {
+      valor: `${anoAtual}-12`,
+      nome: 'Dezembro'
+    }
+  ];
+
+  // =========================================================
+  // CARREGAR DASHBOARD
+  // =========================================================
+
+  useEffect(() => {
+    carregarDashboard(mesSelecionado);
+  }, [mesSelecionado]);
+
+  const carregarDashboard = async (mes = mesSelecionado) => {
     try {
       setCarregando(true);
+      setErro(null);
 
-      const response = await obterDashboard();
+      const response = await obterDashboard({
+        mes
+      });
 
       setDashboard(response.data);
-      setErro(null);
-    } catch (erro) {
-      console.error('Erro ao carregar dashboard:', erro);
 
-      setErro('Erro ao carregar dados do dashboard.');
+    } catch (erro) {
+
+      console.error(
+        'Erro ao carregar dashboard:',
+        erro
+      );
+
+      setErro(
+        'Erro ao carregar dados do dashboard.'
+      );
+
     } finally {
       setCarregando(false);
     }
   };
 
-  /**
-   * Converte qualquer valor para número.
-   */
+  // =========================================================
+  // ALTERAR MÊS
+  // =========================================================
+
+  const handleMesChange = (event) => {
+    setMesSelecionado(event.target.value);
+  };
+
+  // =========================================================
+  // CONVERSÃO PARA NÚMERO
+  // =========================================================
+
   const numero = (valor) => {
     const resultado = Number(valor);
 
@@ -52,9 +142,10 @@ function Dashboard() {
       : 0;
   };
 
-  /**
-   * Formata valores em reais.
-   */
+  // =========================================================
+  // FORMATAÇÃO DE VALOR
+  // =========================================================
+
   const formatarValor = (valor) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -62,51 +153,121 @@ function Dashboard() {
     }).format(numero(valor));
   };
 
-  /**
-   * Evita problemas caso o backend retorne
-   * valores como strings.
-   */
-  const totalReceitas = numero(
-    dashboard?.totalReceitas
-  );
+  // =========================================================
+  // MÊS FORMATADO
+  // =========================================================
 
-  const totalDespesas = numero(
-    dashboard?.totalDespesas
-  );
+  const obterNomeMes = () => {
+    const mes = meses.find(
+      item => item.valor === mesSelecionado
+    );
 
-  const saldo = numero(
-    dashboard?.saldo
-  );
+    return mes
+      ? `${mes.nome} ${anoAtual}`
+      : mesSelecionado;
+  };
+
+  // =========================================================
+  // LOADING
+  // =========================================================
 
   if (carregando) {
     return (
       <div className="dashboard-container">
-        <div className="dashboard-loading">
-          Carregando dashboard...
+
+        <div className="dashboard-header">
+
+          <div>
+            <h1>📊 Dashboard</h1>
+
+            <p>
+              Visão geral das suas receitas e despesas.
+            </p>
+          </div>
+
         </div>
+
+        <div className="dashboard-loading">
+          Carregando dados de {obterNomeMes()}...
+        </div>
+
       </div>
     );
   }
+
+  // =========================================================
+  // ERRO
+  // =========================================================
 
   if (erro) {
     return (
       <div className="dashboard-container">
+
+        <div className="dashboard-header">
+
+          <div>
+            <h1>📊 Dashboard</h1>
+
+            <p>
+              Visão geral das suas receitas e despesas.
+            </p>
+          </div>
+
+        </div>
+
         <div className="erro">
           {erro}
         </div>
+
+        <button
+          type="button"
+          className="btn-atualizar-dashboard"
+          onClick={() =>
+            carregarDashboard(mesSelecionado)
+          }
+        >
+          ↻ Tentar novamente
+        </button>
+
       </div>
     );
   }
 
+  // =========================================================
+  // SEM DADOS
+  // =========================================================
+
   if (!dashboard) {
     return (
       <div className="dashboard-container">
+
         <div className="dashboard-vazio">
           Nenhum dado disponível.
         </div>
+
       </div>
     );
   }
+
+  // =========================================================
+  // TOTAIS
+  // =========================================================
+
+  const totalReceitas = numero(
+    dashboard.totalReceitas
+  );
+
+  const totalDespesas = numero(
+    dashboard.totalDespesas
+  );
+
+  const saldo = numero(
+    dashboard.saldo
+  );
+
+  // =========================================================
+  // CORES DOS GRÁFICOS
+  // =========================================================
 
   const CORES = [
     '#2563eb',
@@ -117,9 +278,10 @@ function Dashboard() {
     '#ec4899'
   ];
 
-  /**
-   * Dados do gráfico Receita x Despesa.
-   */
+  // =========================================================
+  // RECEITAS X DESPESAS
+  // =========================================================
+
   const dadosReceitasDespesas = [
     {
       name: 'Receitas',
@@ -131,49 +293,109 @@ function Dashboard() {
     }
   ];
 
-  /**
-   * Dados por categoria.
-   */
+  // =========================================================
+  // CATEGORIAS
+  // =========================================================
+
   const receitasPorCategoria =
-    Array.isArray(dashboard.receitasPorCategoria)
+    Array.isArray(
+      dashboard.receitasPorCategoria
+    )
       ? dashboard.receitasPorCategoria
       : [];
 
   const despesasPorCategoria =
-    Array.isArray(dashboard.despesasPorCategoria)
+    Array.isArray(
+      dashboard.despesasPorCategoria
+    )
       ? dashboard.despesasPorCategoria
       : [];
+
+  // =========================================================
+  // RENDER
+  // =========================================================
 
   return (
     <div className="dashboard-container">
 
-      {/* ==================================================
+      {/* =====================================================
           CABEÇALHO
-      ================================================== */}
+      ===================================================== */}
 
       <div className="dashboard-header">
 
         <div>
-          <h1>📊 Dashboard</h1>
+
+          <h1>
+            📊 Dashboard
+          </h1>
 
           <p>
-            Visão geral das suas receitas e despesas.
+            Visão financeira de {obterNomeMes()}.
           </p>
+
         </div>
 
         <button
           type="button"
           className="btn-atualizar-dashboard"
-          onClick={carregarDashboard}
+          onClick={() =>
+            carregarDashboard(mesSelecionado)
+          }
         >
           ↻ Atualizar
         </button>
 
       </div>
 
-      {/* ==================================================
+      {/* =====================================================
+          SELETOR DE MÊS
+      ===================================================== */}
+
+      <div className="dashboard-filtro">
+
+        <div className="dashboard-filtro-conteudo">
+
+          <label htmlFor="mes-dashboard">
+            Mês para visualizar
+          </label>
+
+          <select
+            id="mes-dashboard"
+            value={mesSelecionado}
+            onChange={handleMesChange}
+          >
+
+            {meses.map((mes) => (
+              <option
+                key={mes.valor}
+                value={mes.valor}
+              >
+                {mes.nome} {anoAtual}
+              </option>
+            ))}
+
+          </select>
+
+        </div>
+
+        <div className="dashboard-mes-atual">
+
+          <span>
+            Visualizando:
+          </span>
+
+          <strong>
+            {obterNomeMes()}
+          </strong>
+
+        </div>
+
+      </div>
+
+      {/* =====================================================
           CARDS DE RESUMO
-      ================================================== */}
+      ===================================================== */}
 
       <div className="cards-resumo">
 
@@ -251,15 +473,15 @@ function Dashboard() {
 
       </div>
 
-      {/* ==================================================
+      {/* =====================================================
           GRÁFICOS
-      ================================================== */}
+      ===================================================== */}
 
       <div className="graficos">
 
-        {/* ==================================================
+        {/* ===================================================
             RECEITAS X DESPESAS
-        ================================================== */}
+        =================================================== */}
 
         <div className="grafico">
 
@@ -271,7 +493,7 @@ function Dashboard() {
           totalDespesas === 0 ? (
 
             <div className="grafico-vazio">
-              Nenhum dado disponível.
+              Nenhuma movimentação em {obterNomeMes()}.
             </div>
 
           ) : (
@@ -327,9 +549,9 @@ function Dashboard() {
 
         </div>
 
-        {/* ==================================================
+        {/* ===================================================
             RECEITAS POR CATEGORIA
-        ================================================== */}
+        =================================================== */}
 
         <div className="grafico">
 
@@ -386,16 +608,16 @@ function Dashboard() {
           ) : (
 
             <div className="grafico-vazio">
-              Sem dados de receita.
+              Sem receitas em {obterNomeMes()}.
             </div>
 
           )}
 
         </div>
 
-        {/* ==================================================
+        {/* ===================================================
             DESPESAS POR CATEGORIA
-        ================================================== */}
+        =================================================== */}
 
         <div className="grafico">
 
@@ -452,7 +674,7 @@ function Dashboard() {
           ) : (
 
             <div className="grafico-vazio">
-              Sem dados de despesa.
+              Sem despesas em {obterNomeMes()}.
             </div>
 
           )}
