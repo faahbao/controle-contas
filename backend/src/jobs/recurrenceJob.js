@@ -2,94 +2,232 @@ import schedule from 'node-schedule';
 import { dbAll, dbRun, dbGet } from '../db.js';
 
 /**
- * Gera transações recorrentes para o mês atual
+ * Gera transações de recorrência mensal.
+ *
+ * IMPORTANTE:
+ * Parcelamentos com quantidade definida já são criados
+ * integralmente no momento do cadastro.
+ *
+ * Este job é utilizado somente para recorrências
+ * sem quantidade definida de parcelas.
  */
 const gerarRecorrenciasDoMes = async () => {
   try {
     const agora = new Date();
-    const mesAtual = agora.getMonth() + 1; // 1-12
+
+    const mesAtual = agora.getMonth() + 1;
     const anoAtual = agora.getFullYear();
 
-    console.log(`⏰ Verificando recorrências para ${mesAtual}/${anoAtual}...`);
+    console.log(
+      `⏰ Verificando recorrências para ${mesAtual}/${anoAtual}...`
+    );
 
-    // Buscar todas as transações recorrentes ativas (parcela 1 = transação original)
+    /*
+     * Buscar somente recorrências sem quantidade definida.
+     *
+     * num_parcelas IS NULL = recorrência contínua.
+     *
+     * Parcelamentos com:
+     * num_parcelas = 10
+     *
+     * NÃO entram aqui, pois já possuem suas 10 parcelas
+     * criadas pelo controller.
+     */
     const transacoesRecorrentes = await dbAll(
-      `SELECT * FROM transactions 
-       WHERE recorrente = 1 AND periodo_recorrencia = 'mensal' AND ativo = 1 AND parcela_numero = 1`
+      `SELECT *
+       FROM transactions
+       WHERE recorrente = 1
+         AND periodo_recorrencia = 'mensal'
+         AND ativo = 1
+         AND parcela_numero = 1
+         AND num_parcelas IS NULL`
+    );
+
+    console.log(
+      `🔎 ${transacoesRecorrentes.length} recorrência(s) contínua(s) encontrada(s).`
     );
 
     for (const transacao of transacoesRecorrentes) {
-      // Verificar se tem limite de parcelas
-      const numParcelas = transacao.num_parcelas || 999; // 999 = infinito
-      
-      // Contar quantas parcelas já foram geradas
-      const parcelajaGerada = await dbGet(
-        'SELECT COUNT(*) as count FROM transactions WHERE transacao_original_id = ?',
-        [transacao.id]
-      );
+      try {
+        /*
+         * Verificar se já existe uma geração desta recorrência
+         * para o mês atual.
+         */
+        const jaGerada = await dbGet(
+          `SELECT id
+           FROM recurrence_log
+           WHERE transaction_id = ?
+             AND mes = ?
+             AND ano = ?`,
+          [
+            transacao.id,
+            mesAtual,
+            anoAtual
+          ]
+        );
 
-      const parcelasGeradas = parcelajaGerada?.count || 0;
+        if (jaGerada) {
+          console.log(
+            `ℹ️ Recorrência ${transacao.id} já foi gerada para ${mesAtual}/${anoAtual}.`
+          );
 
-      // Se já atingiu o limite, pular
-      if (parcelasGeradas >= numParcelas) {
-        console.log(`ℹ️  Transação ${transacao.id} já atingiu ${numParcelas} parcelas. Pulando...`);
-        continue;
-      }
+          continue;
+        }
 
-      // Verificar se já foi gerada para este mês
-      const jaProcedida = await dbGet(
-        'SELECT id FROM recurrence_log WHERE transaction_id = ? AND mes = ? AND ano = ?',
-        [transacao.id, mesAtual, anoAtual]
-      );
+        /*
+         * Evitar criar a própria transação original novamente
+         * no mesmo mês.
+         */
+        const dataOriginal = new Date(
+          `${transacao.data}T12:00:00`
+        );
 
-      if (!jaProcedida) {
-        // Extrair dia da transação original
-        const dataParts = transacao.data.split('-'); // YYYY-MM-DD
-        const diaOriginal = dataParts[2];
+        const diaOriginal = dataOriginal.getDate();
 
-        // Criar nova data para este mês
-        const novaData = `${anoAtual}-${String(mesAtual).padStart(2, '0')}-${String(diaOriginal).padStart(2, '0')}`;
+        /*
+         * Ajustar o dia para meses que não possuem aquele dia.
+         *
+         * Exemplo:
+         * uma recorrência cadastrada no dia 31
+         * será criada no último dia de fevereiro.
+         */
+        const ultimoDiaDoMes = new Date(
+          anoAtual,
+          mesAtual,
+          0
+        ).getDate();
 
-        // Número da próxima parcela
-        const proximaParcela = parcelasGeradas + 2; // +1 para contar original, +1 para próxima
+        const dia = Math.min(
+          diaOriginal,
+          ultimoDiaDoMes
+        );
 
-        // Inserir nova parcela
+        const novaData =
+          `${anoAtual}-${String(mesAtual).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+
+        /*
+         * Se a transação original já pertence ao mês atual,
+         * não criar uma cópia.
+         */
+        if (
+          transacao.data === novaData &&
+          transacao.id === transacao.transacao_original_id
+        ) {
+          await dbRun(
+            `INSERT OR IGNORE INTO recurrence_log
+             (transaction_id, mes, ano)
+             VALUES (?, ?, ?)`,
+            [
+              transacao.id,
+              mesAtual,
+              anoAtual
+            ]
+          );
+
+          console.log(
+            `ℹ️ Recorrência ${transacao.id} já possui lançamento em ${novaData}.`
+          );
+
+          continue;
+        }
+
+        /*
+         * Criar a nova ocorrência mensal.
+         */
         const resultado = await dbRun(
-          `INSERT INTO transactions (tipo, categoria, descricao, valor, data, recorrente, periodo_recorrencia, num_parcelas, data_termino, parcela_numero, transacao_original_id)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [transacao.tipo, transacao.categoria, transacao.descricao, transacao.valor, novaData, 1, 'mensal', transacao.num_parcelas, transacao.data_termino, proximaParcela, transacao.id]
+          `INSERT INTO transactions (
+            tipo,
+            categoria,
+            descricao,
+            valor,
+            data,
+            recorrente,
+            periodo_recorrencia,
+            num_parcelas,
+            data_termino,
+            parcela_numero,
+            transacao_original_id
+          )
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            transacao.tipo,
+            transacao.categoria,
+            transacao.descricao,
+            transacao.valor,
+            novaData,
+            1,
+            'mensal',
+            null,
+            null,
+            1,
+            transacao.id
+          ]
         );
 
-        // Registrar no log de recorrências
+        /*
+         * Registrar que a recorrência foi processada.
+         */
         await dbRun(
-          'INSERT INTO recurrence_log (transaction_id, mes, ano) VALUES (?, ?, ?)',
-          [transacao.id, mesAtual, anoAtual]
+          `INSERT OR IGNORE INTO recurrence_log
+           (transaction_id, mes, ano)
+           VALUES (?, ?, ?)`,
+          [
+            transacao.id,
+            mesAtual,
+            anoAtual
+          ]
         );
 
-        const infoParcel = transacao.num_parcelas ? ` (${proximaParcela}/${transacao.num_parcelas})` : '';
-        console.log(`✅ Parcela gerada: ${transacao.categoria} (${transacao.valor})${infoParcel} para ${novaData}`);
+        console.log(
+          `✅ Recorrência gerada: ${transacao.categoria} ` +
+          `(${transacao.valor}) para ${novaData} ` +
+          `[ID ${resultado.lastID}]`
+        );
+
+      } catch (erroTransacao) {
+        console.error(
+          `❌ Erro ao processar recorrência ${transacao.id}:`,
+          erroTransacao
+        );
       }
     }
 
-    console.log('✅ Verificação de recorrências concluída');
+    console.log(
+      '✅ Verificação de recorrências concluída'
+    );
+
   } catch (erro) {
-    console.error('❌ Erro ao gerar recorrências:', erro);
+    console.error(
+      '❌ Erro ao gerar recorrências:',
+      erro
+    );
   }
 };
 
 /**
- * Inicializa o job de recorrências
- * Roda diariamente à meia-noite
+ * Inicializa o job de recorrências.
+ *
+ * Executa imediatamente ao iniciar o servidor
+ * e depois diariamente às 00:01.
  */
 export const iniciarJobRecorrencia = () => {
-  // Executar imediatamente na primeira vez
+
+  // Executar imediatamente ao iniciar o backend.
   gerarRecorrenciasDoMes();
 
-  // Agendar para rodas todos os dias à 00:01
-  schedule.scheduleJob('1 0 * * *', () => {
-    console.log('🔄 Executando job de recorrências...');
-    gerarRecorrenciasDoMes();
-  });
+  // Executar todos os dias às 00:01.
+  schedule.scheduleJob(
+    '1 0 * * *',
+    () => {
+      console.log(
+        '🔄 Executando job de recorrências...'
+      );
 
-  console.log('📅 Job de recorrências agendado (diariamente às 00:01)');
+      gerarRecorrenciasDoMes();
+    }
+  );
+
+  console.log(
+    '📅 Job de recorrências agendado (diariamente às 00:01)'
+  );
 };

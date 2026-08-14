@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { deletarTransacao } from '../services/api';
 import '../styles/ListaTransacoes.css';
 
@@ -6,14 +6,14 @@ function ListaTransacoes({ transacoes, onEditar, onAtualizar }) {
   const [transacoesEditando, setTransacoesEditando] = useState({});
 
   const handleEditar = (transacao) => {
-    setTransacoesEditando(prev => ({
+    setTransacoesEditando((prev) => ({
       ...prev,
       [transacao.id]: { ...transacao }
     }));
   };
 
   const handleCancelar = (id) => {
-    setTransacoesEditando(prev => {
+    setTransacoesEditando((prev) => {
       const novoEstado = { ...prev };
       delete novoEstado[id];
       return novoEstado;
@@ -22,16 +22,22 @@ function ListaTransacoes({ transacoes, onEditar, onAtualizar }) {
 
   const handleSalvar = async (id) => {
     const transacao = transacoesEditando[id];
-    await onAtualizar(id, transacao);
-    setTransacoesEditando(prev => {
-      const novoEstado = { ...prev };
-      delete novoEstado[id];
-      return novoEstado;
-    });
+
+    try {
+      await onAtualizar(id, transacao);
+
+      setTransacoesEditando((prev) => {
+        const novoEstado = { ...prev };
+        delete novoEstado[id];
+        return novoEstado;
+      });
+    } catch (erro) {
+      console.error('Erro ao salvar alteração:', erro);
+    }
   };
 
   const handleMudanca = (id, campo, valor) => {
-    setTransacoesEditando(prev => ({
+    setTransacoesEditando((prev) => ({
       ...prev,
       [id]: {
         ...prev[id],
@@ -41,13 +47,20 @@ function ListaTransacoes({ transacoes, onEditar, onAtualizar }) {
   };
 
   const handleDeletar = async (id) => {
-    if (confirm('Tem certeza que deseja deletar esta transação?')) {
-      try {
-        await deletarTransacao(id);
-        onAtualizar(null, null); // Trigger refresh
-      } catch (erro) {
-        alert('Erro ao deletar: ' + erro.message);
-      }
+    if (!window.confirm('Tem certeza que deseja deletar esta transação?')) {
+      return;
+    }
+
+    try {
+      await deletarTransacao(id);
+      onAtualizar(null, null);
+    } catch (erro) {
+      console.error('Erro ao deletar:', erro);
+
+      alert(
+        'Erro ao deletar: ' +
+          (erro.response?.data?.erro || erro.message)
+      );
     }
   };
 
@@ -55,23 +68,56 @@ function ListaTransacoes({ transacoes, onEditar, onAtualizar }) {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
-    }).format(valor);
+    }).format(Number(valor) || 0);
   };
 
   const formatarData = (data) => {
+    if (!data) return '-';
+
+    const partes = String(data).split('-');
+
+    if (partes.length === 3) {
+      return `${partes[2]}/${partes[1]}/${partes[0]}`;
+    }
+
     return new Date(data).toLocaleDateString('pt-BR');
   };
 
-  const formatarParcelas = (numParcelas, dataTermino) => {
-    if (!numParcelas || numParcelas === 1) return '-';
-    if (dataTermino) {
-      return `${numParcelas}x até ${formatarData(dataTermino)}`;
+  /*
+   * Retorna somente:
+   *
+   * 1/3
+   * 2/3
+   * 3/3
+   */
+  const formatarParcela = (transacao) => {
+    const numero = Number(transacao.parcela_numero);
+    const total = Number(transacao.num_parcelas);
+
+    if (
+      !Number.isInteger(numero) ||
+      !Number.isInteger(total) ||
+      total <= 1
+    ) {
+      return '-';
     }
-    return `${numParcelas}x`;
+
+    return `${numero}/${total}`;
+  };
+
+  const isParcela = (transacao) => {
+    return (
+      Number(transacao.num_parcelas) > 1 &&
+      Number(transacao.parcela_numero) >= 1
+    );
   };
 
   if (!transacoes || transacoes.length === 0) {
-    return <div className="lista-vazia">Nenhuma transação encontrada</div>;
+    return (
+      <div className="lista-vazia">
+        Nenhuma transação encontrada
+      </div>
+    );
   }
 
   return (
@@ -83,76 +129,204 @@ function ListaTransacoes({ transacoes, onEditar, onAtualizar }) {
             <th>Categoria</th>
             <th>Descrição</th>
             <th>Valor</th>
-            <th>Parcelas</th>
+            <th>Parcela</th>
             <th>Ações</th>
           </tr>
         </thead>
+
         <tbody>
-          {transacoes.map(transacao => {
+          {transacoes.map((transacao) => {
             const editando = transacoesEditando[transacao.id];
-            
+
             if (editando) {
               return (
-                <tr key={transacao.id} className="editando">
+                <tr
+                  key={transacao.id}
+                  className="editando"
+                >
                   <td>
                     <input
                       type="date"
-                      value={editando.data}
-                      onChange={(e) => handleMudanca(transacao.id, 'data', e.target.value)}
+                      value={editando.data || ''}
+                      onChange={(e) =>
+                        handleMudanca(
+                          transacao.id,
+                          'data',
+                          e.target.value
+                        )
+                      }
                     />
                   </td>
+
                   <td>
                     <input
                       type="text"
-                      value={editando.categoria}
-                      onChange={(e) => handleMudanca(transacao.id, 'categoria', e.target.value)}
+                      value={editando.categoria || ''}
+                      onChange={(e) =>
+                        handleMudanca(
+                          transacao.id,
+                          'categoria',
+                          e.target.value
+                        )
+                      }
                     />
                   </td>
+
                   <td>
                     <input
                       type="text"
-                      value={editando.descricao}
-                      onChange={(e) => handleMudanca(transacao.id, 'descricao', e.target.value)}
+                      value={editando.descricao || ''}
+                      onChange={(e) =>
+                        handleMudanca(
+                          transacao.id,
+                          'descricao',
+                          e.target.value
+                        )
+                      }
                     />
                   </td>
+
                   <td>
                     <input
                       type="number"
                       step="0.01"
-                      value={editando.valor}
-                      onChange={(e) => handleMudanca(transacao.id, 'valor', parseFloat(e.target.value))}
+                      min="0.01"
+                      value={editando.valor ?? ''}
+                      onChange={(e) =>
+                        handleMudanca(
+                          transacao.id,
+                          'valor',
+                          e.target.value
+                            ? parseFloat(e.target.value)
+                            : ''
+                        )
+                      }
                     />
                   </td>
-                  <td>
-                    <input
-                      type="number"
-                      min="1"
-                      value={editando.num_parcelas || 1}
-                      onChange={(e) => handleMudanca(transacao.id, 'num_parcelas', parseInt(e.target.value))}
-                    />
+
+                  <td className="parcelas-cell">
+                    {isParcela(transacao) ? (
+                      <span className="parcela-indicador">
+                        {formatarParcela(transacao)}
+                      </span>
+                    ) : (
+                      '-'
+                    )}
                   </td>
+
                   <td className="acoes">
-                    <button onClick={() => handleSalvar(transacao.id)} className="btn-salvar">✓</button>
-                    <button onClick={() => handleCancelar(transacao.id)} className="btn-cancelar">✕</button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleSalvar(transacao.id)
+                      }
+                      className="btn-salvar"
+                      title="Salvar"
+                    >
+                      ✓
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleCancelar(transacao.id)
+                      }
+                      className="btn-cancelar"
+                      title="Cancelar"
+                    >
+                      ✕
+                    </button>
                   </td>
                 </tr>
               );
             }
 
+            const numeroParcela = Number(
+              transacao.parcela_numero
+            );
+
+            const totalParcelas = Number(
+              transacao.num_parcelas
+            );
+
+            const possuiParcela =
+              isParcela(transacao);
+
+            const ultimaParcela =
+              possuiParcela &&
+              numeroParcela === totalParcelas;
+
             return (
               <tr key={transacao.id}>
-                <td>{formatarData(transacao.data)}</td>
-                <td>{transacao.categoria}</td>
-                <td>{transacao.descricao || '-'}</td>
-                <td className={transacao.tipo === 'receita' ? 'positivo' : 'negativo'}>
-                  {transacao.tipo === 'receita' ? '+' : '-'} {formatarValor(Math.abs(transacao.valor))}
+                <td>
+                  {formatarData(transacao.data)}
                 </td>
+
+                <td>
+                  {transacao.categoria}
+                </td>
+
+                <td>
+                  {transacao.descricao || '-'}
+                </td>
+
+                <td
+                  className={
+                    transacao.tipo === 'receita'
+                      ? 'positivo'
+                      : 'negativo'
+                  }
+                >
+                  {transacao.tipo === 'receita'
+                    ? '+'
+                    : '-'}{' '}
+                  {formatarValor(
+                    Math.abs(transacao.valor)
+                  )}
+                </td>
+
+                {/* ==================================
+                    PARCELA
+                    Mostra SOMENTE 1/3, 2/3, 3/3
+                   ================================== */}
                 <td className="parcelas-cell">
-                  {formatarParcelas(transacao.num_parcelas, transacao.data_termino)}
+                  {possuiParcela ? (
+                    <span
+                      className="parcela-indicador"
+                      data-parcela={numeroParcela}
+                      data-ultima={
+                        ultimaParcela ? 'true' : 'false'
+                      }
+                    >
+                      {numeroParcela}/{totalParcelas}
+                    </span>
+                  ) : (
+                    '-'
+                  )}
                 </td>
+
                 <td className="acoes">
-                  <button onClick={() => handleEditar(transacao)} className="btn-editar">✎</button>
-                  <button onClick={() => handleDeletar(transacao.id)} className="btn-deletar">🗑</button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleEditar(transacao)
+                    }
+                    className="btn-editar"
+                    title="Editar"
+                  >
+                    ✎
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleDeletar(transacao.id)
+                    }
+                    className="btn-deletar"
+                    title="Excluir"
+                  >
+                    🗑
+                  </button>
                 </td>
               </tr>
             );
