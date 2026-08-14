@@ -51,3 +51,159 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ==================================================
+   GERENCIADOR DE CATEGORIAS
+================================================== */
+
+.gerenciador-categorias {
+  margin: 20px 0;
+  padding: 16px 18px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+.gerenciador-categorias-titulo {
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.gerenciador-categorias-controles {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.gerenciador-categorias-controles select {
+  min-width: 220px;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.gerenciador-categorias-controles select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+}
+
+.gerenciador-categorias button {
+  height: 40px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 7px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-adicionar-categoria {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.btn-adicionar-categoria:hover {
+  background: #1d4ed8;
+}
+
+.btn-remover-categoria {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.btn-remover-categoria:hover:not(:disabled) {
+  background: #fecaca;
+}
+
+.btn-remover-categoria:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.nova-categoria {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.nova-categoria input {
+  flex: 1;
+  min-width: 200px;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 14px;
+}
+
+.nova-categoria input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+}
+
+.btn-confirmar-categoria {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+.btn-confirmar-categoria:hover:not(:disabled) {
+  background: #15803d;
+}
+
+.btn-cancelar-categoria {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.btn-cancelar-categoria:hover:not(:disabled) {
+  background: #cbd5e1;
+}
+
+.gerenciador-categorias button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ==================================================
+   RESPONSIVO
+================================================== */
+
+@media (max-width: 600px) {
+
+  .gerenciador-categorias-controles {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .gerenciador-categorias-controles select,
+  .gerenciador-categorias-controles button {
+    width: 100%;
+  }
+
+  .nova-categoria {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .nova-categoria input,
+  .nova-categoria button {
+    width: 100%;
+  }
+
+}
