@@ -6,224 +6,227 @@ const router = express.Router();
 /**
  * Dashboard financeiro
  *
+ * Permite consultar um mês específico através de:
+ *
+ * /api/dashboard?mes=2026-08
+ *
+ * Quando o parâmetro "mes" não é informado,
+ * utiliza o mês atual.
+ *
  * Retorna:
- * - total de receitas
- * - total de despesas
- * - saldo
- * - totais por categoria
- * - totais mensais
- * - quantidade de transações
+ * - total de receitas do mês selecionado
+ * - total de despesas do mês selecionado
+ * - saldo do mês selecionado
+ * - totais por categoria do mês
+ * - resumo mensal
  * - informações sobre parcelamentos
  * - próximas parcelas
+ * - parcelas do mês selecionado
  */
 router.get('/', async (req, res) => {
   try {
-    const {
-      data_inicio,
-      data_fim
-    } = req.query;
+    const agora = new Date();
 
-    // =========================================================
-    // FILTRO DE DATA
-    // =========================================================
+    const anoAtual = agora.getFullYear();
 
-    const params = [];
+    const mesAtualNumero = String(
+      agora.getMonth() + 1
+    ).padStart(2, '0');
 
-    let filtroData = '';
+    const mesAtual = `${anoAtual}-${mesAtualNumero}`;
 
-    if (data_inicio) {
-      filtroData += ' AND data >= ?';
-      params.push(data_inicio);
+    // ---------------------------------------------------------
+    // Mês selecionado
+    // ---------------------------------------------------------
+
+    let mesSelecionado = req.query.mes || mesAtual;
+
+    /**
+     * Aceita somente o formato YYYY-MM.
+     */
+    if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(mesSelecionado)) {
+      return res.status(400).json({
+        erro: 'Mês inválido. Utilize o formato YYYY-MM.'
+      });
     }
 
-    if (data_fim) {
-      filtroData += ' AND data <= ?';
-      params.push(data_fim);
+    const anoSelecionado = Number(
+      mesSelecionado.substring(0, 4)
+    );
+
+    /**
+     * O seletor do Dashboard trabalha somente
+     * com os meses do ano corrente.
+     */
+    if (anoSelecionado !== anoAtual) {
+      return res.status(400).json({
+        erro: `É permitido consultar somente os meses do ano ${anoAtual}.`
+      });
     }
 
-    // =========================================================
-    // TOTAIS GERAIS
-    // =========================================================
+    const mesNumero = Number(
+      mesSelecionado.substring(5, 7)
+    );
+
+    const ultimoDia = new Date(
+      anoSelecionado,
+      mesNumero,
+      0
+    ).getDate();
+
+    const dataInicio =
+      `${mesSelecionado}-01`;
+
+    const dataFim =
+      `${mesSelecionado}-${String(ultimoDia).padStart(2, '0')}`;
+
+    // ---------------------------------------------------------
+    // Filtro do mês selecionado
+    // ---------------------------------------------------------
+
+    const filtroMes = `
+      AND data >= ?
+      AND data <= ?
+    `;
+
+    const paramsMes = [
+      dataInicio,
+      dataFim
+    ];
+
+    // ---------------------------------------------------------
+    // Totais de receitas do mês
+    // ---------------------------------------------------------
 
     const receitasResult = await dbGet(
-      `
-      SELECT
+      `SELECT
         COALESCE(SUM(valor), 0) AS total,
         COUNT(*) AS quantidade
-      FROM transactions
-      WHERE tipo = 'receita'
-      ${filtroData}
-      `,
-      params
+       FROM transactions
+       WHERE tipo = 'receita'
+       ${filtroMes}`,
+      paramsMes
     );
+
+    // ---------------------------------------------------------
+    // Totais de despesas do mês
+    // ---------------------------------------------------------
 
     const despesasResult = await dbGet(
-      `
-      SELECT
+      `SELECT
         COALESCE(SUM(valor), 0) AS total,
         COUNT(*) AS quantidade
-      FROM transactions
-      WHERE tipo = 'despesa'
-      ${filtroData}
-      `,
-      params
+       FROM transactions
+       WHERE tipo = 'despesa'
+       ${filtroMes}`,
+      paramsMes
     );
 
-    const totalReceitas =
-      Number(receitasResult?.total || 0);
+    const totalReceitas = Number(
+      receitasResult?.total || 0
+    );
 
-    const totalDespesas =
-      Number(despesasResult?.total || 0);
+    const totalDespesas = Number(
+      despesasResult?.total || 0
+    );
 
     const saldo =
       totalReceitas - totalDespesas;
 
-    // =========================================================
-    // RECEITAS POR CATEGORIA
-    // =========================================================
+    // ---------------------------------------------------------
+    // Receitas por categoria do mês selecionado
+    // ---------------------------------------------------------
 
     const receitasPorCategoria = await dbAll(
-      `
-      SELECT
+      `SELECT
         categoria,
-        COALESCE(SUM(valor), 0) AS total,
+        SUM(valor) AS total,
         COUNT(*) AS quantidade
-      FROM transactions
-      WHERE tipo = 'receita'
-      ${filtroData}
-      GROUP BY categoria
-      ORDER BY total DESC
-      `,
-      params
+       FROM transactions
+       WHERE tipo = 'receita'
+       ${filtroMes}
+       GROUP BY categoria
+       ORDER BY total DESC`,
+      paramsMes
     );
 
-    // =========================================================
-    // DESPESAS POR CATEGORIA
-    // =========================================================
+    // ---------------------------------------------------------
+    // Despesas por categoria do mês selecionado
+    // ---------------------------------------------------------
 
     const despesasPorCategoria = await dbAll(
-      `
-      SELECT
+      `SELECT
         categoria,
-        COALESCE(SUM(valor), 0) AS total,
+        SUM(valor) AS total,
         COUNT(*) AS quantidade
-      FROM transactions
-      WHERE tipo = 'despesa'
-      ${filtroData}
-      GROUP BY categoria
-      ORDER BY total DESC
-      `,
-      params
+       FROM transactions
+       WHERE tipo = 'despesa'
+       ${filtroMes}
+       GROUP BY categoria
+       ORDER BY total DESC`,
+      paramsMes
     );
 
-    // =========================================================
-    // RESUMO MENSAL
+    // ---------------------------------------------------------
+    // Resumo mensal
     //
-    // Cada parcela pertence ao seu próprio mês.
-    //
-    // Exemplo:
-    //
-    // 13/08/2026 = R$ 250
-    // 13/09/2026 = R$ 250
-    // 13/10/2026 = R$ 250
-    //
-    // Portanto:
-    //
-    // 2026-08 = R$ 250
-    // 2026-09 = R$ 250
-    // 2026-10 = R$ 250
-    // =========================================================
+    // Mantém todos os meses existentes no banco.
+    // Isso permite ao Dashboard continuar exibindo
+    // a evolução mensal.
+    // ---------------------------------------------------------
 
     const resumoMensal = await dbAll(
-      `
-      SELECT
+      `SELECT
         substr(data, 1, 7) AS mes,
 
-        COALESCE(
-          SUM(
-            CASE
-              WHEN tipo = 'receita'
-              THEN valor
-              ELSE 0
-            END
-          ),
-          0
+        SUM(
+          CASE
+            WHEN tipo = 'receita'
+            THEN valor
+            ELSE 0
+          END
         ) AS receitas,
 
-        COALESCE(
-          SUM(
-            CASE
-              WHEN tipo = 'despesa'
-              THEN valor
-              ELSE 0
-            END
-          ),
-          0
+        SUM(
+          CASE
+            WHEN tipo = 'despesa'
+            THEN valor
+            ELSE 0
+          END
         ) AS despesas,
 
-        COALESCE(
-          SUM(
-            CASE
-              WHEN tipo = 'receita'
-              THEN valor
+        SUM(
+          CASE
+            WHEN tipo = 'receita'
+            THEN valor
 
-              WHEN tipo = 'despesa'
-              THEN -valor
+            WHEN tipo = 'despesa'
+            THEN -valor
 
-              ELSE 0
-            END
-          ),
-          0
+            ELSE 0
+          END
         ) AS saldo,
 
         COUNT(*) AS quantidade
 
-      FROM transactions
+       FROM transactions
 
-      WHERE 1 = 1
-      ${filtroData}
+       GROUP BY substr(data, 1, 7)
 
-      GROUP BY substr(data, 1, 7)
-
-      ORDER BY mes ASC
-      `,
-      params
+       ORDER BY mes ASC`
     );
 
-    // =========================================================
-    // PARCELAMENTOS
-    //
-    // IMPORTANTE:
-    //
-    // A primeira parcela possui:
-    //
-    // transacao_original_id = NULL
-    //
-    // As demais possuem:
-    //
-    // transacao_original_id = ID da primeira parcela
-    //
-    // Por isso usamos:
-    //
-    // COALESCE(transacao_original_id, id)
-    //
-    // para identificar corretamente o parcelamento inteiro.
-    // =========================================================
+    // ---------------------------------------------------------
+    // Informações sobre parcelamentos
+    // ---------------------------------------------------------
 
     const parcelamentos = await dbAll(
-      `
-      SELECT
-        COALESCE(
-          transacao_original_id,
-          id
-        ) AS transacao_original_id,
-
+      `SELECT
+        transacao_original_id,
         categoria,
         descricao,
         tipo,
-
         valor,
-
         num_parcelas,
 
         COUNT(*) AS parcelas_geradas,
@@ -238,98 +241,107 @@ router.get('/', async (req, res) => {
 
         SUM(valor) AS valor_total
 
-      FROM transactions
+       FROM transactions
 
-      WHERE num_parcelas > 1
+       WHERE num_parcelas > 1
 
-      GROUP BY
-        COALESCE(
-          transacao_original_id,
-          id
-        ),
+       GROUP BY
+        transacao_original_id,
         categoria,
         descricao,
         tipo,
         valor,
         num_parcelas
 
-      ORDER BY primeira_data ASC
-      `
+       ORDER BY primeira_data ASC`
     );
 
-    // =========================================================
-    // PRÓXIMAS PARCELAS
-    //
-    // Retorna as parcelas individualmente.
-    //
-    // Exemplo:
-    //
-    // 1/3
-    // 2/3
-    // 3/3
-    // =========================================================
+    // ---------------------------------------------------------
+    // Próximas parcelas
+    // ---------------------------------------------------------
 
     const proximasParcelas = await dbAll(
-      `
-      SELECT
+      `SELECT
         id,
-
         tipo,
-
         categoria,
-
         descricao,
-
         valor,
-
         data,
-
         parcela_numero,
-
         num_parcelas,
-
         data_termino,
+        transacao_original_id
 
-        COALESCE(
-          transacao_original_id,
-          id
-        ) AS transacao_original_id
+       FROM transactions
 
-      FROM transactions
+       WHERE num_parcelas > 1
 
-      WHERE num_parcelas > 1
-
-      ORDER BY
-        data ASC,
-        parcela_numero ASC
-
-      LIMIT 100
-      `
+       ORDER BY data ASC`
     );
 
-    // =========================================================
-    // RESUMO DOS PARCELAMENTOS
-    // =========================================================
+    // ---------------------------------------------------------
+    // Parcelas do mês selecionado
+    // ---------------------------------------------------------
 
-    const totalParcelamentos =
-      parcelamentos.length;
+    const parcelasMesAtual = await dbAll(
+      `SELECT
+        id,
+        tipo,
+        categoria,
+        descricao,
+        valor,
+        data,
+        parcela_numero,
+        num_parcelas,
+        data_termino,
+        transacao_original_id
+
+       FROM transactions
+
+       WHERE num_parcelas > 1
+       AND data >= ?
+       AND data <= ?
+
+       ORDER BY data ASC, parcela_numero ASC`,
+      paramsMes
+    );
+
+    // ---------------------------------------------------------
+    // Totais dos parcelamentos
+    // ---------------------------------------------------------
+
+    const totalParcelamentos = parcelamentos.length;
 
     const valorTotalParcelamentos =
       parcelamentos.reduce(
-        (total, parcelamento) =>
-          total +
-          Number(parcelamento.valor_total || 0),
+        (total, item) =>
+          total + Number(item.valor_total || 0),
         0
       );
 
-    // =========================================================
-    // RESPOSTA
-    // =========================================================
+    // ---------------------------------------------------------
+    // Resposta
+    // ---------------------------------------------------------
 
-    return res.json({
+    res.json({
 
       // -------------------------------------------------------
-      // TOTAIS
+      // Mês selecionado
+      // -------------------------------------------------------
+
+      mesAtual,
+
+      mesSelecionado,
+
+      anoAtual,
+
+      dataInicio,
+
+      dataFim,
+
+      // -------------------------------------------------------
+      // Totais do mês selecionado
       // -------------------------------------------------------
 
       totalReceitas,
@@ -337,10 +349,6 @@ router.get('/', async (req, res) => {
       totalDespesas,
 
       saldo,
-
-      // -------------------------------------------------------
-      // QUANTIDADES
-      // -------------------------------------------------------
 
       quantidadeReceitas:
         Number(
@@ -353,7 +361,7 @@ router.get('/', async (req, res) => {
         ),
 
       // -------------------------------------------------------
-      // CATEGORIAS
+      // Categorias do mês selecionado
       // -------------------------------------------------------
 
       receitasPorCategoria,
@@ -361,13 +369,13 @@ router.get('/', async (req, res) => {
       despesasPorCategoria,
 
       // -------------------------------------------------------
-      // RESUMO MENSAL
+      // Resumo mensal geral
       // -------------------------------------------------------
 
       resumoMensal,
 
       // -------------------------------------------------------
-      // PARCELAMENTOS
+      // Parcelamentos
       // -------------------------------------------------------
 
       parcelamentos,
@@ -377,10 +385,17 @@ router.get('/', async (req, res) => {
       valorTotalParcelamentos,
 
       // -------------------------------------------------------
-      // PRÓXIMAS PARCELAS
+      // Próximas parcelas
       // -------------------------------------------------------
 
-      proximasParcelas
+      proximasParcelas,
+
+      // -------------------------------------------------------
+      // Parcelas do mês selecionado
+      // -------------------------------------------------------
+
+      parcelasMesAtual
+
     });
 
   } catch (erro) {
@@ -390,7 +405,7 @@ router.get('/', async (req, res) => {
       erro
     );
 
-    return res.status(500).json({
+    res.status(500).json({
       erro: 'Erro interno do servidor'
     });
   }
