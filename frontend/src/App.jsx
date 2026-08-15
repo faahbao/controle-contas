@@ -1,30 +1,32 @@
-import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Sidebar from './components/Sidebar';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import Login from './pages/Login';
+import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
-import Receitas from './pages/Receitas';
-import Despesas from './pages/Despesas';
-import Relatorios from './pages/Relatorios';
-import Exportar from './pages/Exportar';
-import './styles/App.css';
 
-function App() {
+function PrivateRoute({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return <div>Carregando...</div>;
+  return user ? children : <Navigate to="/login" />;
+}
+
+function AppRoutes() {
   return (
-    <Router>
-      <div className="app-container">
-        <Sidebar />
-        <main className="main-content">
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/receitas" element={<Receitas />} />
-            <Route path="/despesas" element={<Despesas />} />
-            <Route path="/relatorios" element={<Relatorios />} />
-            <Route path="/exportar" element={<Exportar />} />
-          </Routes>
-        </main>
-      </div>
-    </Router>
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+      <Route path="/" element={<Navigate to="/dashboard" />} />
+    </Routes>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </BrowserRouter>
+  );
+}
