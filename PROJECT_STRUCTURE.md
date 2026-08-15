@@ -1,802 +1,215 @@
-# 📋 Estrutura do Projeto - Guia Completo
+# Estrutura do Projeto
 
-## Visão Geral
+Visao detalhada da organizacao de arquivos e diretorios do projeto Controle de Contas.
 
-O **Controle de Contas Pessoais** é uma aplicação full-stack local para gerenciamento de receitas, despesas, categorias e transações recorrentes.
+## Visao Geral
 
-A aplicação é dividida em:
-
-* **Backend:** Node.js + Express + SQLite
-* **Frontend:** React + Vite
-* **Banco de dados:** SQLite
-* **Comunicação:** API REST utilizando Axios
-
----
-
-## 📁 Estrutura Atual do Projeto
-
-```text
+```
 controle-contas/
+├── backend/                 # API Node.js + TypeScript
+│   ├── src/                # Codigo fonte backend
+│   │   ├── controllers/    # Controladores de rotas
+│   │   ├── middleware/     # Middlewares (auth, validacao)
+│   │   ├── routes/         # Definicao de rotas
+│   │   ├── services/       # Logica de negocio
+│   │   ├── repositories/   # Acesso a dados
+│   │   └── index.ts        # Entry point
+│   ├── prisma/             # Schema e migrations Prisma
+│   │   └── schema.prisma   # Modelo de dados
+│   ├── .env.example        # Template de variaveis
+│   ├── .gitignore          # Ignorados do Git
+│   ├── package.json        # Dependencias backend
+│   ├── tsconfig.json       # Configuracao TypeScript
+│   └── .env                # Variaveis ambiente (nao commitar)
 │
-├── 📄 README.md
-├── 📄 quickstart.md
-├── 📄 project_structure.md
-├── 📄 .gitignore
-├── 📄 setup.bat
-├── 📄 setup.sh
+├── frontend/               # Aplicacao React + Vite
+│   ├── src/               # Codigo fonte frontend
+│   │   ├── components/    # Componentes React
+│   │   ├── pages/         # Paginas da aplicacao
+│   │   ├── services/      # Chamadas API
+│   │   ├── contexts/      # Contextos React
+│   │   ├── hooks/         # Hooks customizados
+│   │   ├── types/         # Tipos TypeScript
+│   │   ├── App.tsx        # Componente raiz
+│   │   └── main.tsx       # Entry point
+│   ├── public/            # Assets estaticos
+│   ├── .env.example       # Template de variaveis
+│   ├── index.html         # HTML base
+│   ├── package.json       # Dependencias frontend
+│   ├── tsconfig.json      # Configuracao TypeScript
+│   ├── vite.config.js     # Configuracao Vite
+│   ├── tailwind.config.js # Configuracao Tailwind
+│   └── .env               # Variaveis ambiente (nao commitar)
 │
-├── 📁 backend/
-│   ├── 📄 package.json
-│   ├── 📄 package-lock.json
-│   ├── 📄 .env
-│   ├── 📄 .env.example
-│   │
-│   └── 📁 src/
-│       ├── 📄 server.js
-│       ├── 📄 db.js
-│       │
-│       ├── 📁 controllers/
-│       │   ├── 📄 transacaoController.js
-│       │   └── 📄 transacaoController.backup.js
-│       │
-│       ├── 📁 routes/
-│       │   ├── 📄 transacao.js
-│       │   ├── 📄 categorias.js
-│       │   ├── 📄 dashboard.js
-│       │   ├── 📄 dashboard.backup.js
-│       │   └── 📄 export.js
-│       │
-│       ├── 📁 jobs/
-│       │   └── 📄 recurrenceJob.js
-│       │
-│       └── 📁 middleware/
-│
-├── 📁 frontend/
-│   ├── 📄 package.json
-│   ├── 📄 package-lock.json
-│   ├── 📄 .env
-│   ├── 📄 .env.example
-│   ├── 📄 index.html
-│   └── 📄 vite.config.js
-│
-│   └── 📁 src/
-│       ├── 📄 main.jsx
-│       ├── 📄 App.jsx
-│       │
-│       ├── 📁 components/
-│       │   ├── 📄 Sidebar.jsx
-│       │   ├── 📄 FormularioTransacao.jsx
-│       │   └── 📄 ListaTransacoes.jsx
-│       │
-│       ├── 📁 pages/
-│       │   ├── 📄 Dashboard.jsx
-│       │   ├── 📄 Receitas.jsx
-│       │   ├── 📄 Despesas.jsx
-│       │   ├── 📄 Relatorios.jsx
-│       │   └── 📄 Exportar.jsx
-│       │
-│       ├── 📁 services/
-│       │   └── 📄 api.js
-│       │
-│       ├── 📁 styles/
-│       │   ├── 📄 App.css
-│       │   ├── 📄 Sidebar.css
-│       │   ├── 📄 FormularioTransacao.css
-│       │   ├── 📄 ListaTransacoes.css
-│       │   ├── 📄 Dashboard.css
-│       │   ├── 📄 Receitas.css
-│       │   ├── 📄 Despesas.css
-│       │   ├── 📄 Relatorios.css
-│       │   └── 📄 Exportar.css
-│       │
-│       └── 📁 hooks/
-│
-└── 📄 database.sqlite
+├── .gitignore             # Ignorados do Git (raiz)
+├── README.md              # Documentacao principal
+├── QUICKSTART.md          # Guia rapido de inicio
+├── CHANGELOG.md           # Historico de versoes
+├── SUMMARY.md             # Resumo do projeto
+├── VISUAL_GUIDE.md        # Guia visual da interface
+├── UPDATES_V1.1.md        # Mudancas da versao 1.1
+├── setup.bat              # Script setup Windows
+├── setup.sh               # Script setup Linux/Mac
+├── start-all.bat          # Inicia tudo (Windows)
+├── start-backend.bat      # Inicia backend (Windows)
+└── start-frontend.bat     # Inicia frontend (Windows)
 ```
-
----
-
-# 🖥️ Backend
-
-O backend é responsável pela API REST, regras de negócio, banco de dados e geração automática das transações recorrentes.
-
-## `backend/src/server.js`
-
-Arquivo principal do servidor Express.
-
-Responsabilidades:
-
-* Inicializar o Express
-* Configurar CORS
-* Carregar variáveis de ambiente
-* Inicializar o banco SQLite
-* Registrar as rotas da API
-* Inicializar o job de recorrências
-* Disponibilizar o endpoint de Health Check
-
-Principais rotas:
-
-```text
-/api/receitas
-/api/despesas
-/api/categorias
-/api/dashboard
-/api/export
-/api/health
-```
-
----
-
-## `backend/src/db.js`
-
-Responsável pela conexão e inicialização do SQLite.
-
-Também disponibiliza funções auxiliares utilizadas pelo backend:
-
-```javascript
-dbRun()
-dbGet()
-dbAll()
-```
-
-O banco utilizado pela aplicação é:
-
-```text
-database.sqlite
-```
-
----
-
-# 🎯 Controllers
-
-## `backend/src/controllers/transacaoController.js`
-
-Contém a lógica relacionada às transações.
-
-Responsabilidades:
-
-* Criar transações
-* Listar transações
-* Obter uma transação
-* Atualizar transações
-* Excluir transações
-* Processar transações recorrentes
-* Processar parcelamentos
-* Validar dados recebidos pela API
-
----
-
-# 🛣️ Rotas
-
-## `backend/src/routes/transacao.js`
-
-Define as operações REST relacionadas às transações.
-
-```text
-POST   /
-GET    /
-GET    /:id
-PUT    /:id
-DELETE /:id
-```
-
-As rotas são utilizadas para receitas e despesas.
-
----
-
-## `backend/src/routes/categorias.js`
-
-Responsável pelo gerenciamento das categorias.
-
-### Listar categorias
-
-```text
-GET /api/categorias
-```
-
-Também permite filtrar pelo tipo:
-
-```text
-GET /api/categorias?tipo=receita
-GET /api/categorias?tipo=despesa
-```
-
-### Criar categoria
-
-```text
-POST /api/categorias
-```
-
-Exemplo:
-
-```json
-{
-  "tipo": "despesa",
-  "nome": "Mercado"
-}
-```
-
-### Editar categoria
-
-```text
-PUT /api/categorias/:id
-```
-
-Exemplo:
-
-```json
-{
-  "nome": "Supermercado"
-}
-```
-
-### Remover categoria
-
-```text
-DELETE /api/categorias/:id
-```
-
-A remoção é feita de forma lógica. A categoria permanece no banco, mas fica marcada como inativa.
-
----
-
-## `backend/src/routes/dashboard.js`
-
-Responsável pelos dados utilizados no Dashboard.
-
-Fornece informações como:
-
-* Total de receitas
-* Total de despesas
-* Saldo
-* Resumo financeiro
-* Dados agrupados por categoria
-* Filtros por período
-
-Endpoint:
-
-```text
-GET /api/dashboard
-```
-
----
-
-## `backend/src/routes/export.js`
-
-Responsável pela exportação dos dados.
-
-Endpoint:
-
-```text
-POST /api/export/csv
-```
-
----
-
-# 🔄 Jobs Automáticos
-
-## `backend/src/jobs/recurrenceJob.js`
-
-Responsável pelas transações recorrentes.
-
-O sistema verifica automaticamente as transações recorrentes e cria as próximas ocorrências.
-
-O job:
-
-* Executa imediatamente quando o backend inicia
-* É agendado diariamente
-* Verifica as recorrências do mês
-* Evita gerar a mesma recorrência duas vezes
-* Respeita o número de parcelas configurado
-* Registra as recorrências processadas
-
-Horário programado:
-
-```text
-00:01
-```
-
----
-
-# 🌐 Frontend
-
-O frontend utiliza:
-
-* React
-* React Router
-* Vite
-* Axios
-* Recharts
-
----
-
-# 🧩 Componentes
-
-## `Sidebar.jsx`
-
-Menu lateral da aplicação.
-
-Responsável pela navegação entre:
-
-* Dashboard
-* Receitas
-* Despesas
-* Relatórios
-* Exportação
-
----
-
-## `FormularioTransacao.jsx`
-
-Formulário reutilizável para cadastro de receitas e despesas.
-
-Possui suporte a:
-
-* Categoria
-* Descrição
-* Valor
-* Data
-* Recorrência
-* Parcelamento
-
----
-
-## `ListaTransacoes.jsx`
-
-Responsável pela exibição das transações.
-
-Permite:
-
-* Visualizar transações
-* Editar transações
-* Excluir transações
-* Salvar alterações
-
----
-
-# 📄 Páginas
-
-## `Dashboard.jsx`
-
-Página principal com visão geral das contas.
-
-Apresenta:
-
-* Receitas
-* Despesas
-* Saldo
-* Gráficos
-* Resumos financeiros
-
----
-
-## `Receitas.jsx`
-
-Gerenciamento das receitas.
-
-Possui:
-
-* Cadastro de receitas
-* Listagem
-* Filtros
-* Edição
-* Exclusão
-* Categorias personalizadas
-* Adição de categorias
-* Edição de categorias
-* Remoção de categorias
-
----
-
-## `Despesas.jsx`
-
-Gerenciamento das despesas.
-
-Possui:
-
-* Cadastro de despesas
-* Listagem
-* Filtros
-* Edição
-* Exclusão
-* Categorias personalizadas
-* Adição de categorias
-* Edição de categorias
-* Remoção de categorias
-
----
-
-## `Relatorios.jsx`
-
-Responsável pelos relatórios financeiros.
-
-Permite selecionar períodos e analisar as movimentações.
-
----
-
-## `Exportar.jsx`
-
-Responsável pela exportação dos dados em CSV.
-
----
-
-# 🔌 Serviço da API
-
-## `frontend/src/services/api.js`
-
-Centraliza a comunicação do React com o backend utilizando Axios.
-
-Principais funções:
-
-### Transações
-
-```javascript
-criarTransacao()
-listarTransacoes()
-obterTransacao()
-atualizarTransacao()
-deletarTransacao()
-```
-
-### Dashboard
-
-```javascript
-obterDashboard()
-```
-
-### Exportação
-
-```javascript
-exportarCSV()
-```
-
-### Categorias
-
-```javascript
-listarCategorias()
-criarCategoria()
-atualizarCategoria()
-removerCategoria()
-```
-
----
-
-# 🗄️ Banco de Dados
-
-O sistema utiliza SQLite através do arquivo:
-
-```text
-database.sqlite
-```
-
-O banco é criado automaticamente pelo backend.
-
-## Tabela `transactions`
-
-Armazena receitas e despesas.
-
-Principais campos:
-
-```text
-id
-tipo
-categoria
-descricao
-valor
-data
-recorrente
-periodo_recorrencia
-num_parcelas
-parcela_numero
-data_termino
-transacao_original_id
-ativo
-criado_em
-atualizado_em
-```
-
----
-
-## Tabela `categorias`
-
-Armazena as categorias utilizadas nas receitas e despesas.
-
-Campos principais:
-
-```text
-id
-tipo
-nome
-ativo
-criado_em
-atualizado_em
-```
-
-O campo `tipo` aceita:
-
-```text
-receita
-despesa
-```
-
-As categorias podem ser:
-
-* Criadas
-* Editadas
-* Removidas
-* Filtradas por tipo
-
-A remoção é lógica através do campo:
-
-```text
-ativo = 0
-```
-
----
-
-## Tabela `recurrence_log`
-
-Controla as recorrências já processadas.
-
-Campos:
-
-```text
-id
-transaction_id
-mes
-ano
-gerada_em
-```
-
-Existe uma restrição para evitar que a mesma transação seja gerada duas vezes para o mesmo mês.
-
----
-
-# 🔄 Fluxo da Aplicação
-
-```text
-                    ┌─────────────────────┐
-                    │      React/Vite     │
-                    │      Frontend       │
-                    └──────────┬──────────┘
-                               │
-                               │ Axios
-                               ▼
-                    ┌─────────────────────┐
-                    │    API REST         │
-                    │    Express.js       │
-                    └──────────┬──────────┘
-                               │
-                ┌──────────────┼──────────────┐
-                │              │              │
-                ▼              ▼              ▼
-          Transações       Categorias      Dashboard
-                │              │              │
-                └──────────────┼──────────────┘
-                               │
-                               ▼
-                    ┌─────────────────────┐
-                    │       SQLite        │
-                    │  database.sqlite    │
-                    └─────────────────────┘
-                               ▲
-                               │
-                    ┌──────────┴──────────┐
-                    │  recurrenceJob.js   │
-                    │ Recorrências mensais│
-                    └─────────────────────┘
-```
-
----
-
-# 🌐 Endpoints da API
-
-## Transações
-
-```text
-POST   /api/receitas
-GET    /api/receitas
-GET    /api/receitas/:id
-PUT    /api/receitas/:id
-DELETE /api/receitas/:id
-
-POST   /api/despesas
-GET    /api/despesas
-GET    /api/despesas/:id
-PUT    /api/despesas/:id
-DELETE /api/despesas/:id
-```
-
-## Categorias
-
-```text
-GET    /api/categorias
-POST   /api/categorias
-PUT    /api/categorias/:id
-DELETE /api/categorias/:id
-```
-
-## Dashboard
-
-```text
-GET    /api/dashboard
-```
-
-## Exportação
-
-```text
-POST   /api/export/csv
-```
-
-## Health Check
-
-```text
-GET    /api/health
-```
-
----
-
-# 🛠️ Tecnologias
 
 ## Backend
 
-| Tecnologia    | Utilização                   |
-| ------------- | ---------------------------- |
-| Node.js       | Runtime                      |
-| Express       | API REST                     |
-| SQLite3       | Banco de dados               |
-| node-schedule | Agendamento de recorrências  |
-| Axios         | Comunicação HTTP             |
-| CORS          | Comunicação frontend/backend |
-| dotenv        | Variáveis de ambiente        |
+### Tecnologias
+
+- **Node.js** 20+
+- **TypeScript**
+- **Express/Fastify** - Framework HTTP
+- **Prisma ORM** - ORM type-safe
+- **SQLite** - Banco de dados
+- **JWT** - Autenticacao
+- **bcryptjs** - Hash de senhas
+
+### Estrutura de Pastas
+
+```
+backend/src/
+├── controllers/     # Handlers de rotas HTTP
+├── middleware/      # Auth, validacao, error handling
+├── routes/          # Definicao de endpoints
+├── services/        # Regras de negocio
+├── repositories/    # Acesso ao banco de dados
+└── index.ts         # Configuracao e inicializacao
+```
+
+### Scripts Disponiveis
+
+```json
+{
+  "dev": "tsx watch src/index.ts",
+  "build": "tsc",
+  "start": "node dist/index.js",
+  "prisma:generate": "prisma generate",
+  "prisma:push": "prisma db push",
+  "prisma:studio": "prisma studio"
+}
+```
 
 ## Frontend
 
-| Tecnologia   | Utilização              |
-| ------------ | ----------------------- |
-| React 18     | Interface               |
-| Vite         | Desenvolvimento e build |
-| React Router | Navegação               |
-| Axios        | Comunicação com API     |
-| Recharts     | Gráficos                |
+### Tecnologias
 
----
+- **React** 18+
+- **TypeScript**
+- **Vite** - Build tool
+- **TailwindCSS** - Estilizacao
+- **React Router DOM** - Roteamento
+- **Axios** - Cliente HTTP
 
-# 📦 Dependências
+### Estrutura de Pastas
 
-As dependências são instaladas separadamente.
+```
+frontend/src/
+├── components/    # Componentes reutilizaveis
+├── pages/         # Componentes de pagina
+├── services/      # API client e chamadas
+├── contexts/      # Contextos React (auth, theme)
+├── hooks/         # Hooks customizados
+├── types/         # Tipos e interfaces TypeScript
+├── utils/         # Funcoes utilitarias
+├── App.tsx        # Componente raiz
+└── main.tsx       # Ponto de entrada
+```
 
-Backend:
+### Scripts Disponiveis
+
+```json
+{
+  "dev": "vite",
+  "build": "tsc && vite build",
+  "preview": "vite preview",
+  "lint": "eslint . --ext ts,tsx"
+}
+```
+
+## Fluxo de Dados
+
+```
+Usuario → Frontend (React) → API (Express) → Prisma → SQLite
+         ↑                                        ↓
+         └────────────── Resposta ────────────────┘
+```
+
+## Variaveis de Ambiente
+
+### Backend
+
+| Variavel | Descricao | Exemplo |
+|----------|-----------|---------|
+| DATABASE_URL | URL do banco SQLite | file:./dev.db |
+| JWT_SECRET | Chave secreta JWT | sua-chave-secreta |
+| PORT | Porta do servidor | 3000 |
+
+### Frontend
+
+| Variavel | Descricao | Exemplo |
+|----------|-----------|---------|
+| VITE_API_URL | URL da API backend | http://localhost:3000/api |
+
+## Comandos de Desenvolvimento
+
+### Iniciar projeto completo
+
+```bash
+# Windows
+start-all.bat
+
+# Linux/Mac (manual)
+cd backend && npm run dev &
+cd frontend && npm run dev
+```
+
+### Rodar separadamente
+
+```bash
+# Terminal 1 - Backend
+cd backend
+npm run dev
+
+# Terminal 2 - Frontend
+cd frontend
+npm run dev
+```
+
+## Banco de Dados
+
+### Resetar banco
 
 ```bash
 cd backend
-npm install
+npx prisma db push --force-reset
+npx prisma generate
 ```
 
-Frontend:
+### Visualizar dados
 
 ```bash
-cd frontend
-npm install
+cd backend
+npx prisma studio
 ```
 
-A pasta `node_modules` não deve ser versionada no Git.
+## Padroes de Codigo
+
+### Backend
+
+- Controllers: `userController.ts`
+- Services: `userService.ts`
+- Repositories: `userRepository.ts`
+- Middleware: `authMiddleware.ts`
+
+### Frontend
+
+- Componentes: `PascalCase.tsx` (ex: `UserList.tsx`)
+- Hooks: `useCamelCase.ts` (ex: `useAuth.ts`)
+- Utils: `camelCase.ts` (ex: `formatCurrency.ts`)
 
 ---
 
-# ▶️ Scripts
-
-## Backend
-
-```bash
-npm run dev
-```
-
-Executa o servidor em modo de desenvolvimento.
-
-```bash
-npm start
-```
-
-Executa o servidor normalmente.
-
----
-
-## Frontend
-
-```bash
-npm run dev
-```
-
-Inicia o servidor de desenvolvimento.
-
-```bash
-npm run build
-```
-
-Gera o build de produção.
-
-```bash
-npm run preview
-```
-
-Executa uma prévia do build.
-
----
-
-# 🔐 Segurança Atual
-
-O projeto atualmente é destinado ao uso local.
-
-Possui:
-
-* ✅ Validação básica dos dados
-* ✅ CORS
-* ✅ Banco local SQLite
-* ✅ API REST
-
-Ainda não possui:
-
-* ❌ Autenticação de usuários
-* ❌ JWT
-* ❌ HTTPS
-* ❌ Rate limiting
-* ❌ Controle multiusuário
-
----
-
-# 🚀 Melhorias Futuras
-
-Possíveis evoluções:
-
-* [ ] Autenticação de usuários
-* [ ] Controle multiusuário
-* [ ] Backup automático
-* [ ] Sincronização em nuvem
-* [ ] Aplicativo mobile
-* [ ] Notificações
-* [ ] Gráficos avançados
-* [ ] Integração bancária
-* [ ] Importação de extratos
-* [ ] Relatórios em PDF
-* [ ] Testes automatizados
-* [ ] Deploy em servidor
-
----
-
-# ✅ Status Atual
-
-* [x] Backend Express configurado
-* [x] Banco SQLite configurado
-* [x] CRUD de receitas
-* [x] CRUD de despesas
-* [x] Dashboard
-* [x] Relatórios
-* [x] Exportação CSV
-* [x] Transações recorrentes
-* [x] Parcelamento de transações
-* [x] CRUD de categorias
-* [x] Adição de categorias pela interface
-* [x] Edição de categorias pela interface
-* [x] Remoção de categorias pela interface
-* [x] Filtros por categoria
-* [x] Documentação do projeto
-* [ ] Testes automatizados
-* [ ] Autenticação
-* [ ] Deploy
-
----
-
-## 📚 Documentação Relacionada
-
-Para entender e executar o projeto:
-
-* `README.md` — documentação geral
-* `quickstart.md` — guia rápido para executar o sistema
-* `project_structure.md` — estrutura técnica do projeto
-
----
-
-**Projeto Controle de Contas Pessoais**
-
-Criado em 2026 para gerenciamento pessoal de receitas e despesas.
+Para mais detalhes, consulte [README.md](./README.md)
