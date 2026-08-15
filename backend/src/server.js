@@ -1,50 +1,57 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import { initializeDatabase } from './db.js';
-import { iniciarJobRecorrencia } from './jobs/recurrenceJob.js';
-import transacaoRoutes from './routes/transacao.js';
-import dashboardRoutes from './routes/dashboard.js';
-import exportRoutes from './routes/export.js';
-import categoriasRoutes from './routes/categorias.js';
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
 
-dotenv.config();
+const db = require('./db');
+const authRoutes = require('./routes/auth');
+const transacaoRoutes = require('./routes/transacao');
+const categoriasRoutes = require('./routes/categorias');
+const dashboardRoutes = require('./routes/dashboard');
+const exportRoutes = require('./routes/export');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
-// Middleware
+// Middlewares
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Rotas
-app.use('/api/receitas', transacaoRoutes);
-app.use('/api/despesas', transacaoRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/transacoes', transacaoRoutes);
+app.use('/api/categorias', categoriasRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/export', exportRoutes);
-app.use('/api/categorias', categoriasRoutes);
 
 // Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', message: 'API funcionando' });
 });
 
-// Inicializar banco e iniciar servidor
-const iniciarServidor = async () => {
-  try {
-    await initializeDatabase();
-    console.log('✅ Banco de dados inicializado');
+// 404
+app.use((req, res) => {
+  res.status(404).json({ error: 'Rota nao encontrada' });
+});
 
-    // Iniciar job de recorrências
-    iniciarJobRecorrencia();
+// Error handler
+app.use((err, req, res, next) => {
+  console.error('Erro:', err);
+  res.status(500).json({ error: 'Erro interno do servidor' });
+});
 
-    app.listen(PORT, () => {
-      console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
-    });
-  } catch (erro) {
-    console.error('❌ Erro ao inicializar servidor:', erro);
-    process.exit(1);
-  }
-};
+// Inicia servidor
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
+  console.log(`📝 API endpoints:`);
+  console.log(`   - POST /api/auth/register`);
+  console.log(`   - POST /api/auth/login`);
+  console.log(`   - GET  /api/auth/me`);
+  console.log(`   - GET  /api/transacoes`);
+  console.log(`   - POST /api/transacoes`);
+  console.log(`   - GET  /api/categorias`);
+  console.log(`   - POST /api/categorias`);
+  console.log(`   - GET  /api/dashboard`);
+});
 
-iniciarServidor();
+module.exports = app;
