@@ -40,18 +40,29 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Erro interno do servidor' });
 });
 
-// Inicia servidor
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
-  console.log(`📝 API endpoints:`);
-  console.log(`   - POST /api/auth/register`);
-  console.log(`   - POST /api/auth/login`);
-  console.log(`   - GET  /api/auth/me`);
-  console.log(`   - GET  /api/transacoes`);
-  console.log(`   - POST /api/transacoes`);
-  console.log(`   - GET  /api/categorias`);
-  console.log(`   - POST /api/categorias`);
-  console.log(`   - GET  /api/dashboard`);
-});
+// Inicializa banco e depois inicia servidor
+async function startServer() {
+  try {
+    await db.initializeDatabase();
+    
+    app.listen(PORT, () => {
+      console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
+      console.log(`📝 API endpoints:`);
+      console.log(`   - POST /api/auth/register`);
+      console.log(`   - POST /api/auth/login`);
+      console.log(`   - GET  /api/auth/me (requer token)`);
+      console.log(`   - GET  /api/transacoes`);
+      console.log(`   - POST /api/transacoes`);
+      console.log(`   - GET  /api/categorias`);
+      console.log(`   - POST /api/categorias`);
+      console.log(`   - GET  /api/dashboard`);
+    });
+  } catch (err) {
+    console.error('❌ Erro ao inicializar banco de dados:', err);
+    process.exit(1);
+  }
+}
+
+startServer();
 
 module.exports = app;
