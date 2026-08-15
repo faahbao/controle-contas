@@ -1,179 +1,72 @@
-# Controle de Contas Pessoais
+# 💰 Sistema de Controle Financeiro
 
-Sistema completo de controle financeiro pessoal com backend em Node.js e frontend em React.
+Sistema completo de controle financeiro com autenticaçª£o, transaçªµes recorrentes parceladas, dashboard interativo e geraçª£o de relatÆ¢rios em PDF.
 
-![Versao](https://img.shields.io/badge/versao-1.1.0-blue)
-![Node](https://img.shields.io/badge/Node.js-20+-green)
-![React](https://img.shields.io/badge/React-18+-blue)
-![TypeScript](https://img.shields.io/badge/TypeScript-5+-blue)
+## 🚀 Funcionalidades
 
-## Sobre
+- ✅ **Autenticaçª£o JWT** - Login seguro com tokens
+- ✅ **Transaçªµes** - Receitas e despesas com categorias
+- ✅ **Recorrente com Parcelas** - Lance uma vez, aparece em todos os meses
+- ✅ **Dashboard** - GrÆ¢ficos de receitas vs despesas
+- ✅ **Filtros** - Por mŒs e ano
+- ✅ **RelatÆ¢rio PDF** - Exporte seus dados
+- ✅ **Categorias** - Personalize suas categorias
 
-O **Controle de Contas** e uma aplicacao fullstack para gerenciamento de financas pessoais, permitindo o controle de receitas, despesas, categorias e visualizacao de relatorios financeiros.
-
-## Funcionalidades
-
-- Cadastro de receitas e despesas
-- Organizacao por categorias
-- Dashboard com resumo financeiro
-- Historico de transacoes
-- Autenticacao com JWT
-- Interface responsiva
-- Banco de dados SQLite
-
-## Tecnologias
+## 🛠️ Tecnologias
 
 ### Backend
-- Node.js 20+
-- TypeScript
-- Express / Fastify
+- Node.js + Express
 - Prisma ORM
-- SQLite
-- JWT (autenticacao)
-- bcryptjs (hash de senhas)
+- PostgreSQL
+- JWT para autenticaçª£o
 
 ### Frontend
-- React 18+
-- TypeScript
-- Vite
-- TailwindCSS
-- React Router DOM
+- React
+- CSS3
 - Axios
 
-## Estrutura do Projeto
+## 📦 Instalaçª£o
 
-```
-controle-contas/
-├── backend/
-│   ├── src/
-│   ├── .env.example
-│   ├── package.json
-│   └── prisma/
-├── frontend/
-│   ├── src/
-│   ├── .env.example
-│   ├── package.json
-│   └── index.html
-├── README.md
-├── QUICKSTART.md
-├── PROJECT_STRUCTURE.md
-├── CHANGELOG.md
-├── setup.bat / setup.sh
-└── start-all.bat
-```
-
-## Pre-requisitos
-
-- Node.js 20+
-- npm ou yarn
-- Git
-
-## Instalacao
-
-### Opcao 1: Script Automatico (Windows)
-
+### Backend
 ```bash
-git clone https://github.com/faahbao/controle-contas.git
-cd controle-contas
-setup.bat
-```
-
-### Opcao 2: Script Automatico (Linux/Mac)
-
-```bash
-git clone https://github.com/faahbao/controle-contas.git
-cd controle-contas
-chmod +x setup.sh
-./setup.sh
-```
-
-### Opcao 3: Instalacao Manual
-
-```bash
-git clone https://github.com/faahbao/controle-contas.git
-cd controle-contas
-
-# Backend
 cd backend
 npm install
-cp .env.example .env
-
-# Frontend
-cd ../frontend
-npm install
-cp .env.example .env
-```
-
-## Configuracao
-
-### Backend (.env)
-
-```env
-DATABASE_URL="file:./dev.db"
-JWT_SECRET="sua-chave-secreta-aqui"
-PORT=3000
-```
-
-### Frontend (.env)
-
-```env
-VITE_API_URL=http://localhost:3000/api
-```
-
-## Como Rodar
-
-### Iniciar tudo (Windows)
-
-```bash
-start-all.bat
-```
-
-### Iniciar separadamente
-
-```bash
-# Terminal 1 - Backend
-cd backend
+npx prisma migrate dev
 npm run dev
+```
 
-# Terminal 2 - Frontend
+### Frontend
+```bash
 cd frontend
+npm install
 npm run dev
 ```
 
-O frontend estara disponivel em `http://localhost:5173`
+## 📖 Documentaçª£o Completa
 
-## API Endpoints
+- [BACKEND.md](./BACKEND.md) - Detalhes do backend
+- [FRONTEND.md](./FRONTEND.md) - Detalhes do frontend
+- [FEATURES.md](./FEATURES.md) - Todas as funcionalidades
+- [API.md](./API.md) - Documentaçª£o da API
+- [INSTALL.md](./INSTALL.md) - Guia de instalaçª£o
 
-| Metodo | Endpoint | Descricao |
-|--------|----------|-----------|
-| POST | /api/auth/register | Registrar novo usuario |
-| POST | /api/auth/login | Login |
-| GET | /api/transactions | Listar transacoes |
-| POST | /api/transactions | Criar transacao |
-| PUT | /api/transactions/:id | Atualizar transacao |
-| DELETE | /api/transactions/:id | Deletar transacao |
-| GET | /api/categories | Listar categorias |
+## 👨‍💻 Como usar
 
-## Documentacao Adicional
+1. Façª£o login ou cadastre-se
+2. Adicione transaçªµes (receitas/despesas)
+3. Para recorrentes: marque "Recorrente?" e informe as parcelas
+4. Filtre por mŒs para ver o que vence em cada perÆ¢odo
+5. Gere relatÆ¢rios em PDF
 
-- [QUICKSTART.md](./QUICKSTART.md) - Guia rapido de inicio
-- [PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md) - Estrutura detalhada do projeto
-- [CHANGELOG.md](./CHANGELOG.md) - Historico de versoes
-- [VISUAL_GUIDE.md](./VISUAL_GUIDE.md) - Guia visual da interface
-- [SUMMARY.md](./SUMMARY.md) - Resumo do projeto
+## 📝 Exemplo: Transaçª£o Recorrente
 
-## Contribuicao
+Ao lançª§ar "Aluguel" de R$ 1.000 em 5 parcelas:
+- MŒs 1: Aluguel (1/5)
+- MŒs 2: Aluguel (2/5)
+- MŒs 3: Aluguel (3/5)
+- MŒs 4: Aluguel (4/5)
+- MŒs 5: Aluguel (5/5)
 
-1. Faca um fork do projeto
-2. Crie uma branch para sua feature
-3. Commit suas mudancas
-4. Push para a branch
-5. Abra um Pull Request
-
-## Licenca
+## 📄 Licençª§a
 
 MIT
-
----
-
-Desenvolvido por faahbao
