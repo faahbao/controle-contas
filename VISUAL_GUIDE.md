@@ -1,256 +1,95 @@
-# 🎮 Guia Visual de Navegação
+# Guia Visual da Interface
 
-## Interface Principal
+Referencia visual dos componentes e telas da aplicacao.
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                      💰 Controle de Contas                          │
-├──────────────┬──────────────────────────────────────────────────────┤
-│              │                                                       │
-│  📊 Dashboard│  [Página Inicial - Mostra Saldo e Gráficos]        │
-│              │                                                       │
-│  💵 Receitas │  [Gerenciar Receitas]                               │
-│              │  • Formulário para adicionar receita                │
-│  💸 Despesas │  • Filtros por categoria e recorrência             │
-│              │  • Tabela com todas as receitas                    │
-│ 📈 Relatórios│                                                      │
-│              │  [Gerenciar Despesas]                               │
-│ 📥 Exportar  │  • Formulário para adicionar despesa               │
-│              │  • 10 categorias pré-configuradas                  │
-│              │  • Filtros por categoria e recorrência             │
-│              │  • Tabela com todas as despesas                    │
-│              │                                                       │
-│              │  [Relatórios]                                        │
-│              │  • Selecione data início e fim                     │
-│              │  • Visualize resumo de receitas/despesas           │
-│              │  • Tabelas com detalhes de transações             │
-│              │                                                       │
-│              │  [Exportar]                                          │
-│              │  • Configure filtros (opcional)                    │
-│              │  • Exporte em CSV para Excel/Sheets                │
-│              │  • Arquivo é baixado localmente                    │
-│              │                                                       │
-└──────────────┴──────────────────────────────────────────────────────┘
-```
+## Telas Principais
 
-## Fluxo de Uso Típico
+### 1. Login
+- Campo de email
+- Campo de senha
+- Botao "Entrar"
+- Link "Registrar-se"
 
-### Cenário 1: Adicionar uma Receita (Salário)
+### 2. Registro
+- Campo de nome
+- Campo de email
+- Campo de senha
+- Campo de confirmacao de senha
+- Botao "Criar conta"
 
-```
-1. Clique em "💵 Receitas" no menu lateral
-2. Você vê um formulário:
-   ┌─ FORMULÁRIO RECEITA ────────────┐
-   │ Categoria: [Salário ▼]         │
-   │ Descrição: [Salário Agosto...]  │
-   │ Valor (R$): [5000.00]           │
-   │ Data: [2026-08-13]              │
-   │ ☐ Recorrente (mensal)           │
-   │ [Adicionar]                     │
-   └─────────────────────────────────┘
-3. Preencha os campos
-4. Marque "Recorrente" se repete todo mês
-5. Clique em "Adicionar"
-6. Pronto! A receita aparece na tabela abaixo
-```
+### 3. Dashboard
+- Cards de resumo (Receitas, Despesas, Saldo)
+- Grafico de distribuicao por categoria
+- Lista de transacoes recentes
+- Botao "Nova Transacao"
 
-### Cenário 2: Adicionar uma Despesa (Cartão)
+### 4. Transacoes
+- Lista filtravel de transacoes
+- Filtros por periodo e categoria
+- Indicadores de receita (verde) e despesa (vermelho)
+- Acoes de editar e excluir
 
-```
-1. Clique em "💸 Despesas" no menu lateral
-2. Você vê um formulário:
-   ┌─ FORMULÁRIO DESPESA ────────────┐
-   │ Categoria: [Cartão Itau ▼]     │
-   │ Descrição: [Compra supermercado]│
-   │ Valor (R$): [125.50]            │
-   │ Data: [2026-08-13]              │
-   │ ☐ Recorrente (mensal)           │
-   │ [Adicionar]                     │
-   └─────────────────────────────────┘
-3. Preencha os campos
-4. Selecione uma das 10 categorias
-5. Clique em "Adicionar"
-6. A despesa aparece na tabela abaixo
-```
+### 5. Nova Transacao
+- Campo de descricao
+- Campo de valor
+- Seletor de tipo (Receita/Despesa)
+- Seletor de categoria
+- Seletor de data
+- Botao "Salvar"
 
-### Cenário 3: Visualizar Dashboard
+### 6. Categorias
+- Lista de categorias cadastradas
+- Indicador de cor por categoria
+- Botao "Nova Categoria"
+- Acoes de editar e excluir
 
-```
-1. Clique em "📊 Dashboard" no menu
-2. Você verá 3 cards:
-   ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
-   │  Receitas    │  │  Despesas    │  │    Saldo     │
-   │  R$ 5000.00  │  │  R$ 2500.00  │  │  R$ 2500.00  │
-   │  (verde)     │  │  (vermelho)  │  │  (azul/verde)│
-   └──────────────┘  └──────────────┘  └──────────────┘
+## Paleta de Cores
 
-3. E 2 gráficos:
-   ┌─ Receitas vs Despesas ─┐   ┌─ Receitas por Categoria ─┐
-   │    Pizza Chart         │   │    Bar Chart             │
-   │    Verde=Receitas      │   │    Salário: R$5000       │
-   │    Vermelho=Despesas   │   │    Outros: R$0           │
-   └────────────────────────┘   └──────────────────────────┘
-```
+### Cores Principais
 
-### Cenário 4: Editar uma Transação
+| Uso | Cor | Hex |
+|-----|-----|-----|
+| Primaria | Azul | #3B82F6 |
+| Sucesso | Verde | #10B981 |
+| Perigo | Vermelho | #EF4444 |
+| Aviso | Amarelo | #F59E0B |
 
-```
-1. Na tabela de transações, clique no ícone ✎ (editar)
-2. A linha se torna editável:
-   ┌────────┬───────────┬──────────┬────────┬────────────┐
-   │ Data   │ Categoria │ Descrição│ Valor  │ Ações      │
-   ├────────┼───────────┼──────────┼────────┼────────────┤
-   │[2026...│[Salário..│[Salário.│[5100..│[✓] [✕]    │ ← Editável
-   └────────┴───────────┴──────────┴────────┴────────────┘
-3. Faça as alterações nos campos
-4. Clique em ✓ para salvar ou ✕ para cancelar
-```
+### Cores de Fundo
 
-### Cenário 5: Deletar uma Transação
+| Elemento | Cor |
+|----------|-----|
+| Fundo principal | #F3F4F6 |
+| Cards | #FFFFFF |
+| Sidebar | #1F2937 |
 
-```
-1. Na tabela de transações, clique no ícone 🗑 (deletar)
-2. Sistema pede confirmação:
-   ┌─────────────────────────────────┐
-   │ Tem certeza que deseja deletar?  │
-   │ [OK] [Cancelar]                │
-   └─────────────────────────────────┘
-3. Clique "OK" para confirmar
-4. A transação é removida do banco de dados
-```
+## Componentes
 
-### Cenário 6: Filtrar Transações
+### Cards
+- Bordas arredondadas (rounded-lg)
+- Sombra suave (shadow-md)
+- Padding generoso (p-6)
 
-```
-1. Na página de Receitas ou Despesas, você vê filtros:
-   ┌──────────────────────────────────┐
-   │ [Todas as categorias ▼]          │
-   │ [Todas ▼]  (recorrência)         │
-   └──────────────────────────────────┘
+### Botoes
+- Primario: Azul com hover mais escuro
+- Secundario: Cinza com borda
+- Perigo: Vermelho para acoes destrutivas
 
-2. Selecione uma categoria → lista atualiza automaticamente
-3. Selecione "Apenas recorrentes" → mostra só recorrências
-4. Limpe para ver tudo de novo
-```
+### Inputs
+- Borda cinza clara
+- Focus com anel azul
+- Mensagens de erro em vermelho
 
-### Cenário 7: Gerar Relatório
+## Responsividade
 
-```
-1. Clique em "📈 Relatórios" no menu
-2. Configure o período:
-   ┌────────────────────────────────┐
-   │ Data Início: [2026-08-01]     │
-   │ Data Fim:    [2026-08-31]     │
-   │ [Gerar Relatório]             │
-   └────────────────────────────────┘
+- **Desktop:** Layout completo com sidebar
+- **Tablet:** Sidebar colapsavel
+- **Mobile:** Menu hamburger e cards empilhados
 
-3. Você verá:
-   ┌──────────┐  ┌──────────┐  ┌──────────┐
-   │Receitas  │  │Despesas  │  │ Saldo    │
-   │5 trans.  │  │12 trans. │  │-         │
-   └──────────┘  └──────────┘  └──────────┘
+## Iconografia
 
-4. E tabelas com detalhamento completo:
-   ┌─────────────────────────────────────────┐
-   │ Receitas Detalhadas                     │
-   ├─────┬──────────┬────────┬────────────┤
-   │Data │Categoria │Desc.   │Valor       │
-   │01/08│Salário   │Agosto  │R$5000.00   │
-   └─────┴──────────┴────────┴────────────┘
-```
-
-### Cenário 8: Exportar em CSV
-
-```
-1. Clique em "📥 Exportar" no menu
-2. Configure filtros (opcional):
-   ┌──────────────────────────┐
-   │ Tipo: [Ambos ▼]         │
-   │ Categoria: [_____]      │
-   │ Data Início: [____]     │
-   │ Data Fim: [____]        │
-   │ Recorrência: [Ambas ▼]  │
-   └──────────────────────────┘
-
-3. Clique em "📥 Exportar CSV"
-4. Arquivo "transacoes-2026-08-13.csv" é baixado
-5. Abra no Excel ou Google Sheets
-```
-
-## Elementos de Interface
-
-### Ícones Usados
-```
-💰  - Título do app
-📊  - Dashboard
-💵  - Receitas (positivo)
-💸  - Despesas (negativo)
-📈  - Relatórios
-📥  - Exportar
-✎   - Editar transação
-🗑   - Deletar transação
-✓   - Confirmar/Salvar
-✕   - Cancelar/Fechar
-🔄  - Recarregar/Reset
-```
-
-### Cores
-```
-Verde (#10b981)     → Receitas / Positivo / Sucesso
-Vermelho (#ef4444)  → Despesas / Negativo / Erro
-Azul (#2563eb)      → Ações / Links / Primário
-Cinza (#6b7280)     → Secundário / Desabilitado
-Laranja (#f59e0b)   → Aviso
-```
-
-### Estados dos Campos
-```
-Normal          → Borda cinza, fundo branco
-Foco (digitando)→ Borda azul, sombra azul leve
-Erro            → Borda vermelha, fundo rosa claro
-Desabilitado    → Fundo cinzento, cursor "não-permitido"
-```
-
-## Atalhos de Teclado (Sugestões)
-
-```
-Tab              → Navegar entre campos
-Enter            → Enviar formulário
-Escape           → Fechar modal/cancelar
-F5               → Recarregar página
-Ctrl+S           → Salvar (futura melhoria)
-```
-
-## Fluxo de Dados
-
-```
-Usuário interage com UI (React)
-         ↓
-    Form é validado
-         ↓
-    Axios envia requisição HTTP
-         ↓
-    Backend (Express) processa
-         ↓
-    SQLite armazena dados
-         ↓
-    Backend responde com JSON
-         ↓
-    React atualiza a tela
-         ↓
-Usuário vê resultado
-```
-
-## Dicas de Uso
-
-✅ **Faça**: Marcar transações recorrentes como "Recorrente"
-✅ **Faça**: Usar nomes descritivos nas despesas
-✅ **Faça**: Exportar dados mensalmente para backup
-
-❌ **Evite**: Deletar transações antigas sem exportar antes
-❌ **Evite**: Deixar descrição vazia (fica difícil lembrar)
-❌ **Evite**: Erros de digitação em categorias
+- **Biblioteca:** Heroicons ou Lucide
+- **Estilo:** Outline para navegacao, Solid para acoes
 
 ---
 
-Aproveite o seu sistema de controle de contas! 🚀💰
+Para mais detalhes tecnicos, consulte [PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md)
