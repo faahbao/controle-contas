@@ -1,192 +1,668 @@
 # 💰 Controle de Contas Pessoais
 
-Sistema local full-stack para gerenciar receitas e despesas pessoais com suporte a transações recorrentes, filtros avançados, relatórios e exportação em CSV.
+Sistema local full-stack para gerenciamento de receitas e despesas pessoais.
+
+O sistema permite cadastrar receitas e despesas, controlar transações recorrentes e parceladas, acompanhar o saldo através de um dashboard, gerenciar categorias e exportar os dados para CSV.
+
+---
 
 ## 🎯 Funcionalidades
 
-- ✅ Cadastro de receitas (Salário, Outros) e despesas (10 categorias predefinidas)
-- ✅ Marcação de transações recorrentes (geração automática mensal)
-- ✅ Dashboard com saldo total e gráficos
-- ✅ Filtros por tipo, categoria, período e recorrência
-- ✅ Edição e exclusão de transações
-- ✅ Relatórios detalhados por período
-- ✅ Exportação em CSV
-- ✅ Persistência em SQLite (local, sem internet necessário)
+### 💰 Receitas
 
-## 🏗️ Arquitetura
+* Cadastro de receitas.
+* Categorias personalizáveis.
+* Categorias iniciais:
 
-```
+  * Adiantamento
+  * Salário
+  * Outras rendas
+* Adicionar novas categorias.
+* Editar categorias existentes.
+* Remover categorias.
+* Filtro por categoria.
+* Filtro por transações recorrentes.
+
+### 💸 Despesas
+
+* Cadastro de despesas.
+* Categorias personalizáveis.
+* Categorias iniciais:
+
+  * Cartão Itau
+  * Cartão PicPay
+  * Cartão Mercado Pago
+  * Vivo Internet
+  * Vivo Celular Mãe
+  * Empréstimo Shopee
+  * Empréstimo MP
+  * Empréstimo Itau
+  * Empréstimo PicPay
+  * Cartão Pai
+* Adicionar novas categorias.
+* Editar categorias existentes.
+* Remover categorias.
+* Filtro por categoria.
+* Filtro por transações recorrentes.
+
+### 🔄 Transações recorrentes
+
+* Cadastro de receitas e despesas recorrentes.
+* Recorrência mensal.
+* Geração automática das próximas ocorrências.
+* Job automático executado diariamente às 00:01.
+* Registro das recorrências já processadas para evitar duplicidade.
+
+### 🧾 Parcelamento
+
+* Cadastro de transações parceladas.
+* Definição da quantidade de parcelas.
+* Controle do número da parcela.
+* Identificação da transação original.
+* Data de término do parcelamento.
+* Geração automática das parcelas conforme configuração.
+
+### 📊 Dashboard
+
+O dashboard apresenta uma visão geral das finanças.
+
+* Total de receitas.
+* Total de despesas.
+* Saldo.
+* Gráfico de receitas x despesas.
+* Receitas por categoria.
+* Despesas por categoria.
+* **Seletor de mês do ano corrente.**
+* Visualização dos valores referentes ao mês selecionado.
+* Visualização das parcelas correspondentes ao mês selecionado.
+
+### 📋 Transações
+
+* Listagem de transações.
+* Cadastro.
+* Edição.
+* Exclusão.
+* Filtros por categoria.
+* Filtros por recorrência.
+* Paginação.
+* Controle de receitas e despesas.
+
+### 📤 Exportação
+
+* Exportação das transações para CSV.
+* Aplicação de filtros na exportação.
+
+### 🗄️ Banco de dados
+
+* SQLite.
+* Banco criado automaticamente.
+* Migrações automáticas do schema.
+* Sem necessidade de servidor de banco externo.
+
+---
+
+# 🏗️ Arquitetura
+
+```text
 controle-contas/
-├── backend/                (Node.js + Express)
+│
+├── backend/                         # Node.js + Express
+│   │
 │   ├── src/
-│   │   ├── db.js           (Inicialização SQLite)
-│   │   ├── server.js       (Servidor Express)
-│   │   ├── controllers/    (Lógica de negócio)
-│   │   ├── routes/         (Rotas REST)
-│   │   ├── jobs/           (Jobs agendados)
-│   │   └── middleware/
+│   │   ├── controllers/             # Regras de negócio
+│   │   ├── jobs/                    # Jobs automáticos
+│   │   ├── middleware/              # Middlewares
+│   │   ├── models/                  # Modelos
+│   │   ├── routes/                  # Rotas REST
+│   │   │   ├── categorias.js
+│   │   │   ├── dashboard.js
+│   │   │   ├── export.js
+│   │   │   └── transacao.js
+│   │   │
+│   │   ├── db.js                    # SQLite e migrações
+│   │   └── server.js                # Servidor Express
+│   │
 │   ├── package.json
 │   └── .env.example
 │
-├── frontend/               (React + Vite)
+├── frontend/                        # React + Vite
+│   │
 │   ├── src/
-│   │   ├── components/     (Componentes reutilizáveis)
-│   │   ├── pages/          (Páginas principais)
-│   │   ├── services/       (Cliente HTTP)
-│   │   ├── styles/         (CSS)
+│   │   ├── components/              # Componentes reutilizáveis
+│   │   ├── pages/                   # Páginas
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── Despesas.jsx
+│   │   │   ├── Receitas.jsx
+│   │   │   └── Exportar.jsx
+│   │   │
+│   │   ├── services/
+│   │   │   └── api.js               # Comunicação com backend
+│   │   │
+│   │   ├── styles/                  # Arquivos CSS
 │   │   ├── App.jsx
 │   │   └── main.jsx
+│   │
 │   ├── index.html
 │   ├── package.json
 │   ├── vite.config.js
 │   └── .env.example
 │
-├── database.sqlite         (Banco de dados local)
-└── .gitignore
+├── database.sqlite                   # Banco local
+├── .gitignore
+└── README.md
 ```
 
-## 🚀 Como Rodar
+---
 
-### Pré-requisitos
+# 🚀 Como executar
 
-- Node.js 16+ e npm (ou yarn)
-- SQLite3 (geralmente já vem instalado)
+## Pré-requisitos
 
-### Backend
+* Node.js 16 ou superior.
+* npm.
+* SQLite3 é utilizado pelo projeto através da dependência do Node.js.
 
-```bash
-# Entre na pasta backend
-cd backend
+---
 
-# Copie o arquivo .env
-cp .env.example .env
+## Backend
 
-# Instale as dependências
-npm install
+Abra um terminal:
 
-# Inicie o servidor (desenvolvimento)
-npm run dev
-
-# Ou em produção
-npm start
+```powershell
+cd D:\Projetos\controle-contas\backend
 ```
 
-O backend estará rodando em `http://localhost:5000`
+Instale as dependências:
 
-### Frontend
-
-```bash
-# Em outro terminal, entre na pasta frontend
-cd frontend
-
-# Copie o arquivo .env
-cp .env.example .env
-
-# Instale as dependências
+```powershell
 npm install
+```
 
-# Inicie o servidor de desenvolvimento
+Configure o `.env` caso necessário:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Inicie o backend em modo desenvolvimento:
+
+```powershell
 npm run dev
 ```
 
-O frontend estará em `http://localhost:3000` (abre automaticamente no navegador)
+O backend ficará disponível em:
 
-## 📊 Categorias Predefinidas
+```text
+http://localhost:5000
+```
+
+O endpoint de verificação está disponível em:
+
+```text
+http://localhost:5000/api/health
+```
+
+---
+
+## Frontend
+
+Abra outro terminal:
+
+```powershell
+cd D:\Projetos\controle-contas\frontend
+```
+
+Instale as dependências:
+
+```powershell
+npm install
+```
+
+Configure o `.env` caso necessário:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Inicie o frontend:
+
+```powershell
+npm run dev
+```
+
+O endereço exibido pelo Vite será utilizado para acessar o sistema.
+
+---
+
+# 🗂️ Gerenciamento de categorias
+
+As categorias são armazenadas no banco de dados e são separadas por tipo:
+
+```text
+receita
+despesa
+```
+
+É possível:
+
+* Adicionar categoria.
+* Editar categoria.
+* Remover categoria.
+* Listar somente categorias ativas.
+* Evitar categorias duplicadas.
+* Impedir a remoção de categorias que estejam sendo utilizadas por transações.
+
+## Categorias iniciais
 
 ### Receitas
-- Salário
-- Outros
+
+```text
+Adiantamento
+Salário
+Outras rendas
+```
 
 ### Despesas
-- Cartão Itau
-- Cartão PicPay
-- Cartão Mercado Pago
-- Vivo Internet
-- Vivo Celular Mãe
-- Empréstimo Shopee
-- Empréstimo MP
-- Empréstimo Itau
-- Empréstimo PicPay
-- Cartão Pai
 
-## 🔄 Transações Recorrentes
+```text
+Cartão Itau
+Cartão PicPay
+Cartão Mercado Pago
+Vivo Internet
+Vivo Celular Mãe
+Empréstimo Shopee
+Empréstimo MP
+Empréstimo Itau
+Empréstimo PicPay
+Cartão Pai
+```
 
-Transações marcadas como recorrentes serão geradas automaticamente a cada mês. O sistema roda um job diariamente (00:01) verificando quais transações devem ser geradas.
+---
 
-**Exemplo**: Se você registrar um "Salário" recorrente em 01/09/2026, o sistema criará automaticamente:
-- 01/10/2026
-- 01/11/2026
-- 01/12/2026
-- ... e assim por diante
+# 🔄 Transações recorrentes
 
-## 📁 Base de Dados
+As transações marcadas como recorrentes são processadas automaticamente pelo backend.
 
-O banco SQLite é criado automaticamente em `database.sqlite` na raiz do projeto. Contém duas tabelas:
+O job de recorrência:
 
-### `transactions`
-- id, tipo, categoria, descricao, valor, data, recorrente, periodo_recorrencia, ativo, criado_em, atualizado_em
+```text
+Executado diariamente às 00:01
+```
 
-### `recurrence_log`
-- Rastreia quais transações recorrentes já foram geradas para cada mês
+Além do horário agendado, o processamento também é iniciado quando o backend é iniciado.
 
-## 🔌 API REST
+O sistema utiliza a tabela `recurrence_log` para controlar quais recorrências já foram geradas e evitar duplicações.
 
-### Receitas/Despesas
-- `POST /api/receitas` - Criar receita
-- `GET /api/receitas` - Listar receitas (com filtros)
-- `GET /api/receitas/:id` - Obter receita
-- `PUT /api/receitas/:id` - Atualizar receita
-- `DELETE /api/receitas/:id` - Deletar receita
+---
 
-(Equivalentes para `/api/despesas`)
+# 🧾 Parcelamentos
 
-### Dashboard
-- `GET /api/dashboard` - Saldo total, resumo por categoria
+O sistema permite cadastrar transações parceladas.
 
-### Exportação
-- `POST /api/export/csv` - Exportar em CSV
+São controlados:
 
-## 📤 Filtros Disponíveis
+* Número total de parcelas.
+* Número da parcela atual.
+* Data de término.
+* Identificação da transação original.
+* Valor de cada parcela.
+* Data de cada parcela.
 
-```javascript
-// Query parameters para GET /api/receitas (ou despesas)
+As parcelas podem ser visualizadas no dashboard conforme o mês selecionado.
+
+---
+
+# 📊 Dashboard
+
+O dashboard permite selecionar um mês do **ano corrente** para consultar os dados financeiros daquele período.
+
+São apresentados:
+
+### Resumo
+
+```text
+Receitas
+Despesas
+Saldo
+```
+
+### Gráficos
+
+```text
+Receitas x Despesas
+Receitas por categoria
+Despesas por categoria
+```
+
+### Filtro mensal
+
+O usuário pode selecionar o mês desejado do ano corrente e visualizar os valores correspondentes às transações e parcelas daquele mês.
+
+---
+
+# 🔌 API REST
+
+## Transações
+
+### Criar
+
+```http
+POST /api/receitas
+```
+
+### Listar
+
+```http
+GET /api/receitas
+```
+
+### Obter uma transação
+
+```http
+GET /api/receitas/:id
+```
+
+### Atualizar
+
+```http
+PUT /api/receitas/:id
+```
+
+### Excluir
+
+```http
+DELETE /api/receitas/:id
+```
+
+As mesmas rotas podem ser utilizadas através de:
+
+```http
+/api/despesas
+```
+
+---
+
+## Categorias
+
+### Listar categorias
+
+```http
+GET /api/categorias
+```
+
+Filtro por tipo:
+
+```http
+GET /api/categorias?tipo=receita
+```
+
+ou:
+
+```http
+GET /api/categorias?tipo=despesa
+```
+
+### Criar categoria
+
+```http
+POST /api/categorias
+```
+
+Exemplo:
+
+```json
 {
-  tipo: 'receita' | 'despesa',
-  categoria: 'Salário', // nome da categoria
-  data_inicio: '2026-08-01', // formato YYYY-MM-DD
-  data_fim: '2026-08-31',
-  recorrente: true | false,
-  page: 1, // paginação
-  limit: 50 // itens por página
+  "tipo": "receita",
+  "nome": "Freelance"
 }
 ```
 
-## 🐛 Troubleshooting
+### Editar categoria
 
-### Erro: "Banco de dados não encontrado"
-- O banco é criado automaticamente. Se persistir, verifique permissões na pasta do projeto.
+```http
+PUT /api/categorias/:id
+```
 
-### Erro: "Porta 5000 já em uso"
-- Mude a porta no `.env` do backend: `PORT=5001`
+Exemplo:
 
-### CORS Error
-- Verifique se o frontend está configurado com a URL correta do backend em `.env`
+```json
+{
+  "nome": "Salário Mensal"
+}
+```
 
-### Recorrências não estão sendo geradas
-- Verifique se o backend está rodando (log deve mostrar "Job de recorrências agendado")
-- Aguarde até 00:01 ou reinicie o backend para forçar execução imediata
+### Remover categoria
 
-## 🔐 Segurança (Futuro)
+```http
+DELETE /api/categorias/:id
+```
 
-Este projeto é local e sem autenticação por padrão. Para expor em rede local ou internet:
-- Adicionar autenticação (JWT)
-- Usar HTTPS/TLS
-- Configurar Cloudflare Tunnel (conforme necessário)
+A remoção é lógica: a categoria fica inativa no banco.
 
-## 📝 Licença
+---
+
+## Dashboard
+
+```http
+GET /api/dashboard
+```
+
+O dashboard aceita parâmetros relacionados ao período selecionado.
+
+---
+
+## Exportação
+
+```http
+POST /api/export/csv
+```
+
+---
+
+# 🔎 Filtros de transações
+
+Exemplo:
+
+```javascript
+{
+  tipo: "receita",
+  categoria: "Salário",
+  data_inicio: "2026-08-01",
+  data_fim: "2026-08-31",
+  recorrente: true,
+  page: 1,
+  limit: 50
+}
+```
+
+Parâmetros disponíveis:
+
+| Parâmetro     | Descrição               |
+| ------------- | ----------------------- |
+| `tipo`        | `receita` ou `despesa`  |
+| `categoria`   | Nome da categoria       |
+| `data_inicio` | Data inicial            |
+| `data_fim`    | Data final              |
+| `recorrente`  | `true` ou `false`       |
+| `page`        | Página                  |
+| `limit`       | Quantidade de registros |
+
+---
+
+# 🗄️ Banco de dados
+
+O banco SQLite é criado automaticamente na raiz do projeto:
+
+```text
+database.sqlite
+```
+
+Principais tabelas:
+
+### `transactions`
+
+Armazena receitas e despesas.
+
+Principais campos:
+
+```text
+id
+tipo
+categoria
+descricao
+valor
+data
+recorrente
+periodo_recorrencia
+num_parcelas
+data_termino
+parcela_numero
+transacao_original_id
+ativo
+criado_em
+atualizado_em
+```
+
+### `categorias`
+
+Armazena as categorias de receitas e despesas.
+
+Principais campos:
+
+```text
+id
+tipo
+nome
+ativo
+criado_em
+atualizado_em
+```
+
+### `recurrence_log`
+
+Controla as recorrências já processadas.
+
+Principais campos:
+
+```text
+id
+transaction_id
+mes
+ano
+gerada_em
+```
+
+---
+
+# 🛠️ Troubleshooting
+
+## Erro: `EADDRINUSE: address already in use :::5000`
+
+A porta 5000 já está sendo utilizada por outro processo.
+
+No PowerShell:
+
+```powershell
+netstat -ano | findstr :5000
+```
+
+Identifique o PID e finalize o processo, se necessário:
+
+```powershell
+taskkill /PID NUMERO_DO_PID /F
+```
+
+Depois inicie novamente o backend.
+
+---
+
+## Erro: banco de dados não encontrado
+
+O banco é criado automaticamente pelo backend.
+
+Verifique se o arquivo existe na raiz:
+
+```text
+database.sqlite
+```
+
+---
+
+## Erro de CORS
+
+Verifique se o frontend está utilizando a URL correta do backend no `.env`.
+
+Por padrão:
+
+```text
+http://localhost:5000/api
+```
+
+---
+
+## Recorrências não estão sendo geradas
+
+Verifique se o backend está executando.
+
+No console deve aparecer:
+
+```text
+Job de recorrências agendado (diariamente às 00:01)
+```
+
+O processamento também é executado na inicialização do backend.
+
+---
+
+# 🔐 Segurança
+
+O projeto atualmente é destinado ao uso local e não possui autenticação por padrão.
+
+Caso futuramente seja necessário disponibilizá-lo em uma rede ou na internet, recomenda-se implementar:
+
+* Autenticação.
+* Autorização.
+* JWT ou sessão segura.
+* HTTPS/TLS.
+* Controle de acesso.
+* Proteção das APIs.
+* Backup automatizado do banco de dados.
+
+---
+
+# 📌 Status do projeto
+
+O projeto está em desenvolvimento ativo.
+
+Funcionalidades atualmente implementadas:
+
+* [x] Receitas
+* [x] Despesas
+* [x] Parcelamento
+* [x] Transações recorrentes
+* [x] Dashboard
+* [x] Dashboard mensal
+* [x] Gráficos
+* [x] Filtros
+* [x] Gerenciamento de categorias
+* [x] Adicionar categoria
+* [x] Editar categoria
+* [x] Remover categoria
+* [x] Proteção contra categorias duplicadas
+* [x] SQLite
+* [x] Exportação CSV
+* [x] API REST
+
+---
+
+# 📄 Licença
 
 MIT
 
-## 👨‍💻 Autor
+---
+
+# 👨‍💻 Autor
 
 Criado em 2026 para gerenciamento pessoal de contas.
+
+**Projeto:** `controle-contas`
