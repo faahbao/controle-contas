@@ -1,95 +1,339 @@
-# Guia Visual da Interface
+# 🎨 Guia Visual do Sistema
 
-Referencia visual dos componentes e telas da aplicacao.
+## 📱 VisÆ£o Geral
 
-## Telas Principais
+Este guia mostra como o sistema se parece e como navegar.
 
-### 1. Login
-- Campo de email
-- Campo de senha
-- Botao "Entrar"
-- Link "Registrar-se"
+---
 
-### 2. Registro
-- Campo de nome
-- Campo de email
-- Campo de senha
-- Campo de confirmacao de senha
-- Botao "Criar conta"
+## 🔐 Tela de Login
 
-### 3. Dashboard
-- Cards de resumo (Receitas, Despesas, Saldo)
-- Grafico de distribuicao por categoria
-- Lista de transacoes recentes
-- Botao "Nova Transacao"
+```
+┌─────────────────────────────────┐
+│                                 │
+│     💰 Controle Financeiro      │
+│                                 │
+│  ┌───────────────────────────┐  │
+│  │  Email                    │  │
+│  │  [joao@email.com]         │  │
+│  └───────────────────────────┘  │
+│                                 │
+│  ┌───────────────────────────┐  │
+│  │  Senha                    │  │
+│  │  [********]               │  │
+│  └───────────────────────────┘  │
+│                                 │
+│  ┌───────────────────────────┐  │
+│  │       ENTRAR              │  │
+│  └───────────────────────────┘  │
+│                                 │
+│  NÆ£o tem conta? Cadastre-se    │
+│                                 │
+└─────────────────────────────────┘
+```
 
-### 4. Transacoes
-- Lista filtravel de transacoes
-- Filtros por periodo e categoria
-- Indicadores de receita (verde) e despesa (vermelho)
-- Acoes de editar e excluir
+**Cores:**
+- Fundo: Gradiente azul (#667eea → #764ba2)
+- Cards: Branco (#ffffff)
+- BotÆ£o: Azul (#667eea)
 
-### 5. Nova Transacao
-- Campo de descricao
-- Campo de valor
-- Seletor de tipo (Receita/Despesa)
-- Seletor de categoria
-- Seletor de data
-- Botao "Salvar"
+---
 
-### 6. Categorias
-- Lista de categorias cadastradas
-- Indicador de cor por categoria
-- Botao "Nova Categoria"
-- Acoes de editar e excluir
+## 📊 Dashboard Principal
 
-## Paleta de Cores
+```
+┌────────────────────────────────────────────────────┐
+│  💰 Controle de Contas        OlÆ¡, JoÆ£o   [Sair]  │
+├────────────────────────────────────────────────────┤
+│                                                    │
+│  MŒs: [Agosto ▼]  Ano: [2026 ▼]  [📄 Gerar PDF]  │
+│                                                    │
+│  ┌────────────┐ ┌────────────┐ ┌────────────┐    │
+│  │ Receitas   │ │ Despesas   │ │ Saldo      │    │
+│  │ R$ 5.000   │ │ R$ 3.000   │ │ R$ 2.000   │    │
+│  │ 💚         │ │ ❤️         │ │ 💙         │    │
+│  └────────────┘ └────────────┘ └────────────┘    │
+│                                                    │
+│  📊 Receitas vs Despesas                          │
+│  ┌──────────────────────────────────────────┐    │
+│  │ Receitas: ████████████████████ R$ 5.000  │    │
+│  │ Despesas: ██████████████ R$ 3.000        │    │
+│  └──────────────────────────────────────────┘    │
+│                                                    │
+│  ➕ Nova Transaçª£o                                │
+│  ┌──────────────────────────────────────────┐    │
+│  │ [Descriçª£o] [Valor] [Data]              │    │
+│  │ [Tipo: Despesa▼] [Categoria▼]            │    │
+│  │ ☑ Recorrente?                            │    │
+│  │ [FrequŒncia: Mensal▼] [Parcelas: 5]     │    │
+│  │ [Adicionar]                              │    │
+│  └──────────────────────────────────────────┘    │
+│                                                    │
+│  📋 Transaçªµes                                    │
+│  ┌──────────────────────────────────────────┐    │
+│  │ Aluguel (2/5) 🔄 mensal                  │    │
+│  │ Moradia         15/09/2026               │    │
+│  │                        - R$ 1.000 [✏️][🗑️]│    │
+│  ├──────────────────────────────────────────┤    │
+│  │ SalÆ¡rio                                 │    │
+│  │ SalÆ¡rio          10/09/2026             │    │
+│  │                        + R$ 5.000 [✏️][🗑️]│    │
+│  └──────────────────────────────────────────┘    │
+│                                                    │
+└────────────────────────────────────────────────────┘
+```
+
+**Cores:**
+- Receitas: Verde (#27ae60)
+- Despesas: Vermelho (#e74c3c)
+- Saldo: Azul (#3498db)
+- Badge Recorrente: Laranja (#f39c12)
+
+---
+
+## 🏷️ Badges e Æcones
+
+### Tipos de Transaçª£o
+
+| Tipo | Æcone | Cor |
+|------|--------|-----|
+| Receita | ➕ ou + | Verde |
+| Despesa | ➖ ou - | Vermelho |
+
+### Status
+
+| Status | Badge | Cor |
+|--------|-------|-----|
+| Recorrente | 🔄 mensal (2/5) | Laranja |
+| Ænica | (nenhum) | - |
+
+### Açªµes
+
+| AçÆ£o | Æcone |
+|-------|--------|
+| Editar | ✏️ |
+| Excluir | 🗑️ |
+| Adicionar | ➕ |
+| PDF | 📄 |
+| GrÆ¢fico | 📊 |
+
+---
+
+## 📝 FormulÆ¡rio de Transaçª£o
+
+### Modo Normal
+
+```
+┌─────────────────────────────────┐
+│  ➕ Nova Transaçª£o             │
+│                                 │
+│  Descriçª£o: [Aluguel       ]   │
+│  Valor: [1000.00]               │
+│  Data: [15/08/2026]             │
+│  Tipo: [Despesa ▼]              │
+│  Categoria: [Moradia ▼]         │
+│  ☐ Recorrente?                  │
+│                                 │
+│  [Adicionar]                    │
+└─────────────────────────────────┘
+```
+
+### Modo Recorrente
+
+```
+┌─────────────────────────────────┐
+│  ➕ Nova Transaçª£o             │
+│                                 │
+│  Descriçª£o: [Aluguel       ]   │
+│  Valor: [1000.00]               │
+│  Data: [15/08/2026]             │
+│  Tipo: [Despesa ▼]              │
+│  Categoria: [Moradia ▼]         │
+│  ☑ Recorrente?                  │
+│  FrequŒncia: [Mensal ▼]         │
+│  Parcelas: [5]                  │
+│                                 │
+│  [Adicionar]                    │
+└─────────────────────────────────┘
+```
+
+---
+
+## 📋 Lista de Transaçªµes
+
+### Transaçª£o Ænica
+
+```
+┌────────────────────────────────────┐
+│  SalÆ¡rio                         │
+│  SalÆ¡rio      10/08/2026         │
+│                  + R$ 5.000 [✏️][🗑️]│
+└────────────────────────────────────┘
+```
+
+### Transaçª£o Recorrente
+
+```
+┌────────────────────────────────────┐
+│  Aluguel (2/5) 🔄 mensal          │
+│  Moradia     15/09/2026           │
+│                  - R$ 1.000 [✏️][🗑️]│
+└────────────────────────────────────┘
+```
+
+---
+
+## 🎨 Paleta de Cores
 
 ### Cores Principais
 
-| Uso | Cor | Hex |
+| Cor | Hex | Uso |
 |-----|-----|-----|
-| Primaria | Azul | #3B82F6 |
-| Sucesso | Verde | #10B981 |
-| Perigo | Vermelho | #EF4444 |
-| Aviso | Amarelo | #F59E0B |
+| Azul Principal | #667eea | BotÆµes, links |
+| Azul Escuro | #764ba2 | Gradientes |
+| Verde | #27ae60 | Receitas, sucesso |
+| Vermelho | #e74c3c | Despesas, erro |
+| Laranja | #f39c12 | Recorrente, alertas |
+| Cinza | #ecf0f1 | Fundos, bordas |
 
 ### Cores de Fundo
 
 | Elemento | Cor |
 |----------|-----|
-| Fundo principal | #F3F4F6 |
-| Cards | #FFFFFF |
-| Sidebar | #1F2937 |
-
-## Componentes
-
-### Cards
-- Bordas arredondadas (rounded-lg)
-- Sombra suave (shadow-md)
-- Padding generoso (p-6)
-
-### Botoes
-- Primario: Azul com hover mais escuro
-- Secundario: Cinza com borda
-- Perigo: Vermelho para acoes destrutivas
-
-### Inputs
-- Borda cinza clara
-- Focus com anel azul
-- Mensagens de erro em vermelho
-
-## Responsividade
-
-- **Desktop:** Layout completo com sidebar
-- **Tablet:** Sidebar colapsavel
-- **Mobile:** Menu hamburger e cards empilhados
-
-## Iconografia
-
-- **Biblioteca:** Heroicons ou Lucide
-- **Estilo:** Outline para navegacao, Solid para acoes
+| PÆ¡gina | #f5f6fa |
+| Cards | #ffffff |
+| Header | #667eea |
 
 ---
 
-Para mais detalhes tecnicos, consulte [PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md)
+## 📱 Responsividade
+
+### Desktop (> 1024px)
+- Layout com sidebar
+- Cards em linha (3 colunas)
+- GrÆ¢fico grande
+
+### Tablet (768px - 1024px)
+- Layout compacto
+- Cards em 2 colunas
+- GrÆ¢fico mÆ©dio
+
+### Mobile (< 768px)
+- Menu hamburger
+- Cards em 1 coluna
+- GrÆ¢fico pequeno
+- FormulÆ¡rio em tela cheia
+
+---
+
+## 🔍 Estados Visuais
+
+### Loading
+
+```
+┌─────────────────────────────────┐
+│                                 │
+│         Carregando...           │
+│         ⏳                        │
+│                                 │
+└─────────────────────────────────┘
+```
+
+### Vazio (sem transaçªµes)
+
+```
+┌─────────────────────────────────┐
+│  📋 Transaçªµes                  │
+│                                 │
+│  Nenhuma transaçª£o cadastrada.  │
+│  Adicione uma acima!            │
+│                                 │
+└─────────────────────────────────┘
+```
+
+### Erro
+
+```
+┌─────────────────────────────────┐
+│  ⚠️ Erro ao carregar dados     │
+│  Tente novamente mais tarde     │
+└─────────────────────────────────┘
+```
+
+### Sucesso
+
+```
+┌─────────────────────────────────┐
+│  ✅ 5 parcelas criadas com     │
+│     sucesso!                    │
+└─────────────────────────────────┘
+```
+
+---
+
+## 🎯 Fluxo de Uso
+
+### 1. Primeiro Acesso
+
+```
+Login → Dashboard → Ver transaçªµes (vazio)
+```
+
+### 2. Adicionar Transaçª£o Ænica
+
+```
+Dashboard → Preencher formulÆ¡rio → Adicionar → Ver na lista
+```
+
+### 3. Adicionar Transaçª£o Recorrente
+
+```
+Dashboard → Preencher formulÆ¡rio → Marcar "Recorrente?" → 
+Informar parcelas → Adicionar → Ver parcelas nos meses seguintes
+```
+
+### 4. Filtrar por MŒs
+
+```
+Dashboard → Selecionar mŒs → Ver transaçªµes do mŒs
+```
+
+### 5. Gerar PDF
+
+```
+Dashboard → Selecionar mŒs → Clicar "Gerar PDF" → Download
+```
+
+---
+
+## 📊 Exemplo Real
+
+### CenÆ¡rio: UsuÆ¡rio com aluguel de 5 parcelas
+
+**Agosto 2026:**
+```
+┌────────────────────────────────────┐
+│  Aluguel (1/5) 🔄 mensal          │
+│  - R$ 1.000                       │
+└────────────────────────────────────┘
+```
+
+**Setembro 2026:**
+```
+┌────────────────────────────────────┐
+│  Aluguel (2/5) 🔄 mensal          │
+│  - R$ 1.000                       │
+└────────────────────────────────────┘
+```
+
+**Outubro 2026:**
+```
+┌────────────────────────────────────┐
+│  Aluguel (3/5) 🔄 mensal          │
+│  - R$ 1.000                       │
+└────────────────────────────────────┘
+```
+
+---
+
+**Guia visual completo!** 🎨
