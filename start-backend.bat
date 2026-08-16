@@ -1,18 +1,17 @@
 @echo off
-REM Script para iniciar o Backend do Sistema de Controle de Contas
-REM Este script abre uma nova janela PowerShell/CMD e inicia o servidor Express
+setlocal
 
 cd /d "%~dp0backend"
 
-echo.
 echo ========================================
-echo   Iniciando Backend - Porta 5000
+echo Iniciando o backend...
 echo ========================================
-echo.
-echo Dependencias: Certifique-se de ter rodado "npm install"
-echo URL: http://localhost:5000
-echo.
 
-npm run dev
+if not exist "node_modules" (
+  echo Instalando dependencias do backend...
+  call npm install
+)
+
+call npm run dev
 
 pause

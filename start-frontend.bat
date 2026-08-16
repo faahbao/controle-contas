@@ -1,18 +1,17 @@
 @echo off
-REM Script para iniciar o Frontend do Sistema de Controle de Contas
-REM Este script abre uma nova janela PowerShell/CMD e inicia o servidor Vite
+setlocal
 
 cd /d "%~dp0frontend"
 
-echo.
 echo ========================================
-echo   Iniciando Frontend - Porta 3000
+echo Iniciando o frontend...
 echo ========================================
-echo.
-echo Dependencias: Certifique-se de ter rodado "npm install"
-echo URL: http://localhost:3000
-echo.
 
-npm run dev
+if not exist "node_modules" (
+  echo Instalando dependencias do frontend...
+  call npm install
+)
+
+call npm run dev
 
 pause
