@@ -1,66 +1,75 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import api from '../services/api';
+import React, { createContext, useContext, useState, useEffect } from 'react'
+import api from '../services/api'
 
-const AuthContext = createContext({});
+const AuthContext = createContext({})
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
+    const token = localStorage.getItem('token')
+    const userData = localStorage.getItem('user')
+    
     if (token && userData) {
-      setUser(JSON.parse(userData));
-      api.defaults.headers.Authorization = `Bearer ${token}`;
+      setUser(JSON.parse(userData))
     }
-    setLoading(false);
-  }, []);
+    setLoading(false)
+  }, [])
 
   async function login(email, senha) {
     try {
-      const response = await api.post('/auth/login', { email, senha });
-      const { token, user } = response.data;
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-      api.defaults.headers.Authorization = `Bearer ${token}`;
-      setUser(user);
-      return true;
-    } catch {
-      return false;
+      const response = await api.post('/auth/login', { email, senha })
+      const { user, token } = response.data
+      
+      localStorage.setItem('token', token)
+      localStorage.setItem('user', JSON.stringify(user))
+      
+      setUser(user)
+      return { success: true }
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error.response?.data?.error || 'Erro ao fazer login' 
+      }
     }
   }
 
   async function register(nome, email, senha) {
     try {
-      const response = await api.post('/auth/register', { nome, email, senha });
-      const { token, user } = response.data;
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-      api.defaults.headers.Authorization = `Bearer ${token}`;
-      setUser(user);
-      return true;
-    } catch {
-      return false;
+      const response = await api.post('/auth/register', { nome, email, senha })
+      const { user, token } = response.data
+      
+      localStorage.setItem('token', token)
+      localStorage.setItem('user', JSON.stringify(user))
+      
+      setUser(user)
+      return { success: true }
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error.response?.data?.error || 'Erro ao registrar' 
+      }
     }
   }
 
   function logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    delete api.defaults.headers.Authorization;
-    setUser(null);
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    setUser(null)
+  }
+
+  if (loading) {
+    return null
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, login, register, logout }}>
       {children}
     </AuthContext.Provider>
-  );
+  )
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth deve ser usado dentro de AuthProvider');
-  return context;
+  return useContext(AuthContext)
 }
