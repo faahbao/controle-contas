@@ -608,3 +608,66 @@
 .btn-unpay:hover {
   background: #546e7a;
 }
+
+.transacoes-toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  align-items: center;
+}
+
+.btn-select-all {
+  background: #3498db;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.btn-select-all:hover {
+  background: #2980b9;
+}
+
+.btn-pay-selected {
+  background: #27ae60;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.btn-pay-selected:hover {
+  background: #219a52;
+}
+
+.transacao-item.selecionada {
+  background: #fff3cd;
+  border-left: 6px solid #f39c12;
+}
+
+.transacao-checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+}
+
+.transacao-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #27ae60;
+}
+
+.transacao-checkbox input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

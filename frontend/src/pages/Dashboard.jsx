@@ -82,6 +82,7 @@ function Dashboard() {
     String(new Date().getFullYear())
   )
   const [editandoTransacao, setEditandoTransacao] = useState(null)
+  const [selecionadas, setSelecionadas] = useState(new Set())
 
   useEffect(() => {
     loadCategorias()
@@ -105,6 +106,7 @@ function Dashboard() {
       })
 
       setDashboard(response.data)
+      setSelecionadas(new Set())
     } catch (error) {
       const mensagem =
         error.response?.data?.error ||
@@ -147,6 +149,60 @@ function Dashboard() {
       ...atual,
       [campo]: valor
     }))
+  }
+
+  function toggleSelecao(id) {
+    setSelecionadas((atual) => {
+      const nova = new Set(atual)
+
+      if (nova.has(id)) {
+        nova.delete(id)
+      } else {
+        nova.add(id)
+      }
+
+      return nova
+    })
+  }
+
+  function selecionarTodas() {
+    if (!dashboard?.transacoes?.length) return
+
+    const todasNaoPagas = dashboard.transacoes
+      .filter((t) => !t.paga)
+      .map((t) => t.id)
+
+    const todasSelecionadas = todasNaoPagas.every((id) =>
+      selecionadas.has(id)
+    )
+
+    if (todasSelecionadas) {
+      setSelecionadas(new Set())
+    } else {
+      setSelecionadas(new Set(todasNaoPagas))
+    }
+  }
+
+  async function pagarSelecionadas() {
+    if (selecionadas.size === 0) return
+
+    try {
+      const promises = Array.from(selecionadas).map((id) =>
+        api.patch(`/transacoes/${id}/pagamento`, { paga: true })
+      )
+
+      await Promise.all(promises)
+
+      setSelecionadas(new Set())
+      await loadDashboard()
+
+      alert(`${selecionadas.size} transação(ões) marcada(s) como paga(s).`)
+    } catch (error) {
+      alert(
+        'Erro ao marcar como pago: ' +
+          (error.response?.data?.error || error.message)
+      )
+    }
   }
 
   async function adicionarTransacao(event) {
@@ -674,6 +730,28 @@ function Dashboard() {
         <section className="transacoes-section">
           <h2>📋 Transações</h2>
 
+          {dashboard?.transacoes?.length > 0 && (
+            <div className="transacoes-toolbar">
+              <button
+                type="button"
+                onClick={selecionarTodas}
+                className="btn-select-all"
+              >
+                {selecionadas.size > 0 ? '⬜ Desmarcar todas' : '☑️ Selecionar não pagas'}
+              </button>
+
+              {selecionadas.size > 0 && (
+                <button
+                  type="button"
+                  onClick={pagarSelecionadas}
+                  className="btn-pay-selected"
+                >
+                  💵 Pagar {selecionadas.size} selecionada{selecionadas.size !== 1 ? 's' : ''}
+                </button>
+              )}
+            </div>
+          )}
+
           <div className="transacoes-list">
             {!dashboard?.transacoes?.length ? (
               <p className="empty">
@@ -692,8 +770,18 @@ function Dashboard() {
                     key={transacao.id}
                     className={`transacao-item ${transacao.tipo} ${
                       transacao.paga ? 'paga' : ''
-                    }`}
+                    } ${selecionadas.has(transacao.id) ? 'selecionada' : ''}`}
                   >
+                    <div className="transacao-checkbox">
+                      <input
+                        type="checkbox"
+                        checked={selecionadas.has(transacao.id)}
+                        onChange={() => toggleSelecao(transacao.id)}
+                        disabled={transacao.paga}
+                        title={transacao.paga ? 'Já paga' : 'Selecionar'}
+                      />
+                    </div>
+
                     <div className="transacao-info">
                       <strong>{transacao.descricao}</strong>
 
