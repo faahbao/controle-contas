@@ -1,93 +1,212 @@
 # Estrutura do Projeto
 
+Visao detalhada da organizacao de arquivos e diretorios do projeto Controle de Contas.
+
+## Visao Geral
+
 ```text
 controle-contas/
-|-- backend/
-|   |-- prisma/
-|   |   |-- migrations/
-|   |   `-- schema.prisma
-|   |-- src/
-|   |   |-- controllers/
-|   |   |-- jobs/
-|   |   |-- middleware/
-|   |   |-- routes/
-|   |   |-- db.js
-|   |   `-- server.js
-|   |-- .env
-|   |-- package.json
-|   `-- dev.db
-|
-|-- frontend/
-|   |-- src/
-|   |   |-- contexts/
-|   |   |   `-- AuthContext.jsx
-|   |   |-- pages/
-|   |   |   |-- Dashboard.jsx
-|   |   |   `-- Login.jsx
-|   |   |-- services/
-|   |   |   `-- api.js
-|   |   |-- styles/
-|   |   |   |-- Dashboard.css
-|   |   |   `-- Login.css
-|   |   `-- App.jsx
-|   |-- package.json
-|   `-- vite.config.js
-|
-|-- README.md
-|-- API.md
-|-- BACKEND.md
-|-- FRONTEND.md
-|-- FEATURES.md
-|-- INSTALL.md
-|-- QUICKSTART.md
-|-- PROJECT_STRUCTURE.md
-|-- CHANGELOG.md
-|-- SUMMARY.md
-|-- UPDATES_V1.1.md
-`-- VISUAL_GUIDE.md
+├── backend/                 # API Node.js + Express + Prisma
+│   ├── prisma/
+│   │   ├── schema.prisma    # Modelo de dados
+│   │   └── migrations/      # Migracoes do banco
+│   ├── src/
+│   │   ├── controllers/     # Controladores de rotas
+│   │   ├── jobs/            # Tarefas agendadas (se houver)
+│   │   ├── middleware/      # Middlewares (auth, validacao)
+│   │   ├── routes/          # Definicao de rotas
+│   │   ├── db.js            # Conexao com banco
+│   │   └── server.js        # Entry point do servidor
+│   ├── .env                 # Variaveis de ambiente (nao commitar)
+│   ├── .env.example         # Template de variaveis
+│   └── package.json         # Dependencias backend
+│
+├── frontend/                # Aplicacao React + Vite
+│   ├── src/
+│   │   ├── contexts/        # Contextos React (AuthContext)
+│   │   ├── pages/           # Paginas da aplicacao
+│   │   │   ├── Login.jsx
+│   │   │   └── Dashboard.jsx
+│   │   ├── services/        # Chamadas API (api.js)
+│   │   ├── styles/          # Estilos CSS
+│   │   │   ├── Login.css
+│   │   │   └── Dashboard.css
+│   │   └── App.jsx          # Componente raiz
+│   ├── index.html           # HTML base
+│   ├── package.json         # Dependencias frontend
+│   └── vite.config.js       # Configuracao Vite
+│
+├── README.md                # Documentacao principal
+├── INSTALL.md               # Guia de instalacao
+├── QUICKSTART.md            # Guia rapido de inicio
+├── API.md                   # Documentacao da API
+├── BACKEND.md               # Detalhes do backend
+├── FRONTEND.md              # Detalhes do frontend
+├── FEATURES.md              # Funcionalidades
+├── PROJECT_STRUCTURE.md     # Estrutura detalhada
+├── CHANGELOG.md             # Historico de versoes
+├── SUMMARY.md               # Resumo do projeto
+├── UPDATES_V1.1.md          # Mudancas da versao 1.1 (historico)
+└── VISUAL_GUIDE.md          # Guia visual da interface
 ```
 
 ## Backend
 
-### `backend/src/server.js`
+### Tecnologias
 
-Servidor Express e rotas da API.
+- **Node.js** 20+
+- **Express** - Framework HTTP
+- **Prisma ORM** - ORM type-safe
+- **SQLite** - Banco de dados local
+- **JWT** - Autenticacao
+- **bcrypt** - Hash de senhas
+- **Joi** - Validacao de dados
+- **Helmet** - Seguranca HTTP
+- **CORS** - Compartilhamento de recursos
+- **PDFKit** - Geracao de PDF
 
-### `backend/prisma/schema.prisma`
+### Estrutura de Pastas
 
-Modelo Prisma para:
+```text
+backend/src/
+├── controllers/     # Handlers de rotas HTTP
+├── middleware/      # Auth, validacao, error handling
+├── routes/          # Definicao de endpoints
+├── jobs/            # Tarefas agendadas (opcional)
+├── db.js            # Conexao com banco de dados
+└── server.js        # Configuracao e inicializacao
+```
 
-- User
-- Transacao
-- Categoria
+### Scripts Disponiveis
 
-### `backend/.env`
-
-Variaveis de ambiente e URL SQLite.
+```json
+{
+  "dev": "node src/server.js",
+  "prisma:generate": "prisma generate",
+  "prisma:migrate": "prisma migrate dev",
+  "prisma:studio": "prisma studio"
+}
+```
 
 ## Frontend
 
-### `frontend/src/pages/Dashboard.jsx`
+### Tecnologias
 
-Tela principal do sistema.
+- **React** 18+
+- **Vite** - Build tool
+- **Axios** - Cliente HTTP
+- **React Router DOM** - Roteamento
+- **CSS3** - Estilizacao
 
-Inclui:
+### Estrutura de Pastas
 
-- Formulario de transacao
-- Parcelas
-- Pagamentos
-- Visualizacao de todas as parcelas
-- Dashboard
-- Relatorio PDF
+```text
+frontend/src/
+├── contexts/        # Contextos React (AuthContext)
+├── pages/           # Componentes de pagina
+│   ├── Login.jsx
+│   └── Dashboard.jsx
+├── services/        # API client e chamadas
+│   └── api.js
+├── styles/          # Estilos CSS
+│   ├── Login.css
+│   └── Dashboard.css
+├── App.jsx          # Componente raiz
+└── main.jsx         # Ponto de entrada
+```
 
-### `frontend/src/services/api.js`
+### Scripts Disponiveis
 
-Cliente Axios para chamadas ao backend.
+```json
+{
+  "dev": "vite",
+  "build": "vite build",
+  "preview": "vite preview"
+}
+```
 
-### `frontend/src/contexts/AuthContext.jsx`
+## Fluxo de Dados
 
-Controle de autenticacao, token e usuario logado.
+```text
+Usuario -> Frontend (React) -> API (Express) -> Prisma -> SQLite
+         <- Resposta <-
+```
 
-### `frontend/src/styles/Dashboard.css`
+## Variaveis de Ambiente
 
-Estilos da tela principal, botoes, lista de transacoes, status pago e layout responsivo.
+### Backend
+
+| Variavel | Descricao | Exemplo |
+|---|---|---|
+| DATABASE_URL | URL do banco SQLite | file:./dev.db?connection_limit=1 |
+| JWT_SECRET | Chave secreta JWT | sua-chave-secreta |
+| PORT | Porta do servidor | 3000 |
+| FRONTEND_URL | Origem do frontend | http://localhost:3001 |
+
+### Frontend
+
+| Variavel | Descricao | Exemplo |
+|---|---|---|
+| VITE_API_URL | URL da API backend | http://localhost:3000/api |
+
+## Comandos de Desenvolvimento
+
+### Iniciar projeto completo
+
+```powershell
+# Terminal 1 - Backend
+cd backend
+npm install
+npx prisma generate
+npx prisma migrate dev
+npm run dev
+
+# Terminal 2 - Frontend
+cd frontend
+npm install
+npm run dev
+```
+
+## Banco de Dados
+
+### Resetar banco
+
+```powershell
+cd backend
+npx prisma migrate dev --force-reset
+npx prisma generate
+```
+
+### Visualizar dados
+
+```powershell
+cd backend
+npx prisma studio
+```
+
+### Criar nova migracao
+
+```powershell
+cd backend
+npx prisma migrate dev --name nome_da_migracao
+npx prisma generate
+```
+
+## Padroes de Codigo
+
+### Backend
+
+- Controllers: `camelCase.js` (ex: `transacaoController.js`)
+- Middleware: `camelCase.js` (ex: `authMiddleware.js`)
+- Rotas: `camelCase.js` (ex: `transacaoRoutes.js`)
+
+### Frontend
+
+- Componentes: `PascalCase.jsx` (ex: `Dashboard.jsx`)
+- Contextos: `PascalCase.jsx` (ex: `AuthContext.jsx`)
+- Servicos: `camelCase.js` (ex: `api.js`)
+- Estilos: `PascalCase.css` (ex: `Dashboard.css`)
+
+---
+
+Para mais detalhes, consulte [README.md](./README.md)

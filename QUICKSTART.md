@@ -1,72 +1,129 @@
-# Inicio Rapido
+# Quick Start
 
-## 1. Backend
+Guia rapido para colocar o projeto no ar em menos de 5 minutos.
+
+## Pre-requisitos
+
+- Node.js 20+
+- Git
+
+## Instalacao Rapida
+
+### Windows
 
 ```powershell
-cd D:\Projetos\controle-contas\backend
+cd D:\Projetos\controle-contas
+
+# Backend
+cd backend
 npm install
 npx prisma generate
 npx prisma migrate dev
 npm run dev
-```
 
-## 2. Frontend
-
-Abra outro terminal:
-
-```powershell
-cd D:\Projetos\controle-contas\frontend
+# Em outro terminal, frontend
+cd ..\frontend
 npm install
 npm run dev
 ```
 
-## 3. Acesse
+### Linux/Mac
 
-Abra a URL exibida pelo Vite, normalmente:
+```bash
+cd controle-contas
+
+# Backend
+cd backend
+npm install
+npx prisma generate
+npx prisma migrate dev
+npm run dev
+
+# Em outro terminal, frontend
+cd ../frontend
+npm install
+npm run dev
+```
+
+## Acesso
+
+Apos iniciar, acesse:
 
 ```text
 http://localhost:3001
 ```
 
-## 4. Primeiro uso
+Ou a URL exibida pelo Vite no terminal.
 
-1. Cadastre um usuario.
-2. Faca login.
-3. Crie uma receita ou despesa.
-4. Para parcelar, marque `Recorrente?`.
-5. Escolha frequencia e quantidade de parcelas.
-6. Clique em `Adicionar`.
+## Primeiro Acesso
 
-## 5. Pagar parcelas futuras
+1. Acesse a aplicacao no navegador
+2. Clique em "Registrar" ou "Cadastre-se"
+3. Crie sua conta com nome, email e senha
+4. Faca login
+5. Comece a lancar suas receitas e despesas!
 
-1. Na secao Transacoes, clique em `Ver todas as parcelas`.
-2. Selecione parcelas futuras pendentes.
-3. Clique em `Pagar selecionadas`.
+## Comandos Uteis
 
-## Configuracao minima
+### Backend
 
-Arquivo `backend/.env`:
+```powershell
+cd backend
+npm run dev      # Desenvolvimento
+npm run build    # Build producao (se houver)
+npx prisma generate
+npx prisma migrate dev
+npx prisma studio  # Visualizar banco
+```
+
+### Frontend
+
+```powershell
+cd frontend
+npm run dev      # Desenvolvimento
+npm run build    # Build producao
+npm run preview  # Preview producao
+```
+
+## Problemas Comuns
+
+### Porta 3000 ocupada
+
+Altere a porta no `backend/.env`:
 
 ```env
-DATABASE_URL="file:./dev.db?connection_limit=1"
-JWT_SECRET="substitua-por-uma-chave-com-32-caracteres-ou-mais"
-PORT=3000
-FRONTEND_URL="http://localhost:3001"
+PORT=3001
 ```
 
-## Comandos uteis
+E atualize o frontend se necessario:
 
-```powershell
-cd D:\Projetos\controle-contas\backend
-npx prisma studio
+```env
+VITE_API_URL=http://localhost:3001/api
 ```
 
+### Erro no Prisma
+
 ```powershell
-cd D:\Projetos\controle-contas\backend
+cd backend
 npx prisma generate
+npx prisma migrate dev
 ```
 
-```powershell
-cd D:\Projetos\controle-contas\frontend
-npm run build
-```
+### Erro de login 404
+
+Confirme:
+
+- Backend rodando na porta 3000 (ou a porta configurada)
+- Frontend usando a URL correta da API
+- Rota `POST /api/auth/login` presente no `server.js`
+
+## Documentacao Completa
+
+- [README.md](./README.md) - Visao geral
+- [INSTALL.md](./INSTALL.md) - Guia de instalacao detalhado
+- [API.md](./API.md) - Documentacao da API
+- [FEATURES.md](./FEATURES.md) - Todas as funcionalidades
+
+---
+
+Precisa de ajuda? Consulte a documentacao completa ou abra uma issue no GitHub!

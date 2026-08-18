@@ -1,4 +1,4 @@
-# API
+# API - Documentacao
 
 ## Base URL
 
@@ -8,29 +8,21 @@ http://localhost:3000/api
 
 ## Autenticacao
 
-Todas as rotas, exceto cadastro, login e health check, exigem:
+Todas as rotas (exceto login e cadastro) requerem o header:
 
 ```http
 Authorization: Bearer <token>
 ```
 
-## Health check
+---
 
-### GET /health
-
-Resposta:
-
-```json
-{
-  "status": "ok"
-}
-```
-
-## Autenticacao
+## Auth
 
 ### POST /auth/cadastro
 
-Body:
+Cadastrar novo usuario
+
+**Body:**
 
 ```json
 {
@@ -40,22 +32,26 @@ Body:
 }
 ```
 
-Resposta:
+**Resposta:**
 
 ```json
 {
-  "token": "jwt_token",
+  "token": "jwt_token_aqui",
   "user": {
     "id": 1,
-    "nome": "Joao Silva",
-    "email": "joao@email.com"
+    "email": "joao@email.com",
+    "nome": "Joao Silva"
   }
 }
 ```
 
+---
+
 ### POST /auth/login
 
-Body:
+Login de usuario
+
+**Body:**
 
 ```json
 {
@@ -64,25 +60,40 @@ Body:
 }
 ```
 
+**Resposta:**
+
+```json
+{
+  "token": "jwt_token_aqui",
+  "user": {
+    "id": 1,
+    "email": "joao@email.com",
+    "nome": "Joao Silva"
+  }
+}
+```
+
+---
+
 ## Dashboard
 
 ### GET /dashboard
 
-Query params:
+Resumo do mes com receitas, despesas, saldo e grafico
 
-```text
-mes=08
-ano=2026
-```
+**Query params:**
 
-Resposta:
+- `mes` (opcional): 01-12
+- `ano` (opcional): 2024, 2025, 2026, etc
+
+**Resposta:**
 
 ```json
 {
   "receitas": 5000,
   "despesas": 3000,
   "saldo": 2000,
-  "transacoes": [],
+  "transacoes": [...],
   "grafico": {
     "receitas": 5000,
     "despesas": 3000,
@@ -92,30 +103,68 @@ Resposta:
 }
 ```
 
+---
+
 ## Transacoes
 
 ### GET /transacoes
 
-Lista transacoes filtradas por mes e ano.
+Listar transacoes do mes selecionado
 
-Query params opcionais:
+**Query params:**
 
-```text
-mes=08
-ano=2026
+- `mes` (opcional): 01-12
+- `ano` (opcional): 2024, 2025, etc
+
+**Resposta:**
+
+```json
+{
+  "receitas": 5000,
+  "despesas": 3000,
+  "saldo": 2000,
+  "transacoes": [...],
+  "grafico": { ... }
+}
 ```
+
+---
 
 ### GET /transacoes/todas
 
-Lista todas as transacoes do usuario autenticado, incluindo parcelas futuras.
+Listar todas as transacoes do usuario, sem filtro de mes
 
-Esta rota e utilizada pelo botao `Ver todas as parcelas`.
+Usado para visualizar parcelas futuras e pagar antecipadamente
+
+**Resposta:**
+
+```json
+[
+  {
+    "id": 1,
+    "descricao": "Aluguel (1/5)",
+    "valor": 1000,
+    "tipo": "despesa",
+    "categoria": "Moradia",
+    "data": "2026-08-18T00:00:00.000Z",
+    "recorrente": true,
+    "frequencia": "mensal",
+    "parcelas": 5,
+    "parcelaAtual": 1,
+    "grupoParcelasId": "abc123",
+    "paga": false,
+    "userId": 1
+  }
+]
+```
+
+---
 
 ### POST /transacoes
 
-Cria uma transacao.
+Criar transacao
 
-Body para uma despesa parcelada:
+**Body:**
 
 ```json
 {
@@ -123,41 +172,92 @@ Body para uma despesa parcelada:
   "valor": 1000,
   "tipo": "despesa",
   "categoria": "Moradia",
-  "data": "2026-08-18",
+  "data": "2026-08-15",
   "recorrente": true,
   "frequencia": "mensal",
   "parcelas": 5
 }
 ```
 
-Frequencias aceitas:
+**Resposta (transacao unica):**
 
-```text
-diaria
-semanal
-mensal
+```json
+{
+  "id": 1,
+  "descricao": "Aluguel",
+  ...
+}
 ```
 
-Resposta para varias parcelas:
+**Resposta (recorrente com parcelas):**
 
 ```json
 {
   "mensagem": "5 parcelas criadas com sucesso!",
-  "transacoes": []
+  "transacoes": [...]
 }
 ```
 
+---
+
 ### PUT /transacoes/:id
 
-Atualiza uma transacao.
+Atualizar transacao
 
-O body usa os mesmos campos de `POST /transacoes`.
+**Body:**
+
+```json
+{
+  "descricao": "Novo Aluguel",
+  "valor": 1200,
+  "tipo": "despesa",
+  "categoria": "Moradia",
+  "data": "2026-08-15",
+  "recorrente": true,
+  "frequencia": "mensal",
+  "parcelas": 5
+}
+```
+
+---
+
+### DELETE /transacoes/:id
+
+Deletar transacao (parcela unica)
+
+**Resposta:**
+
+```json
+{
+  "id": 1,
+  ...
+}
+```
+
+---
+
+### DELETE /transacoes/:id/futuras
+
+Excluir parcela selecionada e todas as parcelas futuras do mesmo grupo
+
+**Resposta:**
+
+```json
+{
+  "mensagem": "Parcelas futuras excluidas com sucesso!",
+  "excluidas": 3
+}
+```
+
+---
 
 ### PATCH /transacoes/:id/pagamento
 
-Atualiza o status de pagamento de uma despesa.
+Marcar ou desmarcar transacao como paga
 
-Body:
+Somente despesas podem ser marcadas como pagas
+
+**Body:**
 
 ```json
 {
@@ -165,17 +265,7 @@ Body:
 }
 ```
 
-Para marcar como pendente:
-
-```json
-{
-  "paga": false
-}
-```
-
-Somente transacoes do tipo `despesa` podem ser atualizadas por essa rota.
-
-Resposta:
+**Resposta:**
 
 ```json
 {
@@ -187,32 +277,46 @@ Resposta:
 }
 ```
 
-### DELETE /transacoes/:id
-
-Exclui somente a transacao selecionada.
-
-### DELETE /transacoes/:id/futuras
-
-Exclui a parcela selecionada e todas as parcelas futuras do mesmo grupo.
-
-Resposta:
+Para desfazer pagamento:
 
 ```json
 {
-  "mensagem": "3 parcela(s) atual e futura(s) excluida(s).",
-  "quantidadeExcluida": 3
+  "paga": false
 }
 ```
+
+---
 
 ## Categorias
 
 ### GET /categorias
 
-Lista categorias.
+Listar categorias
+
+**Resposta:**
+
+```json
+[
+  {
+    "id": 1,
+    "nome": "Alimentacao",
+    "tipo": "despesa"
+  },
+  {
+    "id": 2,
+    "nome": "Salario",
+    "tipo": "receita"
+  }
+]
+```
+
+---
 
 ### POST /categorias
 
-Body:
+Criar categoria
+
+**Body:**
 
 ```json
 {
@@ -221,22 +325,17 @@ Body:
 }
 ```
 
-Tipos aceitos:
+---
 
-```text
-receita
-despesa
-```
-
-## Relatorio
+## Relatorios
 
 ### GET /relatorio/pdf
 
-Query params obrigatorios:
+Gerar PDF do mes
 
-```text
-mes=08
-ano=2026
-```
+**Query params:**
 
-Resposta: arquivo PDF para download.
+- `mes`: 01-12
+- `ano`: 2024, 2025, etc
+
+**Resposta:** Blob PDF para download

@@ -1,164 +1,195 @@
-# Backend
+# Backend - Documentacao
 
-## Stack
+## Estrutura
+
+```text
+backend/
+├── prisma/
+│   ├── schema.prisma
+│   └── migrations/
+├── src/
+│   ├── controllers/
+│   ├── jobs/
+│   ├── middleware/
+│   ├── routes/
+│   ├── db.js
+│   └── server.js
+├── .env
+└── package.json
+```
+
+## Tecnologias
 
 - Node.js
 - Express
-- Prisma
+- Prisma ORM
 - SQLite
-- JWT
-- bcrypt
-- Joi
-- Helmet
-- express-rate-limit
-- PDFKit
-
-## Arquivo principal
-
-```text
-backend/src/server.js
-```
-
-O servidor concentra:
-
-- Configuracao do Express
+- JSON Web Token (jsonwebtoken)
+- bcrypt (hash de senhas)
+- Joi (validacao)
+- Helmet (seguranca HTTP)
 - CORS
-- Rate limit
-- Validacao com Joi
-- Autenticacao JWT
-- Dashboard
-- Categorias
-- Transacoes
-- Parcelas
-- Pagamentos
-- Relatorio PDF
-- Tratamento de erros
+- PDFKit (geracao de PDF)
 
-## Banco
-
-O banco e SQLite e a URL e lida de `backend/.env`.
-
-```env
-DATABASE_URL="file:./dev.db?connection_limit=1"
-```
-
-O parametro `connection_limit=1` reduz conflitos de escrita no SQLite.
-
-## Prisma
-
-Arquivo do schema:
-
-```text
-backend/prisma/schema.prisma
-```
-
-Campo de pagamento no modelo `Transacao`:
+## Schema do Prisma
 
 ```prisma
-paga Boolean @default(false)
-```
+model User {
+  id         Int          @id @default(autoincrement())
+  email      String       @unique
+  senha      String
+  nome       String
+  transacoes Transacao[]
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+}
 
-Campos usados para parcelas:
+model Transacao {
+  id              Int      @id @default(autoincrement())
+  descricao       String
+  valor           Float
+  tipo            String
+  categoria       String
+  data            DateTime @default(now())
+  recorrente      Boolean  @default(false)
+  frequencia      String?
+  parcelas        Int?
+  parcelaAtual    Int?
+  grupoParcelasId String?
+  paga            Boolean  @default(false)
+  userId          Int
+  user            User     @relation(fields: [userId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
 
-```prisma
-recorrente      Boolean @default(false)
-frequencia      String?
-parcelas        Int?
-parcelaAtual    Int?
-grupoParcelasId String?
-```
-
-## Rotas importantes
-
-```text
-POST   /api/auth/cadastro
-POST   /api/auth/login
-GET    /api/dashboard
-GET    /api/transacoes
-GET    /api/transacoes/todas
-POST   /api/transacoes
-PUT    /api/transacoes/:id
-PATCH  /api/transacoes/:id/pagamento
-DELETE /api/transacoes/:id
-DELETE /api/transacoes/:id/futuras
-GET    /api/categorias
-POST   /api/categorias
-GET    /api/relatorio/pdf
-```
-
-## Pagamento de parcelas
-
-A rota abaixo atualiza apenas a transacao do usuario autenticado:
-
-```text
-PATCH /api/transacoes/:id/pagamento
-```
-
-Body:
-
-```json
-{
-  "paga": true
+model Categoria {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  tipo      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 ```
 
-O backend nao permite marcar receitas como pagas.
+## Endpoints da API
 
-## Todas as parcelas
+### Auth
 
-A rota abaixo ignora o filtro mensal e retorna todas as transacoes do usuario:
+- `POST /api/auth/cadastro` - Cadastrar usuario
+- `POST /api/auth/login` - Login
 
-```text
-GET /api/transacoes/todas
-```
+### Dashboard
 
-Ela permite que o frontend mostre e pague parcelas futuras.
+- `GET /api/dashboard` - Dashboard com resumo (filtro: mes, ano)
 
-## CORS
+### Transacoes
 
-O backend deve permitir PATCH:
+- `GET /api/transacoes` - Listar transacoes (filtro: mes, ano)
+- `GET /api/transacoes/todas` - Listar todas as transacoes (sem filtro de mes)
+- `POST /api/transacoes` - Criar transacao
+- `PUT /api/transacoes/:id` - Atualizar transacao
+- `DELETE /api/transacoes/:id` - Deletar transacao (parcela unica)
+- `DELETE /api/transacoes/:id/futuras` - Excluir parcela e futuras
+- `PATCH /api/transacoes/:id/pagamento` - Marcar/desmarcar como paga
 
-```javascript
-methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
-```
+### Categorias
 
-Origens locais permitidas incluem:
+- `GET /api/categorias` - Listar categorias
+- `POST /api/categorias` - Criar categoria
 
-```text
-http://localhost:5173
-http://localhost:3001
-http://localhost:3000
-```
+### Relatorios
 
-## Executar
+- `GET /api/relatorio/pdf` - Gerar PDF (filtro: mes, ano)
+
+## Como rodar
 
 ```powershell
-cd D:\Projetos\controle-contas\backend
+# Instalar dependencias
 npm install
+
+# Gerar cliente Prisma
 npx prisma generate
+
+# Rodar migracoes
 npx prisma migrate dev
+
+# Iniciar servidor
 npm run dev
 ```
 
-## Prisma Studio
+## Exemplo: Criar transacao recorrente
 
-```powershell
-cd D:\Projetos\controle-contas\backend
-npx prisma studio
-```
-
-## Solucao de timeout SQLite
-
-Nao atualize diversas parcelas em paralelo com `Promise.all`.
-
-O frontend deve usar:
-
-```javascript
-for (const id of idsSelecionados) {
-  await api.patch(`/transacoes/${id}/pagamento`, {
-    paga: true
-  })
+```json
+POST /api/transacoes
+{
+  "descricao": "Aluguel",
+  "valor": 1000,
+  "tipo": "despesa",
+  "categoria": "Moradia",
+  "data": "2026-08-15",
+  "recorrente": true,
+  "frequencia": "mensal",
+  "parcelas": 5
 }
 ```
 
-Isso realiza uma gravacao por vez.
+**Resultado:** 5 transacoes criadas automaticamente (uma por mes)
+
+## Fluxo de parcelas
+
+Ao criar uma despesa recorrente com N parcelas:
+
+1. Backend gera um `grupoParcelasId` unico
+2. Cria N transacoes com datas mensais consecutivas
+3. Cada transacao tem `parcelaAtual` (1, 2, 3... N)
+4. Todas compartilham o mesmo `grupoParcelasId`
+
+Exemplo: aluguel de 5 parcelas em 18/08/2026:
+
+```text
+Aluguel (1/5) - 18/08/2026
+Aluguel (2/5) - 18/09/2026
+Aluguel (3/5) - 18/10/2026
+Aluguel (4/5) - 18/11/2026
+Aluguel (5/5) - 18/12/2026
+```
+
+## Pagamento de despesas
+
+- Somente despesas podem ser marcadas como pagas
+- Cada parcela tem seu proprio campo `paga`
+- Pagar uma parcela nao afeta as outras
+- Pagamento em lote e sequencial para evitar bloqueio do SQLite
+
+## Exclusao de parcelas
+
+- `DELETE /transacoes/:id` - Remove somente a parcela selecionada
+- `DELETE /transacoes/:id/futuras` - Remove a parcela e todas as posteriores
+
+Parcelas anteriores permanecem no historico
+
+## Variaveis de ambiente
+
+```env
+DATABASE_URL="file:./dev.db?connection_limit=1"
+JWT_SECRET="chave-secreta-com-32-caracteres-ou-mais"
+PORT=3000
+FRONTEND_URL="http://localhost:3001"
+```
+
+## Comandos do Prisma
+
+```powershell
+# Gerar cliente
+npx prisma generate
+
+# Criar nova migracao
+npx prisma migrate dev --name nome_da_migracao
+
+# Resetar banco (cuidado: apaga todos os dados)
+npx prisma migrate dev --force-reset
+
+# Abrir Prisma Studio
+npx prisma studio
+```
