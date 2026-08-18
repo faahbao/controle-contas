@@ -24,6 +24,7 @@ if (!JWT_SECRET || JWT_SECRET.length < 32) {
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3001'
+  'http://localhost:3001'
 ]
 
 app.use(helmet({
