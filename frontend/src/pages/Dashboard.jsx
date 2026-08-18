@@ -83,6 +83,8 @@ function Dashboard() {
   )
   const [editandoTransacao, setEditandoTransacao] = useState(null)
   const [selecionadas, setSelecionadas] = useState(new Set())
+  const [mostrarTodasParcelas, setMostrarTodasParcelas] = useState(false)
+  const [todasTransacoes, setTodasTransacoes] = useState([])
 
   useEffect(() => {
     loadCategorias()
@@ -91,8 +93,11 @@ function Dashboard() {
   useEffect(() => {
     if (filtroMes && filtroAno) {
       loadDashboard()
+      if (mostrarTodasParcelas) {
+        loadTodasTransacoes()
+      }
     }
-  }, [filtroMes, filtroAno])
+  }, [filtroMes, filtroAno, mostrarTodasParcelas])
 
   async function loadDashboard() {
     try {
@@ -121,6 +126,19 @@ function Dashboard() {
       setDashboard(null)
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function loadTodasTransacoes() {
+    try {
+      const response = await api.get('/transacoes/todas')
+      setTodasTransacoes(Array.isArray(response.data) ? response.data : [])
+    } catch (error) {
+      console.error(
+        'Erro ao carregar todas as transações:',
+        error.response?.data || error.message
+      )
+      setTodasTransacoes([])
     }
   }
 
@@ -166,20 +184,22 @@ function Dashboard() {
   }
 
   function selecionarTodas() {
-    if (!dashboard?.transacoes?.length) return
+    const transacoesParaSelecionar = mostrarTodasParcelas
+      ? todasTransacoes
+      : dashboard?.transacoes || []
 
-    const todasNaoPagas = dashboard.transacoes
-      .filter((t) => !t.paga)
+    const despesasNaoPagas = transacoesParaSelecionar
+      .filter((t) => t.tipo === 'despesa' && !t.paga)
       .map((t) => t.id)
 
-    const todasSelecionadas = todasNaoPagas.every((id) =>
+    const todasSelecionadas = despesasNaoPagas.every((id) =>
       selecionadas.has(id)
     )
 
     if (todasSelecionadas) {
       setSelecionadas(new Set())
     } else {
-      setSelecionadas(new Set(todasNaoPagas))
+      setSelecionadas(new Set(despesasNaoPagas))
     }
   }
 
@@ -195,6 +215,9 @@ function Dashboard() {
 
       setSelecionadas(new Set())
       await loadDashboard()
+      if (mostrarTodasParcelas) {
+        await loadTodasTransacoes()
+      }
 
       alert(`${selecionadas.size} transação(ões) marcada(s) como paga(s).`)
     } catch (error) {
@@ -243,6 +266,9 @@ function Dashboard() {
       setNovaTransacao(criarTransacaoInicial())
 
       await Promise.all([loadDashboard(), loadCategorias()])
+      if (mostrarTodasParcelas) {
+        await loadTodasTransacoes()
+      }
 
       alert(
         response.data?.mensagem ||
@@ -297,6 +323,9 @@ function Dashboard() {
 
       setEditandoTransacao(null)
       await loadDashboard()
+      if (mostrarTodasParcelas) {
+        await loadTodasTransacoes()
+      }
 
       alert('Transação atualizada com sucesso!')
     } catch (error) {
@@ -335,6 +364,9 @@ function Dashboard() {
     try {
       await api.delete(`/transacoes/${transacao.id}`)
       await loadDashboard()
+      if (mostrarTodasParcelas) {
+        await loadTodasTransacoes()
+      }
       alert('Transação excluída com sucesso!')
     } catch (error) {
       alert(
@@ -351,6 +383,9 @@ function Dashboard() {
       )
 
       await loadDashboard()
+      if (mostrarTodasParcelas) {
+        await loadTodasTransacoes()
+      }
 
       alert(
         response.data?.mensagem ||
@@ -373,6 +408,9 @@ function Dashboard() {
       })
 
       await loadDashboard()
+      if (mostrarTodasParcelas) {
+        await loadTodasTransacoes()
+      }
 
       alert(
         novoStatus
@@ -438,6 +476,10 @@ function Dashboard() {
       .map((categoria) => categoria.nome)
   ]
 
+  const transacoesParaExibir = mostrarTodasParcelas
+    ? todasTransacoes
+    : dashboard?.transacoes || []
+
   if (loading) {
     return <div className="loading">Carregando...</div>
   }
@@ -495,6 +537,14 @@ function Dashboard() {
 
             <button onClick={gerarRelatorioPDF} className="btn-pdf">
               📄 Gerar PDF
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setMostrarTodasParcelas(!mostrarTodasParcelas)}
+              className="btn-toggle-parcelas"
+            >
+              {mostrarTodasParcelas ? '📅 Ver mês atual' : '📅 Ver todas as parcelas'}
             </button>
           </div>
         </section>
@@ -728,16 +778,20 @@ function Dashboard() {
         </section>
 
         <section className="transacoes-section">
-          <h2>📋 Transações</h2>
+          <h2>
+            📋 Transações {mostrarTodasParcelas && '(Todas as Parcelas)'}
+          </h2>
 
-          {dashboard?.transacoes?.length > 0 && (
+          {transacoesParaExibir.length > 0 && (
             <div className="transacoes-toolbar">
               <button
                 type="button"
                 onClick={selecionarTodas}
                 className="btn-select-all"
               >
-                {selecionadas.size > 0 ? '⬜ Desmarcar todas' : '☑️ Selecionar não pagas'}
+                {selecionadas.size > 0
+                  ? '⬜ Desmarcar todas'
+                  : '☑️ Selecionar não pagas'}
               </button>
 
               {selecionadas.size > 0 && (
@@ -753,12 +807,12 @@ function Dashboard() {
           )}
 
           <div className="transacoes-list">
-            {!dashboard?.transacoes?.length ? (
+            {transacoesParaExibir.length === 0 ? (
               <p className="empty">
-                Nenhuma transação cadastrada neste período.
+                Nenhuma transação cadastrada{mostrarTodasParcelas ? ' ainda' : ' neste período'}.
               </p>
             ) : (
-              dashboard.transacoes.map((transacao) => {
+              transacoesParaExibir.map((transacao) => {
                 const possuiGrupoDeParcelas =
                   transacao.recorrente &&
                   transacao.grupoParcelasId &&
@@ -772,15 +826,17 @@ function Dashboard() {
                       transacao.paga ? 'paga' : ''
                     } ${selecionadas.has(transacao.id) ? 'selecionada' : ''}`}
                   >
-                    <div className="transacao-checkbox">
-                      <input
-                        type="checkbox"
-                        checked={selecionadas.has(transacao.id)}
-                        onChange={() => toggleSelecao(transacao.id)}
-                        disabled={transacao.paga}
-                        title={transacao.paga ? 'Já paga' : 'Selecionar'}
-                      />
-                    </div>
+                    {transacao.tipo === 'despesa' && (
+                      <div className="transacao-checkbox">
+                        <input
+                          type="checkbox"
+                          checked={selecionadas.has(transacao.id)}
+                          onChange={() => toggleSelecao(transacao.id)}
+                          disabled={transacao.paga}
+                          title={transacao.paga ? 'Já paga' : 'Selecionar'}
+                        />
+                      </div>
+                    )}
 
                     <div className="transacao-info">
                       <strong>{transacao.descricao}</strong>
@@ -824,27 +880,29 @@ function Dashboard() {
                           ✏️
                         </button>
 
-                        <button
-                          type="button"
-                          onClick={() =>
-                            alternarStatusPagamento(transacao)
-                          }
-                          className={
-                            transacao.paga ? 'btn-unpay' : 'btn-pay'
-                          }
-                          aria-label={
-                            transacao.paga
-                              ? 'Desmarcar como paga'
-                              : 'Marcar como paga'
-                          }
-                          title={
-                            transacao.paga
-                              ? 'Desmarcar como paga'
-                              : 'Marcar como paga'
-                          }
-                        >
-                          {transacao.paga ? '↩️ Desmarcar' : '💵 Pagar'}
-                        </button>
+                        {transacao.tipo === 'despesa' && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              alternarStatusPagamento(transacao)
+                            }
+                            className={
+                              transacao.paga ? 'btn-unpay' : 'btn-pay'
+                            }
+                            aria-label={
+                              transacao.paga
+                                ? 'Desmarcar como paga'
+                                : 'Marcar como paga'
+                            }
+                            title={
+                              transacao.paga
+                                ? 'Desmarcar como paga'
+                                : 'Marcar como paga'
+                            }
+                          >
+                            {transacao.paga ? '↩️ Desmarcar' : '💵 Pagar'}
+                          </button>
+                        )}
 
                         {possuiGrupoDeParcelas ? (
                           <>

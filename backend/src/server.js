@@ -759,6 +759,21 @@ app.get('/api/relatorio/pdf', authMiddleware, async (req, res, next) => {
   }
 })
 
+app.get('/api/transacoes/todas', authMiddleware, async (req, res, next) => {
+  try {
+    const transacoes = await prisma.transacao.findMany({
+      where: {
+        userId: req.userId
+      },
+      orderBy: { data: 'asc' }
+    })
+
+    return res.json(transacoes)
+  } catch (error) {
+    return next(error)
+  }
+})
+
 app.use((req, res) => {
   return res.status(404).json({
     error: 'Rota não encontrada.'
