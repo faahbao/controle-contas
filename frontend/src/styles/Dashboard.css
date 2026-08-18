@@ -540,3 +540,71 @@
   font-size: 12px;
   margin-left: 8px;
 }
+
+.btn-delete-futuras {
+  background: #e67e22;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 7px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.btn-delete-futuras:hover {
+  background: #d35400;
+}
+
+/* Status de pagamento */
+.transacao-item.paga {
+  background: #e8f5e9;
+  border-left: 6px solid #2e7d32;
+}
+
+.transacao-item.paga .transacao-info strong {
+  color: #2e7d32;
+}
+
+.paga-badge {
+  margin-left: 8px;
+  font-size: 12px;
+  color: #2e7d32;
+  font-weight: 700;
+  background: #c8e6c9;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.btn-pay {
+  background: #2e7d32;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 7px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.btn-pay:hover {
+  background: #1b5e20;
+}
+
+.btn-unpay {
+  background: #78909c;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 7px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.btn-unpay:hover {
+  background: #546e7a;
+}

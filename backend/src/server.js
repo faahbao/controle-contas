@@ -44,7 +44,7 @@ app.use(
       return callback(new Error(`Origem não permitida pelo CORS: ${origin}`))
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
   })
 )
@@ -125,6 +125,10 @@ const transacaoSchema = Joi.object({
 const categoriaSchema = Joi.object({
   nome: Joi.string().trim().min(1).max(50).required(),
   tipo: Joi.string().valid('receita', 'despesa').required()
+})
+
+const pagamentoSchema = Joi.object({
+  paga: Joi.boolean().required()
 })
 
 function validarId(valor) {
@@ -521,6 +525,52 @@ app.put('/api/transacoes/:id', authMiddleware, async (req, res, next) => {
     })
 
     return res.json(atualizada)
+  } catch (error) {
+    return next(error)
+  }
+})
+
+app.patch('/api/transacoes/:id/pagamento', authMiddleware, async (req, res, next) => {
+  try {
+    const id = validarId(req.params.id)
+
+    if (!id) {
+      return res.status(400).json({ error: 'ID de transação inválido.' })
+    }
+
+    const { error, value } = pagamentoSchema.validate(req.body, {
+      abortEarly: true,
+      stripUnknown: true
+    })
+
+    if (error) {
+      return res.status(400).json({ error: error.details[0].message })
+    }
+
+    const transacao = await prisma.transacao.findFirst({
+      where: {
+        id,
+        userId: req.userId
+      }
+    })
+
+    if (!transacao) {
+      return res.status(404).json({
+        error: 'Transação não encontrada.'
+      })
+    }
+
+    const atualizada = await prisma.transacao.update({
+      where: { id },
+      data: {
+        paga: value.paga
+      }
+    })
+
+    return res.json({
+      mensagem: `Transação ${value.paga ? 'marcada como paga' : 'marcada como pendente'}.`,
+      transacao: atualizada
+    })
   } catch (error) {
     return next(error)
   }

@@ -186,10 +186,7 @@ function Dashboard() {
 
       setNovaTransacao(criarTransacaoInicial())
 
-      await Promise.all([
-        loadDashboard(),
-        loadCategorias()
-      ])
+      await Promise.all([loadDashboard(), loadCategorias()])
 
       alert(
         response.data?.mensagem ||
@@ -282,7 +279,7 @@ function Dashboard() {
     try {
       await api.delete(`/transacoes/${transacao.id}`)
       await loadDashboard()
-      alert('Somente esta transação foi excluída.')
+      alert('Transação excluída com sucesso!')
     } catch (error) {
       alert(
         'Erro ao excluir transação: ' +
@@ -311,53 +308,27 @@ function Dashboard() {
     }
   }
 
-  async function deletarTransacao(transacao) {
-    const possuiGrupoDeParcelas =
-      transacao.recorrente &&
-      transacao.grupoParcelasId &&
-      transacao.parcelas &&
-      transacao.parcelaAtual
+  async function alternarStatusPagamento(transacao) {
+    try {
+      const novoStatus = !transacao.paga
 
-    if (possuiGrupoDeParcelas) {
-      const excluirAtualEFuturas = window.confirm(
-        `Esta é a parcela ${transacao.parcelaAtual}/${transacao.parcelas}.\n\n` +
-          'Clique em OK para excluir esta parcela e todas as futuras.\n\n' +
-          'Clique em Cancelar para escolher excluir somente esta parcela.'
+      await api.patch(`/transacoes/${transacao.id}/pagamento`, {
+        paga: novoStatus
+      })
+
+      await loadDashboard()
+
+      alert(
+        novoStatus
+          ? 'Transação marcada como paga.'
+          : 'Transação marcada como pendente.'
       )
-
-      if (excluirAtualEFuturas) {
-        const confirmou = window.confirm(
-          `Confirma excluir a parcela ${transacao.parcelaAtual}/${transacao.parcelas} ` +
-            'e todas as parcelas futuras?\n\n' +
-            'As parcelas anteriores serão mantidas no histórico.'
-        )
-
-        if (confirmou) {
-          await excluirParcelaAtualEFuturas(transacao)
-        }
-
-        return
-      }
-
-      const excluirSomente = window.confirm(
-        `Deseja excluir somente a parcela ${transacao.parcelaAtual}/${transacao.parcelas}?\n\n` +
-          'As demais parcelas serão mantidas.'
+    } catch (error) {
+      alert(
+        'Erro ao atualizar status de pagamento: ' +
+          (error.response?.data?.error || error.message)
       )
-
-      if (excluirSomente) {
-        await excluirSomenteEstaParcela(transacao)
-      }
-
-      return
     }
-
-    const confirmou = window.confirm(
-      'Tem certeza que deseja excluir esta transação?'
-    )
-
-    if (!confirmou) return
-
-    await excluirSomenteEstaParcela(transacao)
   }
 
   async function gerarRelatorioPDF() {
@@ -709,60 +680,128 @@ function Dashboard() {
                 Nenhuma transação cadastrada neste período.
               </p>
             ) : (
-              dashboard.transacoes.map((transacao) => (
-                <div
-                  key={transacao.id}
-                  className={`transacao-item ${transacao.tipo}`}
-                >
-                  <div className="transacao-info">
-                    <strong>{transacao.descricao}</strong>
+              dashboard.transacoes.map((transacao) => {
+                const possuiGrupoDeParcelas =
+                  transacao.recorrente &&
+                  transacao.grupoParcelasId &&
+                  transacao.parcelas &&
+                  transacao.parcelaAtual
 
-                    <span className="categoria">{transacao.categoria}</span>
+                return (
+                  <div
+                    key={transacao.id}
+                    className={`transacao-item ${transacao.tipo} ${
+                      transacao.paga ? 'paga' : ''
+                    }`}
+                  >
+                    <div className="transacao-info">
+                      <strong>{transacao.descricao}</strong>
 
-                    <span className="data">
-                      {formatarData(transacao.data)}
+                      <span className="categoria">
+                        {transacao.categoria}
+                      </span>
 
-                      {transacao.recorrente && (
-                        <span className="recorrente-badge">
-                          🔄 {transacao.frequencia}{' '}
-                          {transacao.parcelas
-                            ? `(${transacao.parcelaAtual || 1}/${transacao.parcelas})`
-                            : ''}
-                        </span>
-                      )}
-                    </span>
-                  </div>
+                      <span className="data">
+                        {formatarData(transacao.data)}
 
-                  <div className="transacao-actions">
-                    <div className={`transacao-valor ${transacao.tipo}`}>
-                      {transacao.tipo === 'receita' ? '+' : '-'} R${' '}
-                      {formatarMoeda(transacao.valor)}
+                        {transacao.recorrente && (
+                          <span className="recorrente-badge">
+                            🔄 {transacao.frequencia}{' '}
+                            {transacao.parcelas
+                              ? `(${transacao.parcelaAtual || 1}/${transacao.parcelas})`
+                              : ''}
+                          </span>
+                        )}
+
+                        {transacao.paga && (
+                          <span className="paga-badge">✅ Paga</span>
+                        )}
+                      </span>
                     </div>
 
-                    <div className="transacao-buttons">
-                      <button
-                        type="button"
-                        onClick={() => editarTransacao(transacao)}
-                        className="btn-edit"
-                        aria-label="Editar transação"
-                        title="Editar transação"
-                      >
-                        ✏️
-                      </button>
+                    <div className="transacao-actions">
+                      <div className={`transacao-valor ${transacao.tipo}`}>
+                        {transacao.tipo === 'receita' ? '+' : '-'} R${' '}
+                        {formatarMoeda(transacao.valor)}
+                      </div>
 
-                      <button
-                        type="button"
-                        onClick={() => deletarTransacao(transacao)}
-                        className="btn-delete"
-                        aria-label="Excluir transação"
-                        title="Excluir transação"
-                      >
-                        🗑️
-                      </button>
+                      <div className="transacao-buttons">
+                        <button
+                          type="button"
+                          onClick={() => editarTransacao(transacao)}
+                          className="btn-edit"
+                          aria-label="Editar transação"
+                          title="Editar transação"
+                        >
+                          ✏️
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            alternarStatusPagamento(transacao)
+                          }
+                          className={
+                            transacao.paga ? 'btn-unpay' : 'btn-pay'
+                          }
+                          aria-label={
+                            transacao.paga
+                              ? 'Desmarcar como paga'
+                              : 'Marcar como paga'
+                          }
+                          title={
+                            transacao.paga
+                              ? 'Desmarcar como paga'
+                              : 'Marcar como paga'
+                          }
+                        >
+                          {transacao.paga ? '↩️ Desmarcar' : '💵 Pagar'}
+                        </button>
+
+                        {possuiGrupoDeParcelas ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                excluirSomenteEstaParcela(transacao)
+                              }
+                              className="btn-delete"
+                              aria-label="Excluir somente esta parcela"
+                              title="Excluir somente esta parcela"
+                            >
+                              🗑️ Esta
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                excluirParcelaAtualEFuturas(transacao)
+                              }
+                              className="btn-delete-futuras"
+                              aria-label="Excluir parcela atual e futuras"
+                              title="Excluir parcela atual e futuras"
+                            >
+                              ⏩ Futuras
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              excluirSomenteEstaParcela(transacao)
+                            }
+                            className="btn-delete"
+                            aria-label="Excluir transação"
+                            title="Excluir transação"
+                          >
+                            🗑️
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
+                )
+              })
             )}
           </div>
         </section>

@@ -30,6 +30,7 @@ model Transacao {
   parcelas         Int?
   parcelaAtual     Int?
   grupoParcelasId  String?
+  paga             Boolean  @default(false)
 
   userId           Int
   user             User     @relation(fields: [userId], references: [id])
