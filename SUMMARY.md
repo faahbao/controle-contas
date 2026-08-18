@@ -1,134 +1,61 @@
-# 📋 Resumo do Projeto
+# Resumo do Projeto
 
-## 💰 Sistema de Controle Financeiro
+## Objetivo
 
-Sistema fullstack para gestão financeira pessoal com foco em transaçªµes recorrentes parceladas.
+Controle Financeiro e uma aplicacao web para registrar receitas, despesas, categorias e compromissos parcelados.
 
----
+## Arquitetura
 
-## 🎯 Objetivo Principal
-
-Permitir que usuÆ¡rios lancem despesas recorrentes (como aluguel, financiamento, etc.) uma Æ║nica vez, e o sistema distribui automaticamente as parcelas nos meses seguintes.
-
----
-
-## ✨ Funcionalidades Principais
-
-### 1. Autenticaçª£o
-- Cadastro e login com JWT
-- Proteçª£o de rotas
-
-### 2. Transaçªµes
-- Receitas e despesas
-- Categorias personalizÆ¡veis
-- **Recorrente com parcelas** (feature principal)
-
-### 3. Dashboard
-- Cards com totais do mŒs
-- GrÆ¢fico receitas vs despesas
-- Filtro por mŒs/ano
-
-### 4. RelatÆ¢rios
-- Exportaçª£o em PDF
-
----
-
-## 🏗️ Arquitetura
-
-```
-┌─────────────┐         ┌──────────────┐         ┌─────────────┐
-│   Frontend  │ ──────▶ │    Backend   │ ──────▶ │  PostgreSQL │
-│   (React)   │  HTTP   │ (Express.js) │  Prisma │   (Dados)   │
-└─────────────┘         └──────────────┘         └─────────────┘
+```text
+React + Vite
+    |
+    | HTTP com Axios
+    v
+Node.js + Express
+    |
+    | Prisma ORM
+    v
+SQLite
 ```
 
----
+## Principais recursos
 
-## 📁 Estrutura de Arquivos
+- Cadastro e login com JWT.
+- Dashboard mensal.
+- Receitas e despesas.
+- Categorias.
+- Parcelas recorrentes.
+- Pagamento individual de despesas.
+- Pagamento de varias parcelas.
+- Pagamento antecipado de parcelas futuras.
+- Exclusao de parcela unica ou futuras.
+- Relatorio PDF.
 
-```
-finance/
-├── README.md
-├── BACKEND.md
-├── FRONTEND.md
-├── FEATURES.md
-├── INSTALL.md
-├── API.md
-├── SUMMARY.md
-├── UPDATES.md
-└── VISUAL_GUIDE.md
-│
-├── backend/
-│   ├── prisma/
-│   │   └── schema.prisma
-│   └── src/
-│       └── server.js
-│
-└── frontend/
-    └── src/
-        ├── pages/
-        │   ├── Login.jsx
-        │   └── Dashboard.jsx
-        └── styles/
-            └── Dashboard.css
+## Fluxo de parcelas
+
+Uma transacao recorrente cria varias transacoes independentes.
+
+Exemplo:
+
+```text
+Financiamento (1/3) - agosto
+Financiamento (2/3) - setembro
+Financiamento (3/3) - outubro
 ```
 
----
+Cada parcela pode ser paga separadamente.
 
-## 🚀 Destaques
+## Pagamento antecipado
 
-### Transaçª£o Recorrente com Parcelas
+O usuario pode abrir `Ver todas as parcelas`, selecionar parcelas futuras e marca-las como pagas antes do mes de vencimento.
 
-**Problema resolvido:** UsuÆ¡rio nÆ£o precisa lançar manualmente a mesma despesa todo mŒs.
-
-**Soluçª£o:**
-1. UsuÆ¡rio lança "Aluguel - R$ 1.000 - 5 parcelas" em agosto
-2. Backend cria automaticamente 5 transaçªµes
-3. Cada transaçª£o aparece no mŒs correto
-4. Badge visual identifica: 🔄 mensal (2/5)
-
-**Tecnologias:**
-- Frontend: React + CSS3
-- Backend: Node.js + Express + Prisma
-- Banco: PostgreSQL
-
----
-
-## 📊 Status
-
-✅ Autenticaçª£o JWT
-✅ CRUD de transaçªµes
-✅ Transaçªµes recorrentes com parcelas
-✅ Dashboard com filtros
-✅ Categorias
-✅ RelatÆ¢rio PDF
-✅ Documentaçª£o completa
-
----
-
-## 👨‍💻 Stack Completo
+## Stack
 
 | Camada | Tecnologia |
-|--------|-----------|
-| Frontend | React, CSS3, Axios |
+|---|---|
+| Frontend | React, Vite, Axios, CSS |
 | Backend | Node.js, Express |
+| Banco | SQLite |
 | ORM | Prisma |
-| Banco | PostgreSQL |
-| Auth | JWT |
+| Autenticacao | JWT e bcrypt |
 | PDF | PDFKit |
-
----
-
-## 📝 PrÆ¢ximos Passos (SugestÆµes)
-
-- [ ] GrÆ¢ficos mais avançª§ados (Chart.js)
-- [ ] Notificaçªµes de vencimento
-- [ ] Metas de economia
-- [ ] Integraçª£o com banco
-- [ ] App mobile
-
----
-
-## 📄 Licençª§a
-
-MIT

@@ -1,106 +1,164 @@
-# 🔧 Backend - Controle Financeiro
+# Backend
 
-## 📁 Estrutura
+## Stack
 
+- Node.js
+- Express
+- Prisma
+- SQLite
+- JWT
+- bcrypt
+- Joi
+- Helmet
+- express-rate-limit
+- PDFKit
+
+## Arquivo principal
+
+```text
+backend/src/server.js
 ```
-backend/
-├── prisma/
-│   ├── schema.prisma
-│   └── dev.db
-├── src/
-│   └── server.js
-├── .env
-└── package.json
+
+O servidor concentra:
+
+- Configuracao do Express
+- CORS
+- Rate limit
+- Validacao com Joi
+- Autenticacao JWT
+- Dashboard
+- Categorias
+- Transacoes
+- Parcelas
+- Pagamentos
+- Relatorio PDF
+- Tratamento de erros
+
+## Banco
+
+O banco e SQLite e a URL e lida de `backend/.env`.
+
+```env
+DATABASE_URL="file:./dev.db?connection_limit=1"
 ```
 
-## 🗄️ Schema do Prisma
+O parametro `connection_limit=1` reduz conflitos de escrita no SQLite.
+
+## Prisma
+
+Arquivo do schema:
+
+```text
+backend/prisma/schema.prisma
+```
+
+Campo de pagamento no modelo `Transacao`:
 
 ```prisma
-model User {
-  id         Int          @id @default(autoincrement())
-  email      String       @unique
-  senha      String
-  nome       String
-  transacoes Transacao[]
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
-}
+paga Boolean @default(false)
+```
 
-model Transacao {
-  id           Int      @id @default(autoincrement())
-  descricao    String
-  valor        Float
-  tipo         String   // "receita" ou "despesa"
-  categoria    String
-  data         DateTime @default(now())
-  recorrente   Boolean  @default(false)
-  frequencia   String?  // "diaria", "semanal", "mensal"
-  parcelas     Int?     // quantidade total de parcelas
-  parcelaAtual Int?     // nÆºmero da parcela (1, 2, 3...)
-  userId       Int
-  user         User     @relation(fields: [userId], references: [id])
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-}
+Campos usados para parcelas:
 
-model Categoria {
-  id        Int      @id @default(autoincrement())
-  nome      String
-  tipo      String   // "receita" ou "despesa"
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+```prisma
+recorrente      Boolean @default(false)
+frequencia      String?
+parcelas        Int?
+parcelaAtual    Int?
+grupoParcelasId String?
+```
+
+## Rotas importantes
+
+```text
+POST   /api/auth/cadastro
+POST   /api/auth/login
+GET    /api/dashboard
+GET    /api/transacoes
+GET    /api/transacoes/todas
+POST   /api/transacoes
+PUT    /api/transacoes/:id
+PATCH  /api/transacoes/:id/pagamento
+DELETE /api/transacoes/:id
+DELETE /api/transacoes/:id/futuras
+GET    /api/categorias
+POST   /api/categorias
+GET    /api/relatorio/pdf
+```
+
+## Pagamento de parcelas
+
+A rota abaixo atualiza apenas a transacao do usuario autenticado:
+
+```text
+PATCH /api/transacoes/:id/pagamento
+```
+
+Body:
+
+```json
+{
+  "paga": true
 }
 ```
 
-## 🌐 API Endpoints
+O backend nao permite marcar receitas como pagas.
 
-### Auth
-- `POST /api/auth/cadastro` - Cadastrar usuÆ¡rio
-- `POST /api/auth/login` - Login
+## Todas as parcelas
 
-### Transaçªµes
-- `GET /api/transacoes` - Listar transaçªµes (filtro: mes, ano)
-- `POST /api/transacoes` - Criar transaçª£o
-- `PUT /api/transacoes/:id` - Atualizar transaçª£o
-- `DELETE /api/transacoes/:id` - Deletar transaçª£o
+A rota abaixo ignora o filtro mensal e retorna todas as transacoes do usuario:
 
-### Dashboard
-- `GET /api/dashboard` - Dashboard com resumo (filtro: mes, ano)
+```text
+GET /api/transacoes/todas
+```
 
-### Categorias
-- `GET /api/categorias` - Listar categorias
-- `POST /api/categorias` - Criar categoria
+Ela permite que o frontend mostre e pague parcelas futuras.
 
-### RelatÆ¢rios
-- `GET /api/relatorio/pdf` - Gerar PDF (filtro: mes, ano)
+## CORS
 
-## 🚀 Como rodar
+O backend deve permitir PATCH:
 
-```bash
-# Instalar dependŒncias
+```javascript
+methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+```
+
+Origens locais permitidas incluem:
+
+```text
+http://localhost:5173
+http://localhost:3001
+http://localhost:3000
+```
+
+## Executar
+
+```powershell
+cd D:\Projetos\controle-contas\backend
 npm install
-
-# Rodar migraçªµes
+npx prisma generate
 npx prisma migrate dev
-
-# Iniciar servidor
 npm run dev
 ```
 
-## 📝 Exemplo: Criar transaçª£o recorrente
+## Prisma Studio
 
-```json
-POST /api/transacoes
-{
-  "descricao": "Aluguel",
-  "valor": 1000,
-  "tipo": "despesa",
-  "categoria": "Moradia",
-  "data": "2026-08-15",
-  "recorrente": true,
-  "frequencia": "mensal",
-  "parcelas": 5
+```powershell
+cd D:\Projetos\controle-contas\backend
+npx prisma studio
+```
+
+## Solucao de timeout SQLite
+
+Nao atualize diversas parcelas em paralelo com `Promise.all`.
+
+O frontend deve usar:
+
+```javascript
+for (const id of idsSelecionados) {
+  await api.patch(`/transacoes/${id}/pagamento`, {
+    paga: true
+  })
 }
 ```
 
-**Resultado:** 5 transaçªµes criadas automaticamente (uma por mŒs).
+Isso realiza uma gravacao por vez.

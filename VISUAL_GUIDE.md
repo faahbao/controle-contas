@@ -1,339 +1,100 @@
-# 🎨 Guia Visual do Sistema
+# Guia Visual
 
-## 📱 VisÆ£o Geral
+## Login
 
-Este guia mostra como o sistema se parece e como navegar.
+1. Abra o frontend.
+2. Cadastre um usuario ou faca login.
+3. Apos o login, o Dashboard sera exibido.
 
----
+## Dashboard
 
-## 🔐 Tela de Login
+O Dashboard possui:
 
-```
-┌─────────────────────────────────┐
-│                                 │
-│     💰 Controle Financeiro      │
-│                                 │
-│  ┌───────────────────────────┐  │
-│  │  Email                    │  │
-│  │  [joao@email.com]         │  │
-│  └───────────────────────────┘  │
-│                                 │
-│  ┌───────────────────────────┐  │
-│  │  Senha                    │  │
-│  │  [********]               │  │
-│  └───────────────────────────┘  │
-│                                 │
-│  ┌───────────────────────────┐  │
-│  │       ENTRAR              │  │
-│  └───────────────────────────┘  │
-│                                 │
-│  NÆ£o tem conta? Cadastre-se    │
-│                                 │
-└─────────────────────────────────┘
+```text
+Cabecalho
+Filtros de mes e ano
+Cards de receitas, despesas e saldo
+Grafico de receitas versus despesas
+Formulario Nova Transacao
+Formulario Nova Categoria
+Secao Transacoes
 ```
 
-**Cores:**
-- Fundo: Gradiente azul (#667eea → #764ba2)
-- Cards: Branco (#ffffff)
-- BotÆ£o: Azul (#667eea)
+## Nova transacao
 
----
+Preencha:
 
-## 📊 Dashboard Principal
-
-```
-┌────────────────────────────────────────────────────┐
-│  💰 Controle de Contas        OlÆ¡, JoÆ£o   [Sair]  │
-├────────────────────────────────────────────────────┤
-│                                                    │
-│  MŒs: [Agosto ▼]  Ano: [2026 ▼]  [📄 Gerar PDF]  │
-│                                                    │
-│  ┌────────────┐ ┌────────────┐ ┌────────────┐    │
-│  │ Receitas   │ │ Despesas   │ │ Saldo      │    │
-│  │ R$ 5.000   │ │ R$ 3.000   │ │ R$ 2.000   │    │
-│  │ 💚         │ │ ❤️         │ │ 💙         │    │
-│  └────────────┘ └────────────┘ └────────────┘    │
-│                                                    │
-│  📊 Receitas vs Despesas                          │
-│  ┌──────────────────────────────────────────┐    │
-│  │ Receitas: ████████████████████ R$ 5.000  │    │
-│  │ Despesas: ██████████████ R$ 3.000        │    │
-│  └──────────────────────────────────────────┘    │
-│                                                    │
-│  ➕ Nova Transaçª£o                                │
-│  ┌──────────────────────────────────────────┐    │
-│  │ [Descriçª£o] [Valor] [Data]              │    │
-│  │ [Tipo: Despesa▼] [Categoria▼]            │    │
-│  │ ☑ Recorrente?                            │    │
-│  │ [FrequŒncia: Mensal▼] [Parcelas: 5]     │    │
-│  │ [Adicionar]                              │    │
-│  └──────────────────────────────────────────┘    │
-│                                                    │
-│  📋 Transaçªµes                                    │
-│  ┌──────────────────────────────────────────┐    │
-│  │ Aluguel (2/5) 🔄 mensal                  │    │
-│  │ Moradia         15/09/2026               │    │
-│  │                        - R$ 1.000 [✏️][🗑️]│    │
-│  ├──────────────────────────────────────────┤    │
-│  │ SalÆ¡rio                                 │    │
-│  │ SalÆ¡rio          10/09/2026             │    │
-│  │                        + R$ 5.000 [✏️][🗑️]│    │
-│  └──────────────────────────────────────────┘    │
-│                                                    │
-└────────────────────────────────────────────────────┘
+```text
+Descricao
+Valor
+Data
+Tipo
+Categoria
 ```
 
-**Cores:**
-- Receitas: Verde (#27ae60)
-- Despesas: Vermelho (#e74c3c)
-- Saldo: Azul (#3498db)
-- Badge Recorrente: Laranja (#f39c12)
+Para criar parcelas:
 
----
+1. Marque `Recorrente?`.
+2. Selecione diaria, semanal ou mensal.
+3. Informe a quantidade de parcelas.
+4. Clique em `Adicionar`.
 
-## 🏷️ Badges e Æcones
+## Lista de transacoes
 
-### Tipos de Transaçª£o
+Cada transacao exibe:
 
-| Tipo | Æcone | Cor |
-|------|--------|-----|
-| Receita | ➕ ou + | Verde |
-| Despesa | ➖ ou - | Vermelho |
-
-### Status
-
-| Status | Badge | Cor |
-|--------|-------|-----|
-| Recorrente | 🔄 mensal (2/5) | Laranja |
-| Ænica | (nenhum) | - |
-
-### Açªµes
-
-| AçÆ£o | Æcone |
-|-------|--------|
-| Editar | ✏️ |
-| Excluir | 🗑️ |
-| Adicionar | ➕ |
-| PDF | 📄 |
-| GrÆ¢fico | 📊 |
-
----
-
-## 📝 FormulÆ¡rio de Transaçª£o
-
-### Modo Normal
-
-```
-┌─────────────────────────────────┐
-│  ➕ Nova Transaçª£o             │
-│                                 │
-│  Descriçª£o: [Aluguel       ]   │
-│  Valor: [1000.00]               │
-│  Data: [15/08/2026]             │
-│  Tipo: [Despesa ▼]              │
-│  Categoria: [Moradia ▼]         │
-│  ☐ Recorrente?                  │
-│                                 │
-│  [Adicionar]                    │
-└─────────────────────────────────┘
+```text
+Descricao
+Categoria
+Data
+Valor
+Botao de editar
+Botao de excluir
 ```
 
-### Modo Recorrente
+Despesas tambem exibem:
 
-```
-┌─────────────────────────────────┐
-│  ➕ Nova Transaçª£o             │
-│                                 │
-│  Descriçª£o: [Aluguel       ]   │
-│  Valor: [1000.00]               │
-│  Data: [15/08/2026]             │
-│  Tipo: [Despesa ▼]              │
-│  Categoria: [Moradia ▼]         │
-│  ☑ Recorrente?                  │
-│  FrequŒncia: [Mensal ▼]         │
-│  Parcelas: [5]                  │
-│                                 │
-│  [Adicionar]                    │
-└─────────────────────────────────┘
+```text
+Checkbox de selecao
+Pagar ou Desmarcar
+Badge Paga quando aplicavel
 ```
 
----
+Transacoes parceladas tambem exibem:
 
-## 📋 Lista de Transaçªµes
-
-### Transaçª£o Ænica
-
-```
-┌────────────────────────────────────┐
-│  SalÆ¡rio                         │
-│  SalÆ¡rio      10/08/2026         │
-│                  + R$ 5.000 [✏️][🗑️]│
-└────────────────────────────────────┘
+```text
+Esta
+Futuras
 ```
 
-### Transaçª£o Recorrente
+`Esta` exclui somente a parcela atual.
 
-```
-┌────────────────────────────────────┐
-│  Aluguel (2/5) 🔄 mensal          │
-│  Moradia     15/09/2026           │
-│                  - R$ 1.000 [✏️][🗑️]│
-└────────────────────────────────────┘
-```
+`Futuras` exclui a parcela atual e as posteriores.
 
----
+## Todas as parcelas
 
-## 🎨 Paleta de Cores
+No cabecalho da secao Transacoes existe o botao:
 
-### Cores Principais
-
-| Cor | Hex | Uso |
-|-----|-----|-----|
-| Azul Principal | #667eea | BotÆµes, links |
-| Azul Escuro | #764ba2 | Gradientes |
-| Verde | #27ae60 | Receitas, sucesso |
-| Vermelho | #e74c3c | Despesas, erro |
-| Laranja | #f39c12 | Recorrente, alertas |
-| Cinza | #ecf0f1 | Fundos, bordas |
-
-### Cores de Fundo
-
-| Elemento | Cor |
-|----------|-----|
-| PÆ¡gina | #f5f6fa |
-| Cards | #ffffff |
-| Header | #667eea |
-
----
-
-## 📱 Responsividade
-
-### Desktop (> 1024px)
-- Layout com sidebar
-- Cards em linha (3 colunas)
-- GrÆ¢fico grande
-
-### Tablet (768px - 1024px)
-- Layout compacto
-- Cards em 2 colunas
-- GrÆ¢fico mÆ©dio
-
-### Mobile (< 768px)
-- Menu hamburger
-- Cards em 1 coluna
-- GrÆ¢fico pequeno
-- FormulÆ¡rio em tela cheia
-
----
-
-## 🔍 Estados Visuais
-
-### Loading
-
-```
-┌─────────────────────────────────┐
-│                                 │
-│         Carregando...           │
-│         ⏳                        │
-│                                 │
-└─────────────────────────────────┘
+```text
+Ver todas as parcelas
 ```
 
-### Vazio (sem transaçªµes)
+Ao clicar:
 
-```
-┌─────────────────────────────────┐
-│  📋 Transaçªµes                  │
-│                                 │
-│  Nenhuma transaçª£o cadastrada.  │
-│  Adicione uma acima!            │
-│                                 │
-└─────────────────────────────────┘
-```
+- Parcelas de meses futuros aparecem.
+- O filtro mensal deixa de limitar a lista.
+- Parcelas futuras podem ser selecionadas.
+- O usuario pode pagar parcelas antecipadamente.
 
-### Erro
+## Pagamento em lote
 
-```
-┌─────────────────────────────────┐
-│  ⚠️ Erro ao carregar dados     │
-│  Tente novamente mais tarde     │
-└─────────────────────────────────┘
-```
+1. Clique em `Selecionar nao pagas` ou marque checkboxes individuais.
+2. Clique em `Pagar X selecionadas`.
+3. Aguarde a conclusao.
+4. As despesas receberao o badge `Paga`.
 
-### Sucesso
+## Relatorio PDF
 
-```
-┌─────────────────────────────────┐
-│  ✅ 5 parcelas criadas com     │
-│     sucesso!                    │
-└─────────────────────────────────┘
-```
-
----
-
-## 🎯 Fluxo de Uso
-
-### 1. Primeiro Acesso
-
-```
-Login → Dashboard → Ver transaçªµes (vazio)
-```
-
-### 2. Adicionar Transaçª£o Ænica
-
-```
-Dashboard → Preencher formulÆ¡rio → Adicionar → Ver na lista
-```
-
-### 3. Adicionar Transaçª£o Recorrente
-
-```
-Dashboard → Preencher formulÆ¡rio → Marcar "Recorrente?" → 
-Informar parcelas → Adicionar → Ver parcelas nos meses seguintes
-```
-
-### 4. Filtrar por MŒs
-
-```
-Dashboard → Selecionar mŒs → Ver transaçªµes do mŒs
-```
-
-### 5. Gerar PDF
-
-```
-Dashboard → Selecionar mŒs → Clicar "Gerar PDF" → Download
-```
-
----
-
-## 📊 Exemplo Real
-
-### CenÆ¡rio: UsuÆ¡rio com aluguel de 5 parcelas
-
-**Agosto 2026:**
-```
-┌────────────────────────────────────┐
-│  Aluguel (1/5) 🔄 mensal          │
-│  - R$ 1.000                       │
-└────────────────────────────────────┘
-```
-
-**Setembro 2026:**
-```
-┌────────────────────────────────────┐
-│  Aluguel (2/5) 🔄 mensal          │
-│  - R$ 1.000                       │
-└────────────────────────────────────┘
-```
-
-**Outubro 2026:**
-```
-┌────────────────────────────────────┐
-│  Aluguel (3/5) 🔄 mensal          │
-│  - R$ 1.000                       │
-└────────────────────────────────────┘
-```
-
----
-
-**Guia visual completo!** 🎨
+1. Escolha mes e ano.
+2. Clique em `Gerar PDF`.
+3. O navegador baixa o relatorio do periodo selecionado.

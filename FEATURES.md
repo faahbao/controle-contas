@@ -1,85 +1,84 @@
-# ⭐ Funcionalidades
+# Funcionalidades
 
-## 🔐 Autenticaçª£o
+## Autenticacao
 
-- Cadastro de usuÆ¡rio com nome, email e senha
+- Cadastro de usuario
 - Login com JWT
-- Proteçª£o de rotas no frontend
-- Contexto de autenticaçª£o (AuthContext)
+- Rotas protegidas
+- Logout
+- Senhas armazenadas com hash bcrypt
 
-## 💰 Transaçªµes
+## Transacoes
 
-### Tipos
-- **Receita** - Entradas de dinheiro
-- **Despesa** - SaÆ¢das de dinheiro
+- Criacao de receitas
+- Criacao de despesas
+- Edicao de transacoes
+- Exclusao de transacoes
+- Filtro por mes e ano
+- Categorias pre-definidas
+- Categorias personalizadas
 
-### Campos
-- Descriçª£o
-- Valor
-- Tipo (receita/despesa)
-- Categoria
-- Data
-- Recorrente (sim/nÆ£o)
-- FrequŒncia (diÆ¡ria, semanal, mensal)
-- Parcelas (quantidade)
+## Parcelas recorrentes
 
-### Recorrente com Parcelas
+- Frequencia diaria
+- Frequencia semanal
+- Frequencia mensal
+- Quantidade de parcelas entre 1 e 120
+- Geracao automatica de uma transacao para cada parcela
+- Identificacao visual da parcela atual e total
+- Grupo de parcelas pelo campo `grupoParcelasId`
 
-**Como funciona:**
-1. UsuÆ¡rio marca "Recorrente?"
-2. Escolhe frequŒncia (ex: mensal)
-3. Informa parcelas (ex: 5)
-4. Sistema cria automaticamente 5 transaçªµes (uma por mŒs)
+Exemplo:
 
-**Exemplo:**
-- Lançª§amento: Aluguel R$ 1.000 em 08/2026 (5 parcelas)
-- 08/2026: Aluguel (1/5)
-- 09/2026: Aluguel (2/5)
-- 10/2026: Aluguel (3/5)
-- 11/2026: Aluguel (4/5)
-- 12/2026: Aluguel (5/5)
+```text
+Compra (1/3)
+Compra (2/3)
+Compra (3/3)
+```
 
-## 📊 Dashboard
+## Exclusao de parcelas
 
-### Cards
-- Receitas do mŒs
-- Despesas do mŒs
-- Saldo (receitas - despesas)
+Para transacoes parceladas, o usuario pode:
 
-### GrÆ¢fico
-- Barras horizontais comparando receitas vs despesas
-- Porcentagem visual
+- Excluir somente a parcela selecionada
+- Excluir a parcela selecionada e todas as futuras
 
-### Filtros
-- MŒs (01-12)
-- Ano (2024-2028)
+Parcelas anteriores permanecem no historico.
 
-## 📁 Categorias
+## Pagamentos
 
-### PrÆ©-definidas
-- **Receita:** SalÆ¡rio, Freelance, Investimentos, Outros
-- **Despesa:** Alimentaçª£o, Transporte, Moradia, SaÆºde, Educaçª£o, Lazer, VestuÆ¡rio, Outros
+- Apenas despesas exibem o botao `Pagar`
+- Despesas pagas recebem status `paga: true`
+- Despesas pagas podem voltar para pendente
+- Despesas pagas recebem badge visual
+- Receitas nao possuem status de pagamento
+- Checkboxes permitem selecionar varias despesas pendentes
+- O botao `Pagar selecionadas` paga varias parcelas
+- Pagamento em lote ocorre de forma sequencial para evitar bloqueio do SQLite
 
-### Personalizadas
-- UsuÆ¡rio pode criar novas categorias
-- Define tipo (receita ou despesa)
+## Pagamento antecipado
 
-## 📄 RelatÆ¢rios
+O botao `Ver todas as parcelas` permite visualizar transacoes de meses futuros.
 
-- Geraçª£o de PDF com resumo do mŒs
-- Inclui: receitas, despesas, saldo e transaçªµes
-- Filtro por mŒs/ano
+Fluxo:
 
-## ✏️ Ediçª£o e ExclusÆ£o
+1. Clique em `Ver todas as parcelas`
+2. Selecione parcelas pendentes de meses futuros
+3. Clique em `Pagar selecionadas`
+4. Cada parcela e marcada como paga individualmente
 
-- Editar transaçªµes existentes
-- Excluir transaçªµes com confirmaçª£o
-- Modal de ediçª£o com todos os campos
+## Dashboard
 
-## 🎨 Interface
+- Card de receitas
+- Card de despesas
+- Card de saldo
+- Grafico de receitas versus despesas
+- Filtro por mes
+- Filtro por ano
 
-- Design limpo e moderno
-- Responsivo (funciona em mobile)
-- Cores intuitivas (verde=receita, vermelho=despesa)
-- Badges para transaçªµes recorrentes
-- Æcones emojis para melhor UX
+## Relatorios
+
+- Geracao de PDF
+- Resumo de receitas, despesas e saldo
+- Lista de transacoes do periodo
+- Status de pagamento para despesas

@@ -1,226 +1,55 @@
-╔════════════════════════════════════════════════════════════════════════╗
-║                                                                        ║
-║    💰 CONTROLE DE CONTAS PESSOAIS - IMPLEMENTAÇÃO CONCLUÍDA ✅       ║
-║                                                                        ║
-║    Desenvolvido em: 13 de agosto de 2026                             ║
-║    Versão: 1.0                                                        ║
-║    Status: Pronto para uso                                           ║
-║                                                                        ║
-╚════════════════════════════════════════════════════════════════════════╝
+CONTROLE DE CONTAS
 
-┌────────────────────────────────────────────────────────────────────────┐
-│ 📦 ESTRUTURA DO PROJETO                                               │
-├────────────────────────────────────────────────────────────────────────┤
-│                                                                        │
-│ d:\Projetos\controle-contas\                                         │
-│ │                                                                     │
-│ ├─ 📁 backend/                  (Node.js + Express + SQLite)         │
-│ │   ├─ src/                                                          │
-│ │   │  ├─ server.js             ✅ Servidor Express                 │
-│ │   │  ├─ db.js                 ✅ Banco SQLite                     │
-│ │   │  ├─ controllers/          ✅ CRUD Controller                  │
-│ │   │  ├─ routes/               ✅ 3 Rotas principais               │
-│ │   │  └─ jobs/                 ✅ Job recorrências                │
-│ │   ├─ package.json             ✅ Dependências                     │
-│ │   └─ .env                     ✅ Configuração                     │
-│ │                                                                     │
-│ ├─ 📁 frontend/                 (React + Vite)                       │
-│ │   ├─ src/                                                          │
-│ │   │  ├─ components/           ✅ 3 componentes                    │
-│ │   │  ├─ pages/                ✅ 5 páginas                        │
-│ │   │  ├─ services/             ✅ API client                       │
-│ │   │  └─ styles/               ✅ 9 arquivos CSS                   │
-│ │   ├─ index.html               ✅ HTML raiz                        │
-│ │   ├─ package.json             ✅ Dependências                     │
-│ │   └─ vite.config.js           ✅ Configuração Vite                │
-│ │                                                                     │
-│ ├─ 📄 README.md                 ✅ Documentação                      │
-│ ├─ 📄 QUICKSTART.md             ✅ Início rápido                     │
-│ ├─ 📄 PROJECT_STRUCTURE.md      ✅ Estrutura detalhada              │
-│ ├─ 📄 VISUAL_GUIDE.md           ✅ Guia visual                      │
-│ ├─ 📄 SUMMARY.md                ✅ Resumo                           │
-│ ├─ 📄 setup.bat / setup.sh      ✅ Scripts instalação               │
-│ └─ .gitignore                   ✅ Controle de versão               │
-│                                                                        │
-└────────────────────────────────────────────────────────────────────────┘
+INICIAR BACKEND
 
-┌────────────────────────────────────────────────────────────────────────┐
-│ ✨ FUNCIONALIDADES IMPLEMENTADAS                                      │
-├────────────────────────────────────────────────────────────────────────┤
-│                                                                        │
-│ ✅ Receitas              • Tipos: Salário, Outros                    │
-│                          • CRUD completo                             │
-│                          • Filtros por categoria                     │
-│                                                                        │
-│ ✅ Despesas              • 10 categorias pré-configuradas            │
-│                          • CRUD completo                             │
-│                          • Filtros por categoria                     │
-│                                                                        │
-│ ✅ Recorrências          • Marcação de transações recorrentes        │
-│                          • Período: Mensal                           │
-│                          • Geração automática (00:01 diariamente)    │
-│                          • Log para evitar duplicatas                │
-│                                                                        │
-│ ✅ Dashboard             • Saldo total (Receitas - Despesas)        │
-│                          • Totais por tipo                           │
-│                          • Gráfico de pizza                          │
-│                          • Gráficos de barras por categoria          │
-│                                                                        │
-│ ✅ Filtros               • Por tipo (receita/despesa)               │
-│                          • Por categoria                             │
-│                          • Por período (data)                        │
-│                          • Por recorrência                           │
-│                                                                        │
-│ ✅ Relatórios            • Período customizável                     │
-│                          • Resumo e detalhes                         │
-│                          • Tabelas de transações                     │
-│                                                                        │
-│ ✅ Exportação            • Formato CSV                              │
-│                          • Compatível com Excel/Sheets               │
-│                          • Com filtros aplicáveis                    │
-│                                                                        │
-│ ✅ Interface             • Menu lateral                             │
-│                          • Design responsivo                         │
-│                          • Suporte desktop e mobile                  │
-│                          • Cores intuitivas                          │
-│                                                                        │
-└────────────────────────────────────────────────────────────────────────┘
+cd D:\Projetos\controle-contas\backend
+npm run dev
 
-┌────────────────────────────────────────────────────────────────────────┐
-│ 🚀 COMO COMEÇAR                                                       │
-├────────────────────────────────────────────────────────────────────────┤
-│                                                                        │
-│ 1️⃣  Pré-requisito                                                    │
-│     • Instale Node.js: https://nodejs.org/ (LTS)                    │
-│                                                                        │
-│ 2️⃣  Instalação                                                       │
-│     • Windows: .\setup.bat                                          │
-│     • Linux/Mac: bash setup.sh                                      │
-│                                                                        │
-│ 3️⃣  Iniciar Backend (Terminal 1)                                     │
-│     • cd backend                                                     │
-│     • npm run dev                                                    │
-│                                                                        │
-│ 4️⃣  Iniciar Frontend (Terminal 2)                                    │
-│     • cd frontend                                                    │
-│     • npm run dev                                                    │
-│                                                                        │
-│ 5️⃣  Acessar no navegador                                             │
-│     • http://localhost:3000 (abre automaticamente)                  │
-│                                                                        │
-│ 6️⃣  Começar a usar!                                                  │
-│     • Adicione receitas e despesas                                  │
-│     • Veja o dashboard atualizar                                    │
-│     • Explore todas as funcionalidades                              │
-│                                                                        │
-└────────────────────────────────────────────────────────────────────────┘
+Backend:
+http://localhost:3000
 
-┌────────────────────────────────────────────────────────────────────────┐
-│ 🛠️  TECNOLOGIAS UTILIZADAS                                            │
-├────────────────────────────────────────────────────────────────────────┤
-│                                                                        │
-│ Backend:                         Frontend:                           │
-│ ├─ Express.js ✅                 ├─ React 18 ✅                      │
-│ ├─ SQLite3 ✅                    ├─ Vite ✅                          │
-│ ├─ node-schedule ✅              ├─ React Router ✅                  │
-│ ├─ CORS ✅                       ├─ Axios ✅                         │
-│ └─ dotenv ✅                     ├─ Recharts ✅                      │
-│                                  └─ Papaparse ✅                     │
-│                                                                        │
-└────────────────────────────────────────────────────────────────────────┘
+INICIAR FRONTEND
 
-┌────────────────────────────────────────────────────────────────────────┐
-│ 📊 ESTATÍSTICAS                                                        │
-├────────────────────────────────────────────────────────────────────────┤
-│                                                                        │
-│ • Arquivos criados:              41+                                 │
-│ • Linhas de código:              ~3500+                              │
-│ • Componentes React:             3 reutilizáveis                     │
-│ • Páginas:                       5 principais                        │
-│ • Rotas API:                     9 endpoints                         │
-│ • Arquivos CSS:                  9                                   │
-│ • Documentação:                  6 arquivos                          │
-│ • Banco de dados:                SQLite com 2 tabelas               │
-│                                                                        │
-└────────────────────────────────────────────────────────────────────────┘
+Abra outro terminal:
 
-┌────────────────────────────────────────────────────────────────────────┐
-│ 📚 DOCUMENTAÇÃO                                                        │
-├────────────────────────────────────────────────────────────────────────┤
-│                                                                        │
-│ README.md              → Documentação técnica completa               │
-│ QUICKSTART.md          → Guia de início rápido                       │
-│ PROJECT_STRUCTURE.md   → Estrutura detalhada do projeto             │
-│ VISUAL_GUIDE.md        → Guia de navegação com diagramas            │
-│ SUMMARY.md             → Resumo executivo                           │
-│                                                                        │
-└────────────────────────────────────────────────────────────────────────┘
+cd D:\Projetos\controle-contas\frontend
+npm run dev
 
-┌────────────────────────────────────────────────────────────────────────┐
-│ 💡 PRINCIPAIS CARACTERÍSTICAS                                         │
-├────────────────────────────────────────────────────────────────────────┤
-│                                                                        │
-│ 🔐 Segurança Local                                                    │
-│    • Dados salvos em banco SQLite local                             │
-│    • Nenhum dado enviado para nuvem                                 │
-│    • Funciona offline                                               │
-│                                                                        │
-│ 🔄 Recorrências Automáticas                                          │
-│    • Marque como recorrente (mensal)                                │
-│    • Sistema gera automaticamente cada mês                          │
-│    • Sem necessidade de inserção manual                             │
-│                                                                        │
-│ 📊 Gráficos Interativos                                              │
-│    • Dashboard com múltiplos gráficos                               │
-│    • Visualização de receitas vs despesas                           │
-│    • Breakdown por categoria                                        │
-│                                                                        │
-│ 🎯 Filtros Avançados                                                 │
-│    • Múltiplos filtros simultaneamente                              │
-│    • Busca por período customizável                                 │
-│    • Atualizações em tempo real                                     │
-│                                                                        │
-│ 📤 Exportação Flexível                                               │
-│    • Exporte em CSV com filtros aplicados                          │
-│    • Compatível com Excel e Google Sheets                           │
-│    • Backup fácil de dados                                          │
-│                                                                        │
-└────────────────────────────────────────────────────────────────────────┘
+Frontend:
+Use a URL exibida pelo Vite.
+Normalmente:
+http://localhost:3001
 
-┌────────────────────────────────────────────────────────────────────────┐
-│ ✅ CHECKLIST FINAL                                                     │
-├────────────────────────────────────────────────────────────────────────┤
-│                                                                        │
-│ ✓ Estrutura de pastas criada                                        │
-│ ✓ Backend com Express e SQLite                                      │
-│ ✓ Frontend com React e Vite                                         │
-│ ✓ CRUD completo (Create, Read, Update, Delete)                     │
-│ ✓ Recorrências automáticas implementadas                            │
-│ ✓ Dashboard com gráficos                                            │
-│ ✓ Relatórios por período                                            │
-│ ✓ Exportação em CSV                                                 │
-│ ✓ Filtros avançados                                                 │
-│ ✓ Documentação completa                                             │
-│ ✓ Scripts de setup criados                                          │
-│ ✓ Estilos responsivos aplicados                                     │
-│                                                                        │
-│ 🎉 PROJETO 100% COMPLETO E PRONTO PARA USO!                        │
-│                                                                        │
-└────────────────────────────────────────────────────────────────────────┘
+CONFIGURACAO DO BACKEND
 
-╔════════════════════════════════════════════════════════════════════════╗
-║                                                                        ║
-║  Para começar: cd d:\Projetos\controle-contas                        ║
-║                                                                        ║
-║  Windows: .\setup.bat                                               ║
-║  Linux/Mac: bash setup.sh                                           ║
-║                                                                        ║
-║  Depois abra 2 terminais e execute:                                 ║
-║    Terminal 1: cd backend && npm run dev                            ║
-║    Terminal 2: cd frontend && npm run dev                           ║
-║                                                                        ║
-║  🚀 Seu site estará em http://localhost:3000                        ║
-║                                                                        ║
-║  Bom uso! Controle suas finanças com inteligência! 💰               ║
-║                                                                        ║
-╚════════════════════════════════════════════════════════════════════════╝
+Arquivo:
+D:\Projetos\controle-contas\backend\.env
+
+Conteudo minimo:
+
+DATABASE_URL="file:./dev.db?connection_limit=1"
+JWT_SECRET="substitua-por-uma-chave-forte-com-32-caracteres-ou-mais"
+PORT=3000
+FRONTEND_URL="http://localhost:3001"
+
+COMANDOS PRISMA
+
+cd D:\Projetos\controle-contas\backend
+
+npx prisma generate
+npx prisma migrate dev
+npx prisma studio
+
+PAGAR PARCELAS FUTURAS
+
+1. Faca login.
+2. Na secao Transacoes, clique em Ver todas as parcelas.
+3. Selecione despesas pendentes.
+4. Clique em Pagar selecionadas.
+
+IMPORTANTE
+
+- Receitas nao precisam ser pagas.
+- O pagamento em lote ocorre uma parcela por vez.
+- Nao use Promise.all para atualizar varias parcelas no SQLite.
+- Se o navegador mantiver codigo antigo, use Ctrl + F5.

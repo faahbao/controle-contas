@@ -1,79 +1,126 @@
-# 📦 Instalaçª£o
+# Instalacao
 
-## PrÆ©-requisitos
+## Pre-requisitos
 
-- Node.js 18+
-- PostgreSQL
-- npm ou yarn
+- Node.js 20 ou superior
+- npm
+- Windows, Linux ou macOS
+
+O projeto usa SQLite. Nao e necessario instalar PostgreSQL ou Docker.
 
 ## Backend
 
-### 1. Instalar dependŒncias
+Abra um terminal:
 
-```bash
-cd backend
+```powershell
+cd D:\Projetos\controle-contas\backend
 npm install
 ```
 
-### 2. Configurar .env
+Crie ou edite o arquivo `.env`:
 
 ```env
-DATABASE_URL="postgresql://user:password@localhost:5432/finance?schema=public"
-JWT_SECRET="sua-chave-secreta"
+DATABASE_URL="file:./dev.db?connection_limit=1"
+JWT_SECRET="substitua-por-uma-chave-forte-com-32-caracteres-ou-mais"
 PORT=3000
+FRONTEND_URL="http://localhost:3001"
 ```
 
-### 3. Rodar migraçªµes
+Gere o cliente Prisma:
 
-```bash
+```powershell
+npx prisma generate
+```
+
+Crie ou atualize o banco:
+
+```powershell
 npx prisma migrate dev
 ```
 
-### 4. Iniciar servidor
+Inicie o backend:
 
-```bash
+```powershell
 npm run dev
+```
+
+O backend deve iniciar em:
+
+```text
+http://localhost:3000
 ```
 
 ## Frontend
 
-### 1. Instalar dependŒncias
+Abra outro terminal:
 
-```bash
-cd frontend
+```powershell
+cd D:\Projetos\controle-contas\frontend
 npm install
-```
-
-### 2. Configurar API
-
-Edite `src/services/api.js`:
-
-```javascript
-const api = axios.create({
-  baseURL: 'http://localhost:3000/api'
-})
-```
-
-### 3. Iniciar desenvolvimento
-
-```bash
 npm run dev
 ```
 
-## 🎉 Pronto!
+O frontend normalmente inicia em:
 
-Acesse: http://localhost:5173
-
-## 🐛 Problemas comuns
-
-### Erro no Prisma
-```bash
-npx prisma generate
-npx prisma migrate dev
+```text
+http://localhost:3001
 ```
 
-### Erro de CORS
-Verifique se o backend estÆ¡ rodando na porta 3000
+Use a URL informada no terminal do Vite.
 
-### Erro de banco
-Verifique se o PostgreSQL estÆ¡ rodando e o DATABASE_URL estÆ¡ correto
+## Atualizar banco
+
+Quando o arquivo `backend/prisma/schema.prisma` for alterado:
+
+```powershell
+cd D:\Projetos\controle-contas\backend
+npx prisma migrate dev --name nome-da-alteracao
+npx prisma generate
+```
+
+Exemplo para o campo de pagamento:
+
+```powershell
+npx prisma migrate dev --name add_paga_field
+npx prisma generate
+```
+
+## Problemas comuns
+
+### CORS bloqueando PATCH
+
+No `backend/src/server.js`, confirme:
+
+```javascript
+methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+```
+
+Depois reinicie o backend.
+
+### Prisma retorna EPERM
+
+Pare todos os processos Node e execute:
+
+```powershell
+cd D:\Projetos\controle-contas\backend
+Remove-Item -Recurse -Force node_modules\.prisma
+npx prisma generate
+```
+
+### SQLite retorna timeout
+
+Confirme no `.env`:
+
+```env
+DATABASE_URL="file:./dev.db?connection_limit=1"
+```
+
+O pagamento em lote deve executar uma atualizacao por vez, sem `Promise.all`.
+
+### Login retorna 404
+
+Confirme:
+
+- Backend rodando em `http://localhost:3000`
+- Frontend apontando para `http://localhost:3000/api`
+- Rota `POST /api/auth/login` presente no backend

@@ -1,207 +1,109 @@
-# 🔄 Histórico de Atualizaçªµes
+# Historico de Atualizacoes
 
-## VersÆ£o 1.1 - Transaçªµes Recorrentes com Parcelas
+## Versao 1.3 - Pagamentos e parcelas futuras
 
-**Data:** Agosto 2026
+Data: Agosto de 2026
 
----
+## Novas funcionalidades
 
-## ✨ Novas Funcionalidades
+### Status de pagamento
 
-### 1. Campo de Parcelas no FormulÆ¡rio
+Foi adicionado o campo:
 
-**O que mudou:**
-- Adicionado campo "Qtd. Parcelas" quando marca "Recorrente?"
-- Input numÆ©rico (1-120 parcelas)
-- SÆ¢ aparece se "Recorrente?" estiver marcado
-
-**Arquivos alterados:**
-- `frontend/src/pages/Dashboard.jsx`
-- `frontend/src/styles/Dashboard.css`
-
----
-
-### 2. Geraçª£o AutomÆ¡tica de Parcelas
-
-**O que mudou:**
-- Ao lançar transaçª£o recorrente com N parcelas, backend cria N transaçªµes
-- Cada transaçª£o tem data automÆ¡tica (mŒs seguinte)
-- Descriçª£o inclui nÆºmero da parcela: "Aluguel (1/5)", "Aluguel (2/5)", etc.
-
-**Arquivos alterados:**
-- `backend/src/server.js`
-- `backend/prisma/schema.prisma`
-
----
-
-### 3. Schema do Prisma Atualizado
-
-**Novos campos:**
 ```prisma
-parcelas     Int?     // quantidade total de parcelas
-parcelaAtual Int?     // nÆºmero da parcela (1, 2, 3...)
+paga Boolean @default(false)
 ```
 
-**Arquivo:** `backend/prisma/schema.prisma`
+O campo representa se uma despesa foi paga.
 
----
+### Pagamento individual
 
-### 4. Badge Visual de Parcelas
+Cada despesa exibe:
 
-**O que mudou:**
-- Transaçªµes recorrentes mostram badge: 🔄 mensal (2/5)
-- Cor laranja para destacar
-- Mostra frequŒncia e parcela atual/total
-
-**Arquivos alterados:**
-- `frontend/src/pages/Dashboard.jsx`
-- `frontend/src/styles/Dashboard.css`
-
----
-
-## 🐛 Correçªµes
-
-### 1. Filtro de MŒs/Ano
-
-**Problema:** Dashboard nÆ£o carregava ao filtrar por mŒs
-**Soluçª£o:** Endpoint `/api/dashboard` implementado
-
-**Arquivo:** `backend/src/server.js`
-
----
-
-### 2. Envio de Dados do Frontend
-
-**Problema:** Campo `recorrente` nÆ£o estava sendo enviado
-**Soluçª£o:** Console.log adicionado para debug
-
-**Arquivo:** `frontend/src/pages/Dashboard.jsx`
-
----
-
-## 📝 Migraçªµes
-
-### Migraçª£o 1: Adicionar campos de parcelas
-
-```bash
-npx prisma migrate dev --name add_parcelas
+```text
+Pagar
 ```
 
-### Migraçª£o 2: Adicionar parcelaAtual
+Depois de paga, o botao se torna:
 
-```bash
-npx prisma migrate dev --name add_parcela_atual
+```text
+Desmarcar
 ```
 
----
+Receitas nao possuem status de pagamento.
 
-## 🧪 Testes Realizados
+### Pagamento em lote
 
-✅ Criar transaçª£o recorrente de 5 parcelas
-✅ Visualizar parcelas em meses diferentes
-✅ Filtro por mŒs mostra parcela correta
-✅ Ediçª£o de transaçª£o recorrente
-✅ ExclusÆ£o de transaçª£o recorrente
-✅ Badge visual aparece corretamente
+O usuario pode selecionar varias despesas pendentes e clicar em:
 
----
-
-## 📊 Exemplo de Uso
-
-### CenÆ¡rio: Aluguel de 5 parcelas
-
-**Passo 1:** UsuÆ¡rio acessa dashboard
-**Passo 2:** Preenche formulÆ¡rio:
-- Descriçª£o: Aluguel
-- Valor: 1000
-- Data: 15/08/2026
-- Recorrente: Sim
-- FrequŒncia: Mensal
-- Parcelas: 5
-
-**Passo 3:** Backend cria 5 transaçªµes:
-- 15/08/2026: Aluguel (1/5)
-- 15/09/2026: Aluguel (2/5)
-- 15/10/2026: Aluguel (3/5)
-- 15/11/2026: Aluguel (4/5)
-- 15/12/2026: Aluguel (5/5)
-
-**Passo 4:** UsuÆ¡rio filtra por setembro
-**Resultado:** VŒ "Aluguel (2/5)" de R$ 1.000
-
----
-
-## 🚀 Como Atualizar
-
-### Backend
-
-```bash
-cd backend
-
-# 1. Atualizar schema
-# Editar prisma/schema.prisma
-
-# 2. Rodar migraçªµes
-npx prisma migrate dev --name add_parcelas
-npx prisma migrate dev --name add_parcela_atual
-
-# 3. Reiniciar servidor
-npm run dev
+```text
+Pagar selecionadas
 ```
 
-### Frontend
+As requisicoes sao enviadas em sequencia para evitar bloqueios no SQLite.
 
-```bash
-cd frontend
+### Parcelas futuras
 
-# 1. Atualizar arquivos
-# Substituir src/pages/Dashboard.jsx
+Foi adicionada a rota:
 
-# 2. Atualizar styles
-# Adicionar CSS em src/styles/Dashboard.css
-
-# 3. Recarregar navegador
-# F5
+```text
+GET /api/transacoes/todas
 ```
 
----
+Ela permite ao frontend exibir parcelas de todos os meses.
 
-## 📈 MÆ©tricas
+O botao:
 
-- **Linhas de cÆ¢digo adicionadas:** ~200
-- **Arquivos alterados:** 6
-- **Novos endpoints:** 1 (/api/dashboard)
-- **Novos campos no banco:** 2 (parcelas, parcelaAtual)
+```text
+Ver todas as parcelas
+```
 
----
+permite selecionar e pagar parcelas futuras antecipadamente.
 
-## 🔜 PrÆ¢ximas Atualizaçªµes (Planejadas)
+### Nova rota de pagamento
 
-- [ ] GrÆ¢ficos com Chart.js
-- [ ] Notificaçªµes push
-- [ ] Exportaçª£o em Excel
-- [ ] Metas de economia
-- [ ] Dashboard com insights
+```text
+PATCH /api/transacoes/:id/pagamento
+```
 
----
+Body:
 
-## 📝 Changelog Completo
+```json
+{
+  "paga": true
+}
+```
 
-### v1.1.0
-- ✅ Transaçªµes recorrentes com parcelas
-- ✅ Geraçª£o automÆ¡tica de parcelas
-- ✅ Badge visual de parcelas
-- ✅ Filtro por mŒs/ano corrigido
-- ✅ Documentaçª£o atualizada
+### Exclusao de parcelas
 
-### v1.0.0
-- ✅ Autenticaçª£o JWT
-- ✅ CRUD de transaçªµes
-- ✅ Dashboard bÆ¡sico
-- ✅ Categorias
-- ✅ RelatÆ¢rio PDF
+Continuam disponiveis:
 
----
+- Excluir somente esta parcela.
+- Excluir esta parcela e as futuras.
 
-**VersÆ£o atual:** 1.1.0
-**Æºltima atualizaçª£o:** Agosto 2026
+## Ajustes tecnicos
+
+### CORS
+
+O backend passou a permitir PATCH:
+
+```javascript
+methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+```
+
+### SQLite
+
+A URL recomendada para o banco:
+
+```env
+DATABASE_URL="file:./dev.db?connection_limit=1"
+```
+
+### Prisma
+
+Apos editar o schema:
+
+```powershell
+npx prisma migrate dev --name add_paga_field
+npx prisma generate
+```

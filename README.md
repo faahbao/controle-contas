@@ -1,72 +1,124 @@
-# 💰 Sistema de Controle Financeiro
+# Controle de Contas
 
-Sistema completo de controle financeiro com autenticaçª£o, transaçªµes recorrentes parceladas, dashboard interativo e geraçª£o de relatÆ¢rios em PDF.
+Sistema web de controle financeiro pessoal com autenticacao, receitas, despesas, categorias, parcelas recorrentes, pagamento de contas e relatorios em PDF.
 
-## 🚀 Funcionalidades
+## Funcionalidades
 
-- ✅ **Autenticaçª£o JWT** - Login seguro com tokens
-- ✅ **Transaçªµes** - Receitas e despesas com categorias
-- ✅ **Recorrente com Parcelas** - Lance uma vez, aparece em todos os meses
-- ✅ **Dashboard** - GrÆ¢ficos de receitas vs despesas
-- ✅ **Filtros** - Por mŒs e ano
-- ✅ **RelatÆ¢rio PDF** - Exporte seus dados
-- ✅ **Categorias** - Personalize suas categorias
+- Cadastro e login com JWT
+- Receitas e despesas
+- Categorias pre-definidas e personalizadas
+- Transacoes recorrentes diarias, semanais e mensais
+- Geracao automatica de parcelas
+- Edicao e exclusao de transacoes
+- Exclusao de uma parcela ou das parcelas futuras
+- Marcacao de despesas como pagas ou pendentes
+- Pagamento de varias despesas selecionadas
+- Pagamento antecipado de parcelas futuras
+- Visualizacao do mes atual ou de todas as parcelas
+- Dashboard com receitas, despesas, saldo e grafico
+- Relatorio PDF por mes e ano
 
-## 🛠️ Tecnologias
+## Tecnologias
 
 ### Backend
-- Node.js + Express
+
+- Node.js
+- Express
 - Prisma ORM
-- PostgreSQL
-- JWT para autenticaçª£o
+- SQLite
+- JWT
+- bcrypt
+- Joi
+- PDFKit
 
 ### Frontend
-- React
-- CSS3
-- Axios
 
-## 📦 Instalaçª£o
+- React
+- Vite
+- Axios
+- React Router
+- CSS
+
+## Inicio rapido
 
 ### Backend
-```bash
-cd backend
+
+```powershell
+cd D:\Projetos\controle-contas\backend
 npm install
+npx prisma generate
 npx prisma migrate dev
 npm run dev
 ```
 
 ### Frontend
-```bash
-cd frontend
+
+```powershell
+cd D:\Projetos\controle-contas\frontend
 npm install
 npm run dev
 ```
 
-## 📖 Documentaçª£o Completa
+Backend:
 
-- [BACKEND.md](./BACKEND.md) - Detalhes do backend
-- [FRONTEND.md](./FRONTEND.md) - Detalhes do frontend
-- [FEATURES.md](./FEATURES.md) - Todas as funcionalidades
-- [API.md](./API.md) - Documentaçª£o da API
-- [INSTALL.md](./INSTALL.md) - Guia de instalaçª£o
+```text
+http://localhost:3000
+```
 
-## 👨‍💻 Como usar
+Frontend:
 
-1. Façª£o login ou cadastre-se
-2. Adicione transaçªµes (receitas/despesas)
-3. Para recorrentes: marque "Recorrente?" e informe as parcelas
-4. Filtre por mŒs para ver o que vence em cada perÆ¢odo
-5. Gere relatÆ¢rios em PDF
+```text
+http://localhost:3001
+```
 
-## 📝 Exemplo: Transaçª£o Recorrente
+Use a porta exibida pelo Vite caso seja diferente.
 
-Ao lançª§ar "Aluguel" de R$ 1.000 em 5 parcelas:
-- MŒs 1: Aluguel (1/5)
-- MŒs 2: Aluguel (2/5)
-- MŒs 3: Aluguel (3/5)
-- MŒs 4: Aluguel (4/5)
-- MŒs 5: Aluguel (5/5)
+## Configuracao
 
-## 📄 Licençª§a
+Crie ou atualize `backend/.env`:
+
+```env
+DATABASE_URL="file:./dev.db?connection_limit=1"
+JWT_SECRET="substitua-por-uma-chave-forte-com-32-caracteres-ou-mais"
+PORT=3000
+FRONTEND_URL="http://localhost:3001"
+```
+
+Nao publique o arquivo `.env` nem a chave JWT.
+
+## Parcelas e pagamentos
+
+Ao criar uma transacao recorrente com parcelas, o sistema gera uma transacao para cada parcela.
+
+Exemplo: despesa mensal de 5 parcelas iniciada em agosto:
+
+```text
+Aluguel (1/5) - 18/08/2026
+Aluguel (2/5) - 18/09/2026
+Aluguel (3/5) - 18/10/2026
+Aluguel (4/5) - 18/11/2026
+Aluguel (5/5) - 18/12/2026
+```
+
+Na secao Transacoes:
+
+1. Clique em `Ver todas as parcelas`.
+2. Selecione despesas pendentes, inclusive parcelas futuras.
+3. Clique em `Pagar selecionadas`.
+
+Receitas nao podem ser marcadas como pagas. Cada parcela possui status de pagamento proprio.
+
+## Documentacao
+
+- [INSTALL.md](./INSTALL.md) - Instalacao e configuracao
+- [API.md](./API.md) - Endpoints da API
+- [BACKEND.md](./BACKEND.md) - Backend e banco de dados
+- [FRONTEND.md](./FRONTEND.md) - Frontend e Dashboard
+- [FEATURES.md](./FEATURES.md) - Funcionalidades
+- [PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md) - Estrutura do projeto
+- [CHANGELOG.md](./CHANGELOG.md) - Historico de alteracoes
+- [QUICKSTART.md](./QUICKSTART.md) - Guia rapido
+
+## Licenca
 
 MIT
