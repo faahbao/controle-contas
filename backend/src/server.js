@@ -18,7 +18,9 @@ const PORT = Number(process.env.PORT || 3000)
 const JWT_SECRET = process.env.JWT_SECRET
 
 if (!JWT_SECRET || JWT_SECRET.length < 32) {
-  console.error('ERRO: defina JWT_SECRET com pelo menos 32 caracteres no backend/.env')
+  console.error(
+    'ERRO: defina JWT_SECRET com pelo menos 32 caracteres no backend/.env'
+  )
   process.exit(1)
 }
 
@@ -44,7 +46,7 @@ app.use(
       return callback(new Error(`Origem não permitida pelo CORS: ${origin}`))
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
   })
 )
@@ -279,7 +281,7 @@ async function buscarResumo(userId, mes, ano) {
 }
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' })
+  return res.json({ status: 'ok' })
 })
 
 app.post('/api/auth/cadastro', loginLimiter, async (req, res, next) => {
@@ -394,6 +396,29 @@ app.get('/api/transacoes', authMiddleware, async (req, res, next) => {
   }
 })
 
+app.get(
+  '/api/transacoes/todas',
+  authMiddleware,
+  async (req, res, next) => {
+    try {
+      const transacoes = await prisma.transacao.findMany({
+        where: {
+          userId: req.userId
+        },
+        orderBy: [
+          { grupoParcelasId: 'asc' },
+          { parcelaAtual: 'asc' },
+          { data: 'asc' }
+        ]
+      })
+
+      return res.json(transacoes)
+    } catch (error) {
+      return next(error)
+    }
+  }
+)
+
 app.post('/api/transacoes', authMiddleware, async (req, res, next) => {
   try {
     const { error, value } = transacaoSchema.validate(req.body, {
@@ -428,7 +453,7 @@ app.post('/api/transacoes', authMiddleware, async (req, res, next) => {
           novaData.setDate(novaData.getDate() + indice)
         } else if (value.frequencia === 'semanal') {
           novaData.setDate(novaData.getDate() + indice * 7)
-        } else if (value.frequencia === 'mensal') {
+        } else {
           novaData.setMonth(novaData.getMonth() + indice)
         }
       }
@@ -447,6 +472,7 @@ app.post('/api/transacoes', authMiddleware, async (req, res, next) => {
         parcelas: value.recorrente ? totalParcelas : null,
         parcelaAtual: value.recorrente ? indice + 1 : null,
         grupoParcelasId,
+        paga: false,
         userId: req.userId
       }
     })
@@ -530,51 +556,65 @@ app.put('/api/transacoes/:id', authMiddleware, async (req, res, next) => {
   }
 })
 
-app.patch('/api/transacoes/:id/pagamento', authMiddleware, async (req, res, next) => {
-  try {
-    const id = validarId(req.params.id)
+app.patch(
+  '/api/transacoes/:id/pagamento',
+  authMiddleware,
+  async (req, res, next) => {
+    try {
+      const id = validarId(req.params.id)
 
-    if (!id) {
-      return res.status(400).json({ error: 'ID de transação inválido.' })
-    }
-
-    const { error, value } = pagamentoSchema.validate(req.body, {
-      abortEarly: true,
-      stripUnknown: true
-    })
-
-    if (error) {
-      return res.status(400).json({ error: error.details[0].message })
-    }
-
-    const transacao = await prisma.transacao.findFirst({
-      where: {
-        id,
-        userId: req.userId
+      if (!id) {
+        return res.status(400).json({ error: 'ID de transação inválido.' })
       }
-    })
 
-    if (!transacao) {
-      return res.status(404).json({
-        error: 'Transação não encontrada.'
+      const { error, value } = pagamentoSchema.validate(req.body, {
+        abortEarly: true,
+        stripUnknown: true
       })
-    }
 
-    const atualizada = await prisma.transacao.update({
-      where: { id },
-      data: {
-        paga: value.paga
+      if (error) {
+        return res.status(400).json({
+          error: error.details[0].message
+        })
       }
-    })
 
-    return res.json({
-      mensagem: `Transação ${value.paga ? 'marcada como paga' : 'marcada como pendente'}.`,
-      transacao: atualizada
-    })
-  } catch (error) {
-    return next(error)
+      const transacao = await prisma.transacao.findFirst({
+        where: {
+          id,
+          userId: req.userId
+        }
+      })
+
+      if (!transacao) {
+        return res.status(404).json({
+          error: 'Transação não encontrada.'
+        })
+      }
+
+      if (transacao.tipo !== 'despesa') {
+        return res.status(400).json({
+          error: 'Somente despesas podem ser marcadas como pagas.'
+        })
+      }
+
+      const atualizada = await prisma.transacao.update({
+        where: { id },
+        data: {
+          paga: value.paga
+        }
+      })
+
+      return res.json({
+        mensagem: `Transação ${
+          value.paga ? 'marcada como paga' : 'marcada como pendente'
+        }.`,
+        transacao: atualizada
+      })
+    } catch (error) {
+      return next(error)
+    }
   }
-})
+)
 
 app.delete(
   '/api/transacoes/:id/futuras',
@@ -746,29 +786,22 @@ app.get('/api/relatorio/pdf', authMiddleware, async (req, res, next) => {
           `${String(data.getMonth() + 1).padStart(2, '0')}/` +
           `${data.getFullYear()}`
 
+        const statusPagamento =
+          transacao.tipo === 'despesa'
+            ? transacao.paga
+              ? ' | Paga'
+              : ' | Pendente'
+            : ''
+
         doc.fontSize(10).text(
           `${sinal} R$ ${Number(transacao.valor).toFixed(2)} — ` +
-            `${transacao.descricao} | ${transacao.categoria} | ${dataFormatada}`
+            `${transacao.descricao} | ${transacao.categoria} | ` +
+            `${dataFormatada}${statusPagamento}`
         )
       })
     }
 
     doc.end()
-  } catch (error) {
-    return next(error)
-  }
-})
-
-app.get('/api/transacoes/todas', authMiddleware, async (req, res, next) => {
-  try {
-    const transacoes = await prisma.transacao.findMany({
-      where: {
-        userId: req.userId
-      },
-      orderBy: { data: 'asc' }
-    })
-
-    return res.json(transacoes)
   } catch (error) {
     return next(error)
   }

@@ -687,3 +687,32 @@
 .btn-toggle-parcelas:hover {
   background: #8e44ad;
 }
+
+.transacoes-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.transacoes-header h2 {
+  margin: 0;
+}
+
+.transacoes-header .btn-toggle-parcelas {
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  .transacoes-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .transacoes-header .btn-toggle-parcelas {
+    width: 100%;
+  }
+}
