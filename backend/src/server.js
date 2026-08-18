@@ -3,6 +3,7 @@ require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
 const jwt = require('jsonwebtoken')
+const crypto = require('crypto')
 const { PrismaClient } = require('@prisma/client')
 const bcrypt = require('bcrypt')
 const Joi = require('joi')
@@ -107,11 +108,15 @@ const transacaoSchema = Joi.object({
     .default(null)
 }).custom((value, helpers) => {
   if (value.recorrente && !value.frequencia) {
-    return helpers.message('Frequência é obrigatória para uma transação recorrente.')
+    return helpers.message(
+      'Frequência é obrigatória para uma transação recorrente.'
+    )
   }
 
   if (value.recorrente && !value.parcelas) {
-    return helpers.message('Quantidade de parcelas é obrigatória para uma transação recorrente.')
+    return helpers.message(
+      'Quantidade de parcelas é obrigatória para uma transação recorrente.'
+    )
   }
 
   return value
@@ -406,6 +411,11 @@ app.post('/api/transacoes', authMiddleware, async (req, res, next) => {
 
     const totalParcelas = value.recorrente ? value.parcelas : 1
 
+    const grupoParcelasId =
+      value.recorrente && totalParcelas > 1
+        ? crypto.randomUUID()
+        : null
+
     const transacoes = Array.from({ length: totalParcelas }, (_, indice) => {
       const novaData = new Date(dataBase)
 
@@ -432,12 +442,15 @@ app.post('/api/transacoes', authMiddleware, async (req, res, next) => {
         frequencia: value.recorrente ? value.frequencia : null,
         parcelas: value.recorrente ? totalParcelas : null,
         parcelaAtual: value.recorrente ? indice + 1 : null,
+        grupoParcelasId,
         userId: req.userId
       }
     })
 
     const criadas = await prisma.$transaction(
-      transacoes.map((transacao) => prisma.transacao.create({ data: transacao }))
+      transacoes.map((transacao) =>
+        prisma.transacao.create({ data: transacao })
+      )
     )
 
     return res.status(201).json({
@@ -512,6 +525,58 @@ app.put('/api/transacoes/:id', authMiddleware, async (req, res, next) => {
     return next(error)
   }
 })
+
+app.delete(
+  '/api/transacoes/:id/futuras',
+  authMiddleware,
+  async (req, res, next) => {
+    try {
+      const id = validarId(req.params.id)
+
+      if (!id) {
+        return res.status(400).json({
+          error: 'ID de transação inválido.'
+        })
+      }
+
+      const transacao = await prisma.transacao.findFirst({
+        where: {
+          id,
+          userId: req.userId
+        }
+      })
+
+      if (!transacao) {
+        return res.status(404).json({
+          error: 'Transação não encontrada.'
+        })
+      }
+
+      if (!transacao.recorrente || !transacao.grupoParcelasId) {
+        return res.status(400).json({
+          error: 'Esta transação não pertence a um grupo de parcelas.'
+        })
+      }
+
+      const resultado = await prisma.transacao.deleteMany({
+        where: {
+          userId: req.userId,
+          grupoParcelasId: transacao.grupoParcelasId,
+          parcelaAtual: {
+            gte: transacao.parcelaAtual
+          }
+        }
+      })
+
+      return res.json({
+        mensagem: `${resultado.count} parcela(s) atual e futura(s) excluída(s).`,
+        quantidadeExcluida: resultado.count
+      })
+    } catch (error) {
+      return next(error)
+    }
+  }
+)
 
 app.delete('/api/transacoes/:id', authMiddleware, async (req, res, next) => {
   try {
@@ -625,9 +690,11 @@ app.get('/api/relatorio/pdf', authMiddleware, async (req, res, next) => {
       resumo.transacoes.forEach((transacao) => {
         const sinal = transacao.tipo === 'receita' ? '+' : '-'
         const data = new Date(transacao.data)
-        const dataFormatada = `${String(data.getDate()).padStart(2, '0')}/${String(
-          data.getMonth() + 1
-        ).padStart(2, '0')}/${data.getFullYear()}`
+
+        const dataFormatada =
+          `${String(data.getDate()).padStart(2, '0')}/` +
+          `${String(data.getMonth() + 1).padStart(2, '0')}/` +
+          `${data.getFullYear()}`
 
         doc.fontSize(10).text(
           `${sinal} R$ ${Number(transacao.valor).toFixed(2)} — ` +
@@ -677,7 +744,10 @@ async function iniciarServidor() {
       console.log(`CORS permitido para: ${allowedOrigins.join(', ')}`)
     })
   } catch (error) {
-    console.error('Não foi possível conectar ao banco de dados:', error.message)
+    console.error(
+      'Não foi possível conectar ao banco de dados:',
+      error.message
+    )
     process.exit(1)
   }
 }

@@ -8,39 +8,44 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  nome      String
-  email     String   @unique
-  senha     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  transacoes Transacao[]
-  categorias Categoria[]
+  id           Int          @id @default(autoincrement())
+  nome         String
+  email        String       @unique
+  senha        String
+  transacoes   Transacao[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 }
 
 model Transacao {
-  id          Int      @id @default(autoincrement())
-  descricao   String
-  valor       Float
-  tipo        String
-  categoria   String
-  data        DateTime @default(now())
-  recorrente  Boolean  @default(false)
-  frequencia  String?
-  parcelas    Int?
-  parcelaAtual Int?    // número da parcela (1, 2, 3...)
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id               Int      @id @default(autoincrement())
+  descricao        String
+  valor            Float
+  tipo             String
+  categoria        String
+  data             DateTime @default(now())
+
+  recorrente       Boolean  @default(false)
+  frequencia       String?
+  parcelas         Int?
+  parcelaAtual     Int?
+  grupoParcelasId  String?
+
+  userId           Int
+  user             User     @relation(fields: [userId], references: [id])
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([userId])
+  @@index([data])
+  @@index([grupoParcelasId])
 }
 
 model Categoria {
-  id        Int      @id @default(autoincrement())
-  nome      String
-  tipo      String
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           Int      @id @default(autoincrement())
+  nome         String
+  tipo         String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }

@@ -110,7 +110,11 @@ function Dashboard() {
         error.response?.data?.error ||
         'Não foi possível carregar os dados do dashboard.'
 
-      console.error('Erro ao carregar dashboard:', error.response?.data || error.message)
+      console.error(
+        'Erro ao carregar dashboard:',
+        error.response?.data || error.message
+      )
+
       setErroCarregamento(mensagem)
       setDashboard(null)
     } finally {
@@ -123,7 +127,10 @@ function Dashboard() {
       const response = await api.get('/categorias')
       setCategorias(Array.isArray(response.data) ? response.data : [])
     } catch (error) {
-      console.error('Erro ao carregar categorias:', error.response?.data || error.message)
+      console.error(
+        'Erro ao carregar categorias:',
+        error.response?.data || error.message
+      )
       setCategorias([])
     }
   }
@@ -178,7 +185,11 @@ function Dashboard() {
       })
 
       setNovaTransacao(criarTransacaoInicial())
-      await Promise.all([loadDashboard(), loadCategorias()])
+
+      await Promise.all([
+        loadDashboard(),
+        loadCategorias()
+      ])
 
       alert(
         response.data?.mensagem ||
@@ -233,6 +244,7 @@ function Dashboard() {
 
       setEditandoTransacao(null)
       await loadDashboard()
+
       alert('Transação atualizada com sucesso!')
     } catch (error) {
       alert(
@@ -251,7 +263,11 @@ function Dashboard() {
         tipo: novaCategoria.tipo
       })
 
-      setNovaCategoria({ nome: '', tipo: 'despesa' })
+      setNovaCategoria({
+        nome: '',
+        tipo: 'despesa'
+      })
+
       await loadCategorias()
       alert('Categoria adicionada com sucesso!')
     } catch (error) {
@@ -262,23 +278,86 @@ function Dashboard() {
     }
   }
 
-  async function deletarTransacao(id) {
-    const confirmou = window.confirm(
-      'Tem certeza que deseja excluir esta transação?'
-    )
-
-    if (!confirmou) return
-
+  async function excluirSomenteEstaParcela(transacao) {
     try {
-      await api.delete(`/transacoes/${id}`)
+      await api.delete(`/transacoes/${transacao.id}`)
       await loadDashboard()
-      alert('Transação excluída com sucesso!')
+      alert('Somente esta transação foi excluída.')
     } catch (error) {
       alert(
         'Erro ao excluir transação: ' +
           (error.response?.data?.error || error.message)
       )
     }
+  }
+
+  async function excluirParcelaAtualEFuturas(transacao) {
+    try {
+      const response = await api.delete(
+        `/transacoes/${transacao.id}/futuras`
+      )
+
+      await loadDashboard()
+
+      alert(
+        response.data?.mensagem ||
+          'A parcela atual e as futuras foram excluídas.'
+      )
+    } catch (error) {
+      alert(
+        'Erro ao excluir parcelas: ' +
+          (error.response?.data?.error || error.message)
+      )
+    }
+  }
+
+  async function deletarTransacao(transacao) {
+    const possuiGrupoDeParcelas =
+      transacao.recorrente &&
+      transacao.grupoParcelasId &&
+      transacao.parcelas &&
+      transacao.parcelaAtual
+
+    if (possuiGrupoDeParcelas) {
+      const excluirAtualEFuturas = window.confirm(
+        `Esta é a parcela ${transacao.parcelaAtual}/${transacao.parcelas}.\n\n` +
+          'Clique em OK para excluir esta parcela e todas as futuras.\n\n' +
+          'Clique em Cancelar para escolher excluir somente esta parcela.'
+      )
+
+      if (excluirAtualEFuturas) {
+        const confirmou = window.confirm(
+          `Confirma excluir a parcela ${transacao.parcelaAtual}/${transacao.parcelas} ` +
+            'e todas as parcelas futuras?\n\n' +
+            'As parcelas anteriores serão mantidas no histórico.'
+        )
+
+        if (confirmou) {
+          await excluirParcelaAtualEFuturas(transacao)
+        }
+
+        return
+      }
+
+      const excluirSomente = window.confirm(
+        `Deseja excluir somente a parcela ${transacao.parcelaAtual}/${transacao.parcelas}?\n\n` +
+          'As demais parcelas serão mantidas.'
+      )
+
+      if (excluirSomente) {
+        await excluirSomenteEstaParcela(transacao)
+      }
+
+      return
+    }
+
+    const confirmou = window.confirm(
+      'Tem certeza que deseja excluir esta transação?'
+    )
+
+    if (!confirmou) return
+
+    await excluirSomenteEstaParcela(transacao)
   }
 
   async function gerarRelatorioPDF() {
@@ -300,6 +379,7 @@ function Dashboard() {
 
       link.href = url
       link.download = `relatorio-${filtroAno}-${filtroMes}.pdf`
+
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
@@ -342,6 +422,7 @@ function Dashboard() {
 
         <div className="user-info">
           <span>Olá, {user?.nome}</span>
+
           <button onClick={logout} className="btn-logout">
             Sair
           </button>
@@ -522,7 +603,9 @@ function Dashboard() {
                   setNovaTransacao((atual) => ({
                     ...atual,
                     recorrente,
-                    frequencia: recorrente ? atual.frequencia || 'mensal' : 'mensal',
+                    frequencia: recorrente
+                      ? atual.frequencia || 'mensal'
+                      : 'mensal',
                     parcelas: recorrente ? atual.parcelas : ''
                   }))
                 }}
@@ -669,7 +752,7 @@ function Dashboard() {
 
                       <button
                         type="button"
-                        onClick={() => deletarTransacao(transacao.id)}
+                        onClick={() => deletarTransacao(transacao)}
                         className="btn-delete"
                         aria-label="Excluir transação"
                         title="Excluir transação"
