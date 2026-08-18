@@ -85,6 +85,7 @@ function Dashboard() {
   const [selecionadas, setSelecionadas] = useState(new Set())
   const [mostrarTodasParcelas, setMostrarTodasParcelas] = useState(false)
   const [todasTransacoes, setTodasTransacoes] = useState([])
+  const [pagandoSelecionadas, setPagandoSelecionadas] = useState(false)
 
   useEffect(() => {
     loadCategorias()
@@ -218,16 +219,19 @@ function Dashboard() {
   }
 
   async function pagarSelecionadas() {
-    if (selecionadas.size === 0) return
+    if (selecionadas.size === 0 || pagandoSelecionadas) return
 
-    const quantidade = selecionadas.size
+    const idsSelecionados = Array.from(selecionadas)
+    const quantidade = idsSelecionados.length
 
     try {
-      const promises = Array.from(selecionadas).map((id) =>
-        api.patch(`/transacoes/${id}/pagamento`, { paga: true })
-      )
+      setPagandoSelecionadas(true)
 
-      await Promise.all(promises)
+      for (const id of idsSelecionados) {
+        await api.patch(`/transacoes/${id}/pagamento`, {
+          paga: true
+        })
+      }
 
       setSelecionadas(new Set())
 
@@ -237,14 +241,14 @@ function Dashboard() {
         await loadTodasTransacoes()
       }
 
-      alert(
-        `${quantidade} transação(ões) marcada(s) como paga(s).`
-      )
+      alert(`${quantidade} transação(ões) marcada(s) como paga(s).`)
     } catch (error) {
       alert(
         'Erro ao marcar como pago: ' +
           (error.response?.data?.error || error.message)
       )
+    } finally {
+      setPagandoSelecionadas(false)
     }
   }
 
@@ -808,6 +812,7 @@ function Dashboard() {
               type="button"
               onClick={alternarTodasParcelas}
               className="btn-toggle-parcelas"
+              disabled={pagandoSelecionadas}
             >
               {mostrarTodasParcelas
                 ? '📅 Ver mês atual'
@@ -821,6 +826,7 @@ function Dashboard() {
                 type="button"
                 onClick={selecionarTodas}
                 className="btn-select-all"
+                disabled={pagandoSelecionadas}
               >
                 {selecionadas.size > 0
                   ? '⬜ Desmarcar todas'
@@ -832,9 +838,13 @@ function Dashboard() {
                   type="button"
                   onClick={pagarSelecionadas}
                   className="btn-pay-selected"
+                  disabled={pagandoSelecionadas}
                 >
-                  💵 Pagar {selecionadas.size} selecionada
-                  {selecionadas.size !== 1 ? 's' : ''}
+                  {pagandoSelecionadas
+                    ? '⏳ Pagando...'
+                    : `💵 Pagar ${selecionadas.size} selecionada${
+                        selecionadas.size !== 1 ? 's' : ''
+                      }`}
                 </button>
               )}
             </div>
@@ -869,7 +879,7 @@ function Dashboard() {
                           type="checkbox"
                           checked={selecionadas.has(transacao.id)}
                           onChange={() => toggleSelecao(transacao.id)}
-                          disabled={transacao.paga}
+                          disabled={transacao.paga || pagandoSelecionadas}
                           title={transacao.paga ? 'Já paga' : 'Selecionar'}
                         />
                       </div>
@@ -914,6 +924,7 @@ function Dashboard() {
                           className="btn-edit"
                           aria-label="Editar transação"
                           title="Editar transação"
+                          disabled={pagandoSelecionadas}
                         >
                           ✏️
                         </button>
@@ -937,6 +948,7 @@ function Dashboard() {
                                 ? 'Desmarcar como paga'
                                 : 'Marcar como paga'
                             }
+                            disabled={pagandoSelecionadas}
                           >
                             {transacao.paga
                               ? '↩️ Desmarcar'
@@ -954,6 +966,7 @@ function Dashboard() {
                               className="btn-delete"
                               aria-label="Excluir somente esta parcela"
                               title="Excluir somente esta parcela"
+                              disabled={pagandoSelecionadas}
                             >
                               🗑️ Esta
                             </button>
@@ -966,6 +979,7 @@ function Dashboard() {
                               className="btn-delete-futuras"
                               aria-label="Excluir parcela atual e futuras"
                               title="Excluir parcela atual e futuras"
+                              disabled={pagandoSelecionadas}
                             >
                               ⏩ Futuras
                             </button>
@@ -979,6 +993,7 @@ function Dashboard() {
                             className="btn-delete"
                             aria-label="Excluir transação"
                             title="Excluir transação"
+                            disabled={pagandoSelecionadas}
                           >
                             🗑️
                           </button>
