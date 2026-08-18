@@ -51,16 +51,23 @@ model Transacao {
   tipo            String
   categoria       String
   data            DateTime @default(now())
+
   recorrente      Boolean  @default(false)
   frequencia      String?
   parcelas        Int?
   parcelaAtual    Int?
   grupoParcelasId String?
   paga            Boolean  @default(false)
+
   userId          Int
   user            User     @relation(fields: [userId], references: [id])
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@index([data])
+  @@index([grupoParcelasId])
 }
 
 model Categoria {
@@ -71,6 +78,14 @@ model Categoria {
   updatedAt DateTime @updatedAt
 }
 ```
+
+### Indices
+
+O modelo `Transacao` possui tres indices para otimizar consultas:
+
+- `@@index([userId])` - Filtra transacoes por usuario
+- `@@index([data])` - Ordena e filtra por data
+- `@@index([grupoParcelasId])` - Agrupa parcelas de uma transacao recorrente
 
 ## Endpoints da API
 
