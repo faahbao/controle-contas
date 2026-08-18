@@ -17,33 +17,36 @@ const PORT = Number(process.env.PORT || 3000)
 const JWT_SECRET = process.env.JWT_SECRET
 
 if (!JWT_SECRET || JWT_SECRET.length < 32) {
-  console.error('ERRO: defina JWT_SECRET com pelo menos 32 caracteres em backend/.env')
+  console.error('ERRO: defina JWT_SECRET com pelo menos 32 caracteres no backend/.env')
   process.exit(1)
 }
 
 const allowedOrigins = [
   'http://localhost:5173',
-  'http://localhost:3001'
-  'http://localhost:3001'
+  'http://localhost:3001',
+  'http://localhost:3000'
 ]
 
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: 'cross-origin' }
-}))
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' }
+  })
+)
 
-app.use(cors({
-  origin(origin, callback) {
-    // Permite chamadas sem Origin: curl, Postman e testes locais.
-    if (!origin || allowedOrigins.includes(origin)) {
-      return callback(null, true)
-    }
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true)
+      }
 
-    return callback(new Error(`Origem não permitida pelo CORS: ${origin}`))
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}))
+      return callback(new Error(`Origem não permitida pelo CORS: ${origin}`))
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  })
+)
 
 app.use(express.json({ limit: '20kb' }))
 
@@ -52,7 +55,9 @@ const apiLimiter = rateLimit({
   max: 200,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: 'Muitas requisições. Tente novamente mais tarde.' }
+  message: {
+    error: 'Muitas requisições. Tente novamente mais tarde.'
+  }
 })
 
 const loginLimiter = rateLimit({
@@ -60,7 +65,9 @@ const loginLimiter = rateLimit({
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: 'Muitas tentativas de login. Aguarde 15 minutos.' }
+  message: {
+    error: 'Muitas tentativas de login. Aguarde 15 minutos.'
+  }
 })
 
 app.use('/api', apiLimiter)
@@ -81,26 +88,33 @@ const transacaoSchema = Joi.object({
   valor: Joi.number().positive().precision(2).required(),
   tipo: Joi.string().valid('receita', 'despesa').required(),
   categoria: Joi.string().trim().min(1).max(50).required(),
-  data: Joi.date().iso().required(),
+  data: Joi.string()
+    .pattern(/^\d{4}-\d{2}-\d{2}$/)
+    .required()
+    .messages({
+      'string.pattern.base': 'Data inválida. Use o formato YYYY-MM-DD.'
+    }),
   recorrente: Joi.boolean().default(false),
-  frequencia: Joi.string().valid('diaria', 'semanal', 'mensal').allow(null).default(null),
-  parcelas: Joi.number().integer().min(1).max(120).allow(null).default(null)
+  frequencia: Joi.string()
+    .valid('diaria', 'semanal', 'mensal')
+    .allow(null)
+    .default(null),
+  parcelas: Joi.number()
+    .integer()
+    .min(1)
+    .max(120)
+    .allow(null)
+    .default(null)
 }).custom((value, helpers) => {
   if (value.recorrente && !value.frequencia) {
-    return helpers.error('any.custom', {
-      message: 'Frequência é obrigatória para uma transação recorrente.'
-    })
+    return helpers.message('Frequência é obrigatória para uma transação recorrente.')
   }
 
   if (value.recorrente && !value.parcelas) {
-    return helpers.error('any.custom', {
-      message: 'Quantidade de parcelas é obrigatória para uma transação recorrente.'
-    })
+    return helpers.message('Quantidade de parcelas é obrigatória para uma transação recorrente.')
   }
 
   return value
-}).messages({
-  'any.custom': '{{#message}}'
 })
 
 const categoriaSchema = Joi.object({
@@ -111,6 +125,46 @@ const categoriaSchema = Joi.object({
 function validarId(valor) {
   const id = Number.parseInt(valor, 10)
   return Number.isInteger(id) && id > 0 ? id : null
+}
+
+function criarDataLocal(data) {
+  if (typeof data !== 'string') {
+    return null
+  }
+
+  const partes = data.split('-')
+
+  if (partes.length !== 3) {
+    return null
+  }
+
+  const [ano, mes, dia] = partes.map(Number)
+
+  if (
+    !Number.isInteger(ano) ||
+    !Number.isInteger(mes) ||
+    !Number.isInteger(dia) ||
+    ano < 2000 ||
+    ano > 2100 ||
+    mes < 1 ||
+    mes > 12 ||
+    dia < 1 ||
+    dia > 31
+  ) {
+    return null
+  }
+
+  const resultado = new Date(ano, mes - 1, dia, 12, 0, 0, 0)
+
+  if (
+    resultado.getFullYear() !== ano ||
+    resultado.getMonth() !== mes - 1 ||
+    resultado.getDate() !== dia
+  ) {
+    return null
+  }
+
+  return resultado
 }
 
 function criarIntervaloMes(mes, ano) {
@@ -128,10 +182,10 @@ function criarIntervaloMes(mes, ano) {
     return null
   }
 
-  const inicio = new Date(anoNumero, mesNumero - 1, 1, 0, 0, 0, 0)
-  const fim = new Date(anoNumero, mesNumero, 1, 0, 0, 0, 0)
-
-  return { inicio, fim }
+  return {
+    inicio: new Date(anoNumero, mesNumero - 1, 1, 0, 0, 0, 0),
+    fim: new Date(anoNumero, mesNumero, 1, 0, 0, 0, 0)
+  }
 }
 
 function somarValores(transacoes, tipo) {
@@ -235,7 +289,9 @@ app.post('/api/auth/cadastro', loginLimiter, async (req, res, next) => {
     })
 
     if (existente) {
-      return res.status(409).json({ error: 'Este email já está cadastrado.' })
+      return res.status(409).json({
+        error: 'Este email já está cadastrado.'
+      })
     }
 
     const senhaHash = await bcrypt.hash(value.senha, 12)
@@ -281,13 +337,17 @@ app.post('/api/auth/login', loginLimiter, async (req, res, next) => {
     })
 
     if (!user) {
-      return res.status(401).json({ error: 'Email ou senha inválidos.' })
+      return res.status(401).json({
+        error: 'Email ou senha inválidos.'
+      })
     }
 
     const senhaValida = await bcrypt.compare(value.senha, user.senha)
 
     if (!senhaValida) {
-      return res.status(401).json({ error: 'Email ou senha inválidos.' })
+      return res.status(401).json({
+        error: 'Email ou senha inválidos.'
+      })
     }
 
     const token = jwt.sign({ userId: user.id }, JWT_SECRET, {
@@ -336,8 +396,15 @@ app.post('/api/transacoes', authMiddleware, async (req, res, next) => {
       return res.status(400).json({ error: error.details[0].message })
     }
 
+    const dataBase = criarDataLocal(value.data)
+
+    if (!dataBase) {
+      return res.status(400).json({
+        error: 'Data inválida. Informe uma data no formato YYYY-MM-DD.'
+      })
+    }
+
     const totalParcelas = value.recorrente ? value.parcelas : 1
-    const dataBase = new Date(`${value.data}T12:00:00`)
 
     const transacoes = Array.from({ length: totalParcelas }, (_, indice) => {
       const novaData = new Date(dataBase)
@@ -347,15 +414,16 @@ app.post('/api/transacoes', authMiddleware, async (req, res, next) => {
           novaData.setDate(novaData.getDate() + indice)
         } else if (value.frequencia === 'semanal') {
           novaData.setDate(novaData.getDate() + indice * 7)
-        } else {
+        } else if (value.frequencia === 'mensal') {
           novaData.setMonth(novaData.getMonth() + indice)
         }
       }
 
       return {
-        descricao: value.recorrente && totalParcelas > 1
-          ? `${value.descricao} (${indice + 1}/${totalParcelas})`
-          : value.descricao,
+        descricao:
+          value.recorrente && totalParcelas > 1
+            ? `${value.descricao} (${indice + 1}/${totalParcelas})`
+            : value.descricao,
         valor: value.valor,
         tipo: value.tipo,
         categoria: value.categoria,
@@ -373,9 +441,10 @@ app.post('/api/transacoes', authMiddleware, async (req, res, next) => {
     )
 
     return res.status(201).json({
-      mensagem: criadas.length > 1
-        ? `${criadas.length} parcelas criadas com sucesso!`
-        : 'Transação criada com sucesso!',
+      mensagem:
+        criadas.length > 1
+          ? `${criadas.length} parcelas criadas com sucesso!`
+          : 'Transação criada com sucesso!',
       transacoes: criadas
     })
   } catch (error) {
@@ -400,6 +469,14 @@ app.put('/api/transacoes/:id', authMiddleware, async (req, res, next) => {
       return res.status(400).json({ error: error.details[0].message })
     }
 
+    const dataFormatada = criarDataLocal(value.data)
+
+    if (!dataFormatada) {
+      return res.status(400).json({
+        error: 'Data inválida. Informe uma data no formato YYYY-MM-DD.'
+      })
+    }
+
     const existente = await prisma.transacao.findFirst({
       where: {
         id,
@@ -408,7 +485,9 @@ app.put('/api/transacoes/:id', authMiddleware, async (req, res, next) => {
     })
 
     if (!existente) {
-      return res.status(404).json({ error: 'Transação não encontrada.' })
+      return res.status(404).json({
+        error: 'Transação não encontrada.'
+      })
     }
 
     const atualizada = await prisma.transacao.update({
@@ -418,11 +497,13 @@ app.put('/api/transacoes/:id', authMiddleware, async (req, res, next) => {
         valor: value.valor,
         tipo: value.tipo,
         categoria: value.categoria,
-        data: new Date(`${value.data}T12:00:00`),
+        data: dataFormatada,
         recorrente: value.recorrente,
         frequencia: value.recorrente ? value.frequencia : null,
         parcelas: value.recorrente ? value.parcelas : null,
-        parcelaAtual: value.recorrente ? existente.parcelaAtual || 1 : null
+        parcelaAtual: value.recorrente
+          ? existente.parcelaAtual || 1
+          : null
       }
     })
 
@@ -448,7 +529,9 @@ app.delete('/api/transacoes/:id', authMiddleware, async (req, res, next) => {
     })
 
     if (!existente) {
-      return res.status(404).json({ error: 'Transação não encontrada.' })
+      return res.status(404).json({
+        error: 'Transação não encontrada.'
+      })
     }
 
     await prisma.transacao.delete({
@@ -515,11 +598,17 @@ app.get('/api/relatorio/pdf', authMiddleware, async (req, res, next) => {
     const doc = new PDFDocument({ margin: 50 })
     doc.pipe(res)
 
-    doc.fontSize(20).text('Relatório Financeiro', { align: 'center' })
-    doc.moveDown(0.5)
-    doc.fontSize(12).text(`Período: ${String(mes).padStart(2, '0')}/${ano}`, {
+    doc.fontSize(20).text('Relatório Financeiro', {
       align: 'center'
     })
+
+    doc.moveDown(0.5)
+
+    doc.fontSize(12).text(
+      `Período: ${String(mes).padStart(2, '0')}/${ano}`,
+      { align: 'center' }
+    )
+
     doc.moveDown()
 
     doc.fontSize(12).text(`Receitas: R$ ${resumo.receitas.toFixed(2)}`)
@@ -535,14 +624,15 @@ app.get('/api/relatorio/pdf', authMiddleware, async (req, res, next) => {
     } else {
       resumo.transacoes.forEach((transacao) => {
         const sinal = transacao.tipo === 'receita' ? '+' : '-'
-        const dataFormatada = new Date(transacao.data).toLocaleDateString('pt-BR')
+        const data = new Date(transacao.data)
+        const dataFormatada = `${String(data.getDate()).padStart(2, '0')}/${String(
+          data.getMonth() + 1
+        ).padStart(2, '0')}/${data.getFullYear()}`
 
-        doc
-          .fontSize(10)
-          .text(
-            `${sinal} R$ ${Number(transacao.valor).toFixed(2)} — ` +
+        doc.fontSize(10).text(
+          `${sinal} R$ ${Number(transacao.valor).toFixed(2)} — ` +
             `${transacao.descricao} | ${transacao.categoria} | ${dataFormatada}`
-          )
+        )
       })
     }
 
@@ -553,21 +643,29 @@ app.get('/api/relatorio/pdf', authMiddleware, async (req, res, next) => {
 })
 
 app.use((req, res) => {
-  return res.status(404).json({ error: 'Rota não encontrada.' })
+  return res.status(404).json({
+    error: 'Rota não encontrada.'
+  })
 })
 
 app.use((error, req, res, next) => {
   console.error('Erro interno:', error.message)
 
   if (error.statusCode) {
-    return res.status(error.statusCode).json({ error: error.message })
+    return res.status(error.statusCode).json({
+      error: error.message
+    })
   }
 
   if (error.code === 'P2002') {
-    return res.status(409).json({ error: 'Este registro já existe.' })
+    return res.status(409).json({
+      error: 'Este registro já existe.'
+    })
   }
 
-  return res.status(500).json({ error: 'Erro interno do servidor.' })
+  return res.status(500).json({
+    error: 'Erro interno do servidor.'
+  })
 })
 
 async function iniciarServidor() {
