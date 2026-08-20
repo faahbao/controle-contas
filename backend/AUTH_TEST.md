@@ -25,7 +25,7 @@ Edite o .env se necessario:
 
 ```env
 DATABASE_URL="file:./dev.db"
-JWT_SECRET="sua-chave-secreta-jwt-aqui"
+JWT_SECRET="<TOKEN_DE_TESTE>"
 PORT=3000
 ```
 
@@ -75,7 +75,7 @@ curl -X POST http://localhost:3000/api/auth/register \
     "nome": "Teste",
     "email": "teste@teste.com"
   },
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  "token": "<TOKEN_DE_TESTE>"
 }
 ```
 
@@ -101,7 +101,7 @@ curl -X POST http://localhost:3000/api/auth/login \
     "nome": "Teste",
     "email": "teste@teste.com"
   },
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  "token": "<TOKEN_DE_TESTE>"
 }
 ```
 
