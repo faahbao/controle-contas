@@ -13,11 +13,14 @@ dist/
 # Database
 database.sqlite
 *.db
+*.db-*
 
 # Environment
 .env
 .env.local
 .env.*.local
+.env.*
+!.env.example
 
 # IDE
 .vscode/
