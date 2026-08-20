@@ -12,6 +12,10 @@ const helmet = require('helmet')
 const PDFDocument = require('pdfkit')
 
 const app = express()
+
+// Necessario quando o backend recebe requisicoes por Cloudflare Tunnel.
+app.set('trust proxy', 1)
+
 const prisma = new PrismaClient()
 
 const PORT = Number(process.env.PORT || 3000)
@@ -27,27 +31,33 @@ if (!JWT_SECRET || JWT_SECRET.length < 32) {
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3001',
-  'http://localhost:3000'
-]
+  'http://localhost:3000',
+  process.env.FRONTEND_URL,
+  ...(process.env.CORS_ORIGINS || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+].filter(Boolean)
+
+const uniqueAllowedOrigins = [...new Set(allowedOrigins)]
+
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || uniqueAllowedOrigins.includes(origin)) {
+      return callback(null, true)
+    }
+
+    return callback(
+      new Error(`Origem nao permitida pelo CORS: ${origin}`)
+    )
+  },
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}))
 
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' }
-  })
-)
-
-app.use(
-  cors({
-    origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        return callback(null, true)
-      }
-
-      return callback(new Error(`Origem não permitida pelo CORS: ${origin}`))
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
   })
 )
 
@@ -59,7 +69,7 @@ const apiLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: {
-    error: 'Muitas requisições. Tente novamente mais tarde.'
+    error: 'Muitas requisicoes. Tente novamente mais tarde.'
   }
 })
 
@@ -95,7 +105,7 @@ const transacaoSchema = Joi.object({
     .pattern(/^\d{4}-\d{2}-\d{2}$/)
     .required()
     .messages({
-      'string.pattern.base': 'Data inválida. Use o formato YYYY-MM-DD.'
+      'string.pattern.base': 'Data invalida. Use o formato YYYY-MM-DD.'
     }),
   recorrente: Joi.boolean().default(false),
   frequencia: Joi.string()
@@ -111,13 +121,13 @@ const transacaoSchema = Joi.object({
 }).custom((value, helpers) => {
   if (value.recorrente && !value.frequencia) {
     return helpers.message(
-      'Frequência é obrigatória para uma transação recorrente.'
+      'Frequencia e obrigatoria para uma transacao recorrente.'
     )
   }
 
   if (value.recorrente && !value.parcelas) {
     return helpers.message(
-      'Quantidade de parcelas é obrigatória para uma transação recorrente.'
+      'Quantidade de parcelas e obrigatoria para uma transacao recorrente.'
     )
   }
 
@@ -210,7 +220,7 @@ function authMiddleware(req, res, next) {
   const [tipo, token] = authorization.split(' ')
 
   if (tipo !== 'Bearer' || !token) {
-    return res.status(401).json({ error: 'Token não fornecido.' })
+    return res.status(401).json({ error: 'Token nao fornecido.' })
   }
 
   try {
@@ -218,7 +228,7 @@ function authMiddleware(req, res, next) {
     req.userId = payload.userId
     return next()
   } catch {
-    return res.status(401).json({ error: 'Token inválido ou expirado.' })
+    return res.status(401).json({ error: 'Token invalido ou expirado.' })
   }
 }
 
@@ -230,13 +240,13 @@ function obterWherePorMes(userId, mes, ano) {
   }
 
   if (!mes || !ano) {
-    return { error: 'Informe mês e ano juntos.' }
+    return { error: 'Informe mes e ano juntos.' }
   }
 
   const intervalo = criarIntervaloMes(mes, ano)
 
   if (!intervalo) {
-    return { error: 'Mês ou ano inválido.' }
+    return { error: 'Mes ou ano invalido.' }
   }
 
   where.data = {
@@ -301,7 +311,7 @@ app.post('/api/auth/cadastro', loginLimiter, async (req, res, next) => {
 
     if (existente) {
       return res.status(409).json({
-        error: 'Este email já está cadastrado.'
+        error: 'Este email ja esta cadastrado.'
       })
     }
 
@@ -349,7 +359,7 @@ app.post('/api/auth/login', loginLimiter, async (req, res, next) => {
 
     if (!user) {
       return res.status(401).json({
-        error: 'Email ou senha inválidos.'
+        error: 'Email ou senha invalidos.'
       })
     }
 
@@ -357,7 +367,7 @@ app.post('/api/auth/login', loginLimiter, async (req, res, next) => {
 
     if (!senhaValida) {
       return res.status(401).json({
-        error: 'Email ou senha inválidos.'
+        error: 'Email ou senha invalidos.'
       })
     }
 
@@ -434,12 +444,11 @@ app.post('/api/transacoes', authMiddleware, async (req, res, next) => {
 
     if (!dataBase) {
       return res.status(400).json({
-        error: 'Data inválida. Informe uma data no formato YYYY-MM-DD.'
+        error: 'Data invalida. Informe uma data no formato YYYY-MM-DD.'
       })
     }
 
     const totalParcelas = value.recorrente ? value.parcelas : 1
-
     const grupoParcelasId =
       value.recorrente && totalParcelas > 1
         ? crypto.randomUUID()
@@ -487,7 +496,7 @@ app.post('/api/transacoes', authMiddleware, async (req, res, next) => {
       mensagem:
         criadas.length > 1
           ? `${criadas.length} parcelas criadas com sucesso!`
-          : 'Transação criada com sucesso!',
+          : 'Transacao criada com sucesso!',
       transacoes: criadas
     })
   } catch (error) {
@@ -500,7 +509,7 @@ app.put('/api/transacoes/:id', authMiddleware, async (req, res, next) => {
     const id = validarId(req.params.id)
 
     if (!id) {
-      return res.status(400).json({ error: 'ID de transação inválido.' })
+      return res.status(400).json({ error: 'ID de transacao invalido.' })
     }
 
     const { error, value } = transacaoSchema.validate(req.body, {
@@ -516,7 +525,7 @@ app.put('/api/transacoes/:id', authMiddleware, async (req, res, next) => {
 
     if (!dataFormatada) {
       return res.status(400).json({
-        error: 'Data inválida. Informe uma data no formato YYYY-MM-DD.'
+        error: 'Data invalida. Informe uma data no formato YYYY-MM-DD.'
       })
     }
 
@@ -529,7 +538,7 @@ app.put('/api/transacoes/:id', authMiddleware, async (req, res, next) => {
 
     if (!existente) {
       return res.status(404).json({
-        error: 'Transação não encontrada.'
+        error: 'Transacao nao encontrada.'
       })
     }
 
@@ -564,7 +573,7 @@ app.patch(
       const id = validarId(req.params.id)
 
       if (!id) {
-        return res.status(400).json({ error: 'ID de transação inválido.' })
+        return res.status(400).json({ error: 'ID de transacao invalido.' })
       }
 
       const { error, value } = pagamentoSchema.validate(req.body, {
@@ -587,7 +596,7 @@ app.patch(
 
       if (!transacao) {
         return res.status(404).json({
-          error: 'Transação não encontrada.'
+          error: 'Transacao nao encontrada.'
         })
       }
 
@@ -605,7 +614,7 @@ app.patch(
       })
 
       return res.json({
-        mensagem: `Transação ${
+        mensagem: `Transacao ${
           value.paga ? 'marcada como paga' : 'marcada como pendente'
         }.`,
         transacao: atualizada
@@ -625,7 +634,7 @@ app.delete(
 
       if (!id) {
         return res.status(400).json({
-          error: 'ID de transação inválido.'
+          error: 'ID de transacao invalido.'
         })
       }
 
@@ -638,13 +647,13 @@ app.delete(
 
       if (!transacao) {
         return res.status(404).json({
-          error: 'Transação não encontrada.'
+          error: 'Transacao nao encontrada.'
         })
       }
 
       if (!transacao.recorrente || !transacao.grupoParcelasId) {
         return res.status(400).json({
-          error: 'Esta transação não pertence a um grupo de parcelas.'
+          error: 'Esta transacao nao pertence a um grupo de parcelas.'
         })
       }
 
@@ -659,7 +668,7 @@ app.delete(
       })
 
       return res.json({
-        mensagem: `${resultado.count} parcela(s) atual e futura(s) excluída(s).`,
+        mensagem: `${resultado.count} parcela(s) atual e futura(s) excluida(s).`,
         quantidadeExcluida: resultado.count
       })
     } catch (error) {
@@ -673,7 +682,7 @@ app.delete('/api/transacoes/:id', authMiddleware, async (req, res, next) => {
     const id = validarId(req.params.id)
 
     if (!id) {
-      return res.status(400).json({ error: 'ID de transação inválido.' })
+      return res.status(400).json({ error: 'ID de transacao invalido.' })
     }
 
     const existente = await prisma.transacao.findFirst({
@@ -685,7 +694,7 @@ app.delete('/api/transacoes/:id', authMiddleware, async (req, res, next) => {
 
     if (!existente) {
       return res.status(404).json({
-        error: 'Transação não encontrada.'
+        error: 'Transacao nao encontrada.'
       })
     }
 
@@ -738,7 +747,7 @@ app.get('/api/relatorio/pdf', authMiddleware, async (req, res, next) => {
 
     if (!mes || !ano) {
       return res.status(400).json({
-        error: 'Informe mês e ano para gerar o relatório.'
+        error: 'Informe mes e ano para gerar o relatorio.'
       })
     }
 
@@ -753,14 +762,14 @@ app.get('/api/relatorio/pdf', authMiddleware, async (req, res, next) => {
     const doc = new PDFDocument({ margin: 50 })
     doc.pipe(res)
 
-    doc.fontSize(20).text('Relatório Financeiro', {
+    doc.fontSize(20).text('Relatorio Financeiro', {
       align: 'center'
     })
 
     doc.moveDown(0.5)
 
     doc.fontSize(12).text(
-      `Período: ${String(mes).padStart(2, '0')}/${ano}`,
+      `Periodo: ${String(mes).padStart(2, '0')}/${ano}`,
       { align: 'center' }
     )
 
@@ -771,11 +780,11 @@ app.get('/api/relatorio/pdf', authMiddleware, async (req, res, next) => {
     doc.text(`Saldo: R$ ${resumo.saldo.toFixed(2)}`)
     doc.moveDown()
 
-    doc.fontSize(14).text('Transações')
+    doc.fontSize(14).text('Transacoes')
     doc.moveDown(0.5)
 
     if (resumo.transacoes.length === 0) {
-      doc.fontSize(10).text('Nenhuma transação encontrada neste período.')
+      doc.fontSize(10).text('Nenhuma transacao encontrada neste periodo.')
     } else {
       resumo.transacoes.forEach((transacao) => {
         const sinal = transacao.tipo === 'receita' ? '+' : '-'
@@ -794,7 +803,7 @@ app.get('/api/relatorio/pdf', authMiddleware, async (req, res, next) => {
             : ''
 
         doc.fontSize(10).text(
-          `${sinal} R$ ${Number(transacao.valor).toFixed(2)} — ` +
+          `${sinal} R$ ${Number(transacao.valor).toFixed(2)} - ` +
             `${transacao.descricao} | ${transacao.categoria} | ` +
             `${dataFormatada}${statusPagamento}`
         )
@@ -809,7 +818,7 @@ app.get('/api/relatorio/pdf', authMiddleware, async (req, res, next) => {
 
 app.use((req, res) => {
   return res.status(404).json({
-    error: 'Rota não encontrada.'
+    error: 'Rota nao encontrada.'
   })
 })
 
@@ -824,7 +833,7 @@ app.use((error, req, res, next) => {
 
   if (error.code === 'P2002') {
     return res.status(409).json({
-      error: 'Este registro já existe.'
+      error: 'Este registro ja existe.'
     })
   }
 
@@ -839,11 +848,11 @@ async function iniciarServidor() {
 
     app.listen(PORT, () => {
       console.log(`Backend rodando em http://localhost:${PORT}`)
-      console.log(`CORS permitido para: ${allowedOrigins.join(', ')}`)
+      console.log(`CORS permitido para: ${uniqueAllowedOrigins.join(', ')}`)
     })
   } catch (error) {
     console.error(
-      'Não foi possível conectar ao banco de dados:',
+      'Nao foi possivel conectar ao banco de dados:',
       error.message
     )
     process.exit(1)
