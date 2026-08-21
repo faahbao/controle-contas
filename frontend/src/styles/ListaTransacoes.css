@@ -1,18 +1,13 @@
-/* ============================================
-   LISTA DE TRANSAÇÕES
-   ============================================ */
-
 .lista-transacoes {
   width: 100%;
+  min-width: 0;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
-
-/* ============================================
-   TABELA
-   ============================================ */
 
 .lista-transacoes table {
   width: 100%;
+  min-width: 720px;
   border-collapse: collapse;
   background: #ffffff;
 }
@@ -36,36 +31,21 @@
   background: #f9fafb;
 }
 
-/* ============================================
-   COLUNA DATA
-   ============================================ */
-
 .lista-transacoes th:nth-child(1),
 .lista-transacoes td:nth-child(1) {
   white-space: nowrap;
 }
-
-/* ============================================
-   COLUNA CATEGORIA
-   ============================================ */
 
 .lista-transacoes th:nth-child(2),
 .lista-transacoes td:nth-child(2) {
   min-width: 150px;
 }
 
-/* ============================================
-   COLUNA DESCRIÇÃO
-   ============================================ */
-
 .lista-transacoes th:nth-child(3),
 .lista-transacoes td:nth-child(3) {
   min-width: 180px;
+  overflow-wrap: anywhere;
 }
-
-/* ============================================
-   COLUNA VALOR
-   ============================================ */
 
 .lista-transacoes th:nth-child(4),
 .lista-transacoes td:nth-child(4) {
@@ -73,97 +53,60 @@
   text-align: right;
 }
 
-/* Receita */
+.lista-transacoes th:nth-child(5),
+.lista-transacoes td:nth-child(5),
+.parcelas-cell {
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.lista-transacoes th:nth-child(6),
+.lista-transacoes td:nth-child(6) {
+  text-align: center;
+  white-space: nowrap;
+}
+
 .lista-transacoes .positivo {
   color: #15803d;
   font-weight: 700;
 }
 
-/* Despesa */
 .lista-transacoes .negativo {
   color: #dc2626;
   font-weight: 700;
 }
 
-/* ============================================
-   COLUNA PARCELA
-   ============================================ */
-
-.lista-transacoes th:nth-child(5),
-.lista-transacoes td:nth-child(5) {
-  text-align: center;
-  vertical-align: middle;
-  white-space: nowrap;
-}
-
-/* Célula da parcela */
-.parcelas-cell {
-  text-align: center !important;
-  vertical-align: middle;
-  white-space: nowrap;
-}
-
-/* ============================================
-   INDICADOR 1/3, 2/3, 3/3
-   ============================================ */
-
 .parcela-indicador {
   display: inline-flex;
-
   align-items: center;
   justify-content: center;
-
   min-width: 52px;
   min-height: 30px;
-
   padding: 5px 10px;
-
-  box-sizing: border-box;
-
+  border: 1px solid #bfdbfe;
   border-radius: 8px;
-
   background-color: #e8f1ff;
   color: #2563eb;
-
-  border: 1px solid #bfdbfe;
-
   font-size: 14px;
   font-weight: 700;
-
   line-height: 1;
-
   text-align: center;
-
   cursor: default;
-
-  transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease,
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease,
+    transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-/* Hover */
 .parcela-indicador:hover {
   background-color: #dbeafe;
   border-color: #93c5fd;
-
   transform: scale(1.05);
-
   box-shadow: 0 2px 6px rgba(37, 99, 235, 0.15);
 }
-
-/* ============================================
-   DIFERENCIAÇÃO DA PRIMEIRA PARCELA
-   ============================================ */
 
 .parcela-indicador[data-parcela="1"] {
   background-color: #eff6ff;
 }
-
-/* ============================================
-   DIFERENCIAÇÃO DA ÚLTIMA PARCELA
-   ============================================ */
 
 .parcela-indicador[data-ultima="true"] {
   background-color: #ecfdf5;
@@ -176,16 +119,6 @@
   border-color: #86efac;
 }
 
-/* ============================================
-   COLUNA AÇÕES
-   ============================================ */
-
-.lista-transacoes th:nth-child(6),
-.lista-transacoes td:nth-child(6) {
-  text-align: center;
-  white-space: nowrap;
-}
-
 .acoes {
   display: flex;
   align-items: center;
@@ -193,35 +126,24 @@
   gap: 6px;
 }
 
-/* ============================================
-   BOTÕES
-   ============================================ */
-
 .acoes button {
-  width: 34px;
-  height: 34px;
-
-  border: none;
-  border-radius: 6px;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
-
   font-size: 16px;
-
-  transition:
-    background-color 0.15s ease,
-    transform 0.15s ease;
+  transition: background-color 0.15s ease, transform 0.15s ease;
 }
 
 .acoes button:hover {
   transform: scale(1.05);
 }
 
-/* Botão editar */
 .btn-editar {
   background-color: #eff6ff;
   color: #2563eb;
@@ -231,17 +153,17 @@
   background-color: #dbeafe;
 }
 
-/* Botão deletar */
-.btn-deletar {
+.btn-deletar,
+.btn-cancelar {
   background-color: #fef2f2;
   color: #dc2626;
 }
 
-.btn-deletar:hover {
+.btn-deletar:hover,
+.btn-cancelar:hover {
   background-color: #fee2e2;
 }
 
-/* Botão salvar */
 .btn-salvar {
   background-color: #ecfdf5;
   color: #15803d;
@@ -250,20 +172,6 @@
 .btn-salvar:hover {
   background-color: #dcfce7;
 }
-
-/* Botão cancelar */
-.btn-cancelar {
-  background-color: #fef2f2;
-  color: #dc2626;
-}
-
-.btn-cancelar:hover {
-  background-color: #fee2e2;
-}
-
-/* ============================================
-   LINHA EM EDIÇÃO
-   ============================================ */
 
 .lista-transacoes tr.editando {
   background-color: #fffbeb;
@@ -275,15 +183,13 @@
 
 .lista-transacoes tr.editando input {
   width: 100%;
-  box-sizing: border-box;
-
+  min-width: 0;
+  min-height: 40px;
   padding: 7px 8px;
-
   border: 1px solid #d1d5db;
   border-radius: 5px;
-
+  font: inherit;
   font-size: 14px;
-
   outline: none;
 }
 
@@ -292,51 +198,126 @@
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
 }
 
-/* ============================================
-   LISTA VAZIA
-   ============================================ */
-
 .lista-vazia {
   width: 100%;
   padding: 40px 20px;
-
-  box-sizing: border-box;
-
-  text-align: center;
-
-  color: #6b7280;
-
   background: #f9fafb;
-
+  color: #6b7280;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
-
+  text-align: center;
   font-size: 16px;
 }
 
-/* ============================================
-   RESPONSIVIDADE
-   ============================================ */
-
 @media (max-width: 768px) {
+  .lista-transacoes {
+    overflow: visible;
+  }
+
+  .lista-transacoes table,
+  .lista-transacoes thead,
+  .lista-transacoes tbody,
+  .lista-transacoes tr,
   .lista-transacoes th,
   .lista-transacoes td {
-    padding: 9px 7px;
-    font-size: 13px;
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .lista-transacoes thead {
+    display: none;
+  }
+
+  .lista-transacoes tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .lista-transacoes tbody tr,
+  .lista-transacoes tr.editando {
+    margin: 0;
+    padding: 14px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  .lista-transacoes td,
+  .lista-transacoes tr.editando td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 0;
+    border: 0;
+    text-align: right;
+    white-space: normal;
+  }
+
+  .lista-transacoes td::before {
+    flex: 0 0 42%;
+    color: #6b7280;
+    content: attr(data-label);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-align: left;
+  }
+
+  .lista-transacoes td:last-child {
+    display: block;
+    padding-top: 12px;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .lista-transacoes td:last-child::before {
+    display: none;
+  }
+
+  .parcelas-cell {
+    justify-content: space-between !important;
+    text-align: right !important;
+  }
+
+  .acoes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    gap: 8px;
+  }
+
+  .acoes button {
+    width: 100%;
+    height: 42px;
+    min-height: 42px;
   }
 
   .parcela-indicador {
     min-width: 46px;
-    min-height: 28px;
-
+    min-height: 30px;
     padding: 4px 8px;
-
     font-size: 13px;
   }
 
-  .acoes button {
-    width: 30px;
-    height: 30px;
+  .lista-transacoes tr.editando input {
+    max-width: 58%;
+    text-align: right;
+  }
+
+  .lista-vazia {
+    padding: 28px 16px;
     font-size: 14px;
+  }
+}
+
+@media (max-width: 374px) {
+  .acoes {
+    grid-template-columns: 1fr;
+  }
+
+  .lista-transacoes td::before {
+    flex-basis: 38%;
   }
 }

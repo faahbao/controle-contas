@@ -1,29 +1,35 @@
 .exportar-container {
+  width: 100%;
   max-width: 800px;
+  min-width: 0;
+  margin: 0 auto;
 }
 
 .exportar-container h1 {
-  font-size: 2rem;
-  margin-bottom: 2rem;
+  margin: 0 0 2rem;
   color: var(--text-dark);
+  font-size: 2rem;
+  line-height: 1.2;
 }
 
 .exportar-card {
-  background: var(--bg-white);
+  width: 100%;
+  min-width: 0;
   padding: 2rem;
+  background: var(--bg-white);
   border-radius: 12px;
   box-shadow: var(--shadow-md);
 }
 
 .exportar-card h2 {
-  font-size: 1.3rem;
-  margin-bottom: 0.5rem;
+  margin: 0 0 0.5rem;
   color: var(--text-dark);
+  font-size: 1.3rem;
 }
 
 .exportar-card > p {
+  margin: 0 0 2rem;
   color: var(--text-light);
-  margin-bottom: 2rem;
   line-height: 1.6;
 }
 
@@ -37,24 +43,28 @@
 .filtros-exportar .form-group {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .filtros-exportar label {
-  font-weight: 600;
-  color: var(--text-dark);
   margin-bottom: 0.5rem;
+  color: var(--text-dark);
   font-size: 0.9rem;
+  font-weight: 600;
 }
 
 .filtros-exportar input,
 .filtros-exportar select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
   padding: 0.75rem;
+  background-color: #ffffff;
   border: 1px solid var(--border-color);
   border-radius: 6px;
+  font: inherit;
   font-size: 0.9rem;
-  font-family: inherit;
-  background-color: white;
-  transition: border-color 0.3s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .filtros-exportar input:focus,
@@ -65,36 +75,41 @@
 }
 
 .erro {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  overflow-wrap: anywhere;
   background-color: #fee2e2;
   color: var(--error-color);
-  padding: 1rem;
+  border: 1px solid #fecaca;
   border-radius: 6px;
-  margin-bottom: 1.5rem;
 }
 
 .botoes-exportar {
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
   margin-bottom: 2rem;
-  flex-wrap: wrap;
 }
 
 .btn-exportar,
 .btn-limpar {
+  min-height: 44px;
   padding: 0.875rem 1.5rem;
   border: none;
   border-radius: 6px;
+  font: inherit;
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .btn-exportar {
+  flex: 1 1 200px;
+  min-width: 0;
   background-color: var(--primary-color);
-  color: white;
-  flex: 1;
-  min-width: 200px;
+  color: #ffffff;
 }
 
 .btn-exportar:hover:not(:disabled) {
@@ -104,8 +119,8 @@
 }
 
 .btn-exportar:disabled {
-  opacity: 0.6;
   cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .btn-limpar {
@@ -113,69 +128,94 @@
   color: var(--text-dark);
 }
 
-.btn-limpar:hover {
+.btn-limpar:hover:not(:disabled) {
   background-color: var(--secondary-color);
-  color: white;
+  color: #ffffff;
 }
 
 .info-exportar {
-  background-color: var(--bg-light);
   padding: 1.5rem;
-  border-radius: 8px;
+  background-color: var(--bg-light);
   border-left: 4px solid var(--primary-color);
+  border-radius: 8px;
 }
 
 .info-exportar h3 {
-  margin-bottom: 1rem;
+  margin: 0 0 1rem;
   color: var(--text-dark);
   font-size: 1rem;
 }
 
 .info-exportar ul {
-  list-style: none;
+  margin: 0;
   padding: 0;
+  list-style: none;
 }
 
 .info-exportar li {
-  padding: 0.5rem 0;
+  position: relative;
+  padding: 0.5rem 0 0.5rem 1.5rem;
   color: var(--text-light);
   line-height: 1.6;
-  position: relative;
-  padding-left: 1.5rem;
 }
 
 .info-exportar li::before {
-  content: '•';
   position: absolute;
   left: 0;
   color: var(--primary-color);
-  font-weight: bold;
+  content: '•';
+  font-weight: 700;
 }
 
 .info-exportar code {
-  background-color: white;
+  display: inline-block;
+  max-width: 100%;
   padding: 0.25rem 0.5rem;
-  border-radius: 3px;
-  font-family: 'Courier New', monospace;
-  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+  background-color: #ffffff;
   color: var(--primary-color);
+  border-radius: 3px;
+  font-family: "Courier New", monospace;
+  font-size: 0.85rem;
 }
 
 @media (max-width: 768px) {
+  .exportar-container {
+    max-width: none;
+  }
+
+  .exportar-container h1 {
+    margin-bottom: 1.25rem;
+    font-size: 1.5rem;
+  }
+
   .exportar-card {
-    padding: 1.5rem;
+    padding: 1.25rem 1rem;
+    border-radius: 10px;
+  }
+
+  .exportar-card > p {
+    margin-bottom: 1.5rem;
   }
 
   .filtros-exportar {
     grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
   }
 
   .botoes-exportar {
     flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
   }
 
   .btn-exportar,
   .btn-limpar {
     width: 100%;
+  }
+
+  .info-exportar {
+    padding: 1rem;
   }
 }
