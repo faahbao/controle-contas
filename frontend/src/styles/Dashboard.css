@@ -87,7 +87,7 @@
 
 .card.despesa .valor,
 .transacao-valor.despesa {
-  color: #e74c3c;
+  color: #e60000;
 }
 
 .card.saldo .valor {
@@ -215,8 +215,8 @@
 }
 
 .tag.despesa {
-  background: #fadbd8;
-  color: #e74c3c;
+  background: #ffffff;
+  color: #e60000;
 }
 
 .transacoes-header {
@@ -363,26 +363,26 @@
 
 .btn-delete {
   padding: 6px 12px;
-  background: #ffeeee;
-  border: 1px solid #ffcccc;
-  color: #7f1d1d;
+  background: #e60000;
+  border: 1px solid #ffffff;
+  color: #ffffff;
   font-size: 16px;
 }
 
 .btn-delete:hover {
-  background: #ffcccc;
+  background: #cf0404;
 }
 
 .btn-delete-futuras {
   padding: 7px 10px;
-  background: #e67e22;
+  background: #e60000;
   color: #ffffff;
   border: none;
   font-size: 12px;
 }
 
 .btn-delete-futuras:hover {
-  background: #d35400;
+  background: #cf0404;
 }
 
 .btn-pay,
@@ -548,11 +548,11 @@
 }
 
 .barra.receita {
-  background: linear-gradient(90deg, #27ae60, #2ecc71);
+  background: linear-gradient(90deg, #58c284, #2ecc71);
 }
 
 .barra.despesa {
-  background: linear-gradient(90deg, #e74c3c, #c0392b);
+  background: linear-gradient(90deg, #e06152, #e60000);
 }
 
 .modal-overlay {
