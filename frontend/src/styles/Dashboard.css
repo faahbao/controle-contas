@@ -61,7 +61,6 @@
 
 .card {
   min-width: 0;
-  background: #ffffff;
   padding: 30px;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
@@ -70,7 +69,6 @@
 
 .card h3 {
   margin: 0 0 10px;
-  color: #666666;
   font-size: 16px;
 }
 
@@ -80,18 +78,51 @@
   font-weight: 700;
 }
 
-.card.receita .valor,
+.card.receita {
+  background: #27ae60;
+  color: #ffffff;
+}
+
+.card.receita h3 {
+  color: #ffffff;
+}
+
+.card.receita .valor {
+  color: #ffffff;
+}
+
+.card.despesa {
+  background: #e60000;
+  color: #ffffff;
+}
+
+.card.despesa h3 {
+  color: #ffffff;
+}
+
+.card.despesa .valor {
+  color: #ffffff;
+}
+
+.card.saldo {
+  background: #3498db;
+  color: #ffffff;
+}
+
+.card.saldo h3 {
+  color: #ffffff;
+}
+
+.card.saldo .valor {
+  color: #ffffff;
+}
+
 .transacao-valor.receita {
   color: #27ae60;
 }
 
-.card.despesa .valor,
 .transacao-valor.despesa {
   color: #e60000;
-}
-
-.card.saldo .valor {
-  color: #3498db;
 }
 
 .form-section,
@@ -152,7 +183,8 @@
   border-color: #667eea;
 }
 
-.btn-add {
+.btn-add,
+.btn-add-categoria {
   min-height: 44px;
   padding: 10px 18px;
   background: #27ae60;
@@ -162,9 +194,11 @@
   font-weight: 600;
   cursor: pointer;
   transition: background 0.3s;
+  font-size: 14px;
 }
 
-.btn-add:hover {
+.btn-add:hover,
+.btn-add-categoria:hover {
   background: #229954;
 }
 
@@ -334,26 +368,17 @@
 }
 
 .btn-edit,
-.btn-delete,
-.btn-delete-futuras,
-.btn-pay,
-.btn-unpay,
-.btn-select-all,
-.btn-pay-selected,
-.btn-toggle-parcelas {
+.btn-select-all {
   min-height: 36px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background 0.2s ease;
-}
-
-.btn-edit {
   padding: 6px 12px;
   background: #3498db;
   color: #ffffff;
   border: 1px solid #2980b9;
-  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s ease;
+  font-size: 14px;
 }
 
 .btn-edit:hover,
@@ -361,79 +386,74 @@
   background: #2980b9;
 }
 
-.btn-delete {
+.btn-delete,
+.btn-delete-futuras,
+.btn-pdf {
+  min-height: 36px;
   padding: 6px 12px;
-  background: #e60000;
-  border: 1px solid #ffffff;
-  color: #ffffff;
-  font-size: 16px;
-}
-
-.btn-delete:hover {
-  background: #cf0404;
-}
-
-.btn-delete-futuras {
-  padding: 7px 10px;
   background: #e60000;
   color: #ffffff;
   border: none;
-  font-size: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s ease;
+  font-size: 14px;
 }
 
-.btn-delete-futuras:hover {
+.btn-delete:hover,
+.btn-delete-futuras:hover,
+.btn-pdf:hover {
   background: #cf0404;
 }
 
 .btn-pay,
 .btn-pay-selected {
-  padding: 7px 10px;
-  background: #2e7d32;
+  min-height: 36px;
+  padding: 6px 12px;
+  background: #27ae60;
   color: #ffffff;
   border: none;
-  font-size: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s ease;
+  font-size: 14px;
 }
 
-.btn-pay:hover {
-  background: #1b5e20;
-}
-
-.btn-pay-selected {
-  padding: 8px 14px;
-  background: #27ae60;
-  font-size: 13px;
-}
-
+.btn-pay:hover,
 .btn-pay-selected:hover {
-  background: #219a52;
+  background: #229954;
 }
 
 .btn-unpay {
-  padding: 7px 10px;
+  min-height: 36px;
+  padding: 6px 12px;
   background: #78909c;
   color: #ffffff;
   border: none;
-  font-size: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s ease;
+  font-size: 14px;
 }
 
 .btn-unpay:hover {
   background: #546e7a;
 }
 
-.btn-select-all {
-  padding: 8px 14px;
-  background: #3498db;
-  color: #ffffff;
-  border: none;
-  font-size: 13px;
-}
-
 .btn-toggle-parcelas {
+  min-height: 36px;
   padding: 8px 14px;
   background: #9b59b6;
   color: #ffffff;
   border: none;
-  font-size: 13px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s ease;
+  font-size: 14px;
 }
 
 .btn-toggle-parcelas:hover {
@@ -506,17 +526,6 @@
   min-height: 42px;
   padding: 10px 20px;
   margin-left: auto;
-  background: #e74c3c;
-  color: #ffffff;
-  border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.btn-pdf:hover {
-  background: #c0392b;
 }
 
 .grafico {
@@ -617,6 +626,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: background 0.3s;
+  font-size: 14px;
 }
 
 .btn-cancel {

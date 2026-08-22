@@ -926,7 +926,7 @@ function Dashboard() {
                           title="Editar transação"
                           disabled={pagandoSelecionadas}
                         >
-                          ✏️
+                          Editar
                         </button>
 
                         {transacao.tipo === 'despesa' && (
@@ -952,7 +952,7 @@ function Dashboard() {
                           >
                             {transacao.paga
                               ? '↩️ Desmarcar'
-                              : '💵 Pagar'}
+                              : ' Pagar'}
                           </button>
                         )}
 
@@ -967,8 +967,7 @@ function Dashboard() {
                               aria-label="Excluir somente esta parcela"
                               title="Excluir somente esta parcela"
                               disabled={pagandoSelecionadas}
-                            >
-                              🗑️ Esta
+                            > Apagar esta
                             </button>
 
                             <button
@@ -981,7 +980,7 @@ function Dashboard() {
                               title="Excluir parcela atual e futuras"
                               disabled={pagandoSelecionadas}
                             >
-                              ⏩ Futuras
+                              Apagar todas
                             </button>
                           </>
                         ) : (
@@ -995,7 +994,7 @@ function Dashboard() {
                             title="Excluir transação"
                             disabled={pagandoSelecionadas}
                           >
-                            🗑️
+                            Apagar
                           </button>
                         )}
                       </div>
@@ -1016,7 +1015,7 @@ function Dashboard() {
               className="modal-content"
               onClick={(event) => event.stopPropagation()}
             >
-              <h2>✏️ Editar Transação</h2>
+              <h2>Editar Transação</h2>
 
               <form
                 onSubmit={atualizarTransacao}
