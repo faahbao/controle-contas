@@ -1,109 +1,53 @@
-# Historico de Atualizacoes
+# Histórico de Atualizações
 
-## Versao 1.3 - Pagamentos e parcelas futuras
+> O nome deste arquivo é histórico. As alterações mais recentes também devem ser registradas em `CHANGELOG.md`.
 
-Data: Agosto de 2026
-
-## Novas funcionalidades
+## Versão 1.3 — Pagamentos e parcelas futuras
 
 ### Status de pagamento
 
-Foi adicionado o campo:
-
-```prisma
-paga Boolean @default(false)
-```
-
-O campo representa se uma despesa foi paga.
+Foi adicionado o campo lógico `paga` às transações. Ele representa se uma despesa foi paga. Receitas não precisam desse status.
 
 ### Pagamento individual
 
-Cada despesa exibe:
-
-```text
-Pagar
-```
-
-Depois de paga, o botao se torna:
-
-```text
-Desmarcar
-```
-
-Receitas nao possuem status de pagamento.
+Cada despesa pode ser marcada como paga ou voltar ao estado pendente. O status é independente por parcela.
 
 ### Pagamento em lote
 
-O usuario pode selecionar varias despesas pendentes e clicar em:
-
-```text
-Pagar selecionadas
-```
-
-As requisicoes sao enviadas em sequencia para evitar bloqueios no SQLite.
+O usuário pode selecionar diversas despesas e executar o pagamento em lote. As requisições devem ser processadas sequencialmente para reduzir bloqueios no SQLite.
 
 ### Parcelas futuras
 
-Foi adicionada a rota:
+A rota `GET /api/transacoes/todas` permite listar transações sem limitar o mês atual. Assim, parcelas futuras podem ser consultadas e pagas antecipadamente.
+
+### Rotas relacionadas
 
 ```text
-GET /api/transacoes/todas
-```
-
-Ela permite ao frontend exibir parcelas de todos os meses.
-
-O botao:
-
-```text
-Ver todas as parcelas
-```
-
-permite selecionar e pagar parcelas futuras antecipadamente.
-
-### Nova rota de pagamento
-
-```text
+GET   /api/transacoes/todas
 PATCH /api/transacoes/:id/pagamento
+DELETE /api/transacoes/:id/futuras
 ```
 
-Body:
+### CORS e acesso externo
 
-```json
-{
-  "paga": true
-}
-```
+O backend deve aceitar os métodos realmente utilizados, incluindo `PATCH`, e permitir a origem atual do frontend. Links temporários de Cloudflare Tunnel podem mudar; quando isso ocorrer, atualize `VITE_API_URL` e a configuração de CORS e reinicie os serviços.
 
-### Exclusao de parcelas
+### SQLite e Prisma
 
-Continuam disponiveis:
-
-- Excluir somente esta parcela.
-- Excluir esta parcela e as futuras.
-
-## Ajustes tecnicos
-
-### CORS
-
-O backend passou a permitir PATCH:
-
-```javascript
-methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
-```
-
-### SQLite
-
-A URL recomendada para o banco:
+A configuração recomendada para desenvolvimento é:
 
 ```env
 DATABASE_URL="file:./dev.db?connection_limit=1"
 ```
 
-### Prisma
-
-Apos editar o schema:
+Após alterar o schema:
 
 ```powershell
-npx prisma migrate dev --name add_paga_field
+cd backend
+npx prisma migrate dev --name descricao_da_mudanca
 npx prisma generate
 ```
+
+## Observação
+
+Não confunda a versão do arquivo com a versão atual do sistema. Consulte `CHANGELOG.md` para o histórico completo.

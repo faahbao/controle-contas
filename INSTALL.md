@@ -1,121 +1,116 @@
-# Instalacao
+# Instalação
 
-## Pre-requisitos
+## Pré-requisitos
 
-- Node.js 20 ou superior
-- npm
-- Windows, Linux ou macOS
+- Node.js 20 ou superior.
+- npm.
+- Windows, Linux ou macOS.
 
-O projeto usa SQLite local. Nao e necessario instalar PostgreSQL ou Docker.
+O projeto utiliza SQLite local; não é necessário instalar PostgreSQL ou Docker.
 
 ## Backend
-
-### 1. Instalar dependencias
 
 ```powershell
 cd D:\Projetos\controle-contas\backend
 npm install
-```
-
-### 2. Configurar .env
-
-Crie ou atualize o arquivo `backend/.env`:
-
-```env
-DATABASE_URL="file:./dev.db?connection_limit=1"
-JWT_SECRET="substitua-por-uma-chave-com-pelo-menos-32-caracteres"
-PORT=3000
-FRONTEND_URL="http://localhost:3001"
-```
-
-**Importante:** Gere uma nova chave JWT antes de publicar:
-
-```powershell
-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-```
-
-Substitua o valor de `JWT_SECRET` pelo resultado.
-
-### 3. Gerar Prisma e migrar banco
-
-```powershell
 npx prisma generate
 npx prisma migrate dev
-```
-
-### 4. Iniciar servidor
-
-```powershell
 npm run dev
 ```
 
-O backend ficara disponivel em:
+Backend padrão:
 
 ```text
 http://localhost:3000
 ```
 
+Confirme a porta exibida pelo servidor antes de configurar o frontend ou o tunnel.
+
 ## Frontend
 
-### 1. Instalar dependencias
+Em outro terminal:
 
 ```powershell
 cd D:\Projetos\controle-contas\frontend
 npm install
-```
-
-### 2. Iniciar desenvolvimento
-
-```powershell
 npm run dev
 ```
 
-O frontend normalmente ficara disponivel em:
+Acesse a URL exibida pelo Vite, geralmente `http://localhost:3001`.
 
-```text
-http://localhost:3001
+## Variáveis de ambiente
+
+Backend (`backend/.env`):
+
+```env
+DATABASE_URL="file:./dev.db?connection_limit=1"
+JWT_SECRET="use-uma-chave-secreta-com-pelo-menos-32-caracteres"
+PORT=3000
+FRONTEND_URL="http://localhost:3001"
 ```
 
-Se o Vite usar outra porta, utilize a URL exibida no terminal.
+Frontend (`frontend/.env`):
 
-## Variaveis de ambiente
+```env
+VITE_API_URL="http://localhost:3000/api"
+```
 
-### Backend
-
-| Variavel | Descricao | Exemplo |
-|---|---|---|
-| DATABASE_URL | Caminho do banco SQLite | file:./dev.db?connection_limit=1 |
-| JWT_SECRET | Chave usada para assinar tokens | chave com 32 caracteres ou mais |
-| PORT | Porta do backend | 3000 |
-| FRONTEND_URL | Origem principal do frontend | http://localhost:3001 |
-
-Nunca compartilhe o arquivo `.env` nem publique o valor real de `JWT_SECRET`.
-
-## Solucao de problemas
-
-### Erro EPERM no Prisma
-
-Pare todos os processos Node, feche terminais antigos e execute:
+Gere uma chave segura:
 
 ```powershell
-Remove-Item -Recurse -Force node_modules\.prisma
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+Nunca publique os valores reais de `.env`.
+
+## Cloudflare Tunnel
+
+Para expor a aplicação, a origem precisa corresponder ao serviço que o tunnel deve publicar:
+
+```powershell
+cloudflared tunnel --url http://127.0.0.1:3000
+```
+
+Se o frontend e o backend usam portas diferentes, publique o serviço correto ou configure um proxy. Usar `127.0.0.1` evita falhas quando `localhost` é resolvido para IPv6 (`::1`).
+
+Links de quick tunnel podem mudar. Ao trocar o domínio, atualize:
+
+- `VITE_API_URL`.
+- `FRONTEND_URL` ou a lista de origens do CORS.
+- Favoritos e URLs usadas para acesso externo.
+
+## Prisma
+
+```powershell
+cd backend
 npx prisma generate
-```
-
-### Erro de campo inexistente
-
-Se aparecer erro sobre campo faltando no banco:
-
-```powershell
 npx prisma migrate dev
-npx prisma generate
+npx prisma studio
 ```
 
-### Banco vazio ou tabela ausente
-
-Confirme que `DATABASE_URL` aponta para `file:./dev.db` e execute:
+Para criar uma migração:
 
 ```powershell
-npx prisma migrate dev --force
+npx prisma migrate dev --name descricao_da_migracao
 npx prisma generate
 ```
+
+Evite `--force-reset` se houver dados que não possam ser perdidos.
+
+## Solução de problemas
+
+### Backend não responde
+
+Confira se o processo está ativo e se a porta está correta:
+
+```powershell
+Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue
+```
+
+### Cloudflare recusa a conexão
+
+Verifique se o backend escuta na mesma porta usada no comando do tunnel. Prefira `http://127.0.0.1:PORTA`.
+
+### Erro de login
+
+Verifique a URL da API no frontend, o endpoint de autenticação registrado no backend, o CORS e o console do navegador. Depois de alterar `.env` do Vite, reinicie o frontend.

@@ -1,252 +1,74 @@
-# Testando a Autenticacao
+# Teste de Autenticação
 
-Guia rapido para testar as novas rotas de autenticacao.
+Este guia testa cadastro, login e acesso a uma rota protegida.
 
-## 1. Instalar dependencias
+## Pré-requisitos
 
-No terminal, na pasta do backend:
+Inicie o backend e confirme a porta usada. Os exemplos abaixo usam `3000`.
 
-```bash
+```powershell
 cd backend
 npm install
-```
-
-Isso vai instalar `jsonwebtoken` e `bcryptjs`.
-
-## 2. Configurar .env
-
-Copie o .env.example para .env:
-
-```bash
-cp .env.example .env
-```
-
-Edite o .env se necessario:
-
-```env
-DATABASE_URL="file:./dev.db"
-JWT_SECRET="<TOKEN_DE_TESTE>"
-PORT=3000
-```
-
-## 3. Rodar o servidor
-
-```bash
 npm run dev
 ```
 
-Voce deve ver:
+Configure o `backend/.env`:
+
+```env
+DATABASE_URL="file:./dev.db?connection_limit=1"
+JWT_SECRET="chave-secreta-de-teste-com-pelo-menos-32-caracteres"
+PORT=3000
 ```
-✅ Tabela "users" criada com sucesso
-🚀 Servidor rodando em http://localhost:3000
-```
 
-## 4. Testar Registro
+## Cadastro
 
-### Usando cURL:
+A documentação principal usa `/cadastro`. Se o backend tiver registrado `/register`, substitua o caminho nos exemplos.
 
-```bash
-curl -X POST http://localhost:3000/api/auth/register \
-  -H "Content-Type: application/json" \
+```powershell
+curl.exe -X POST http://localhost:3000/api/auth/cadastro `
+  -H "Content-Type: application/json" `
   -d '{"nome":"Teste","email":"teste@teste.com","senha":"123456"}'
 ```
 
-### Usando Insomnia/Postman:
+Resposta esperada: um token e os dados públicos do usuário. Nunca armazene nem compartilhe a senha ou o token em documentação.
 
-- **Method:** POST
-- **URL:** `http://localhost:3000/api/auth/register`
-- **Headers:** `Content-Type: application/json`
-- **Body (JSON):**
-```json
-{
-  "nome": "Teste",
-  "email": "teste@teste.com",
-  "senha": "123456"
-}
-```
+## Login
 
-### Resposta esperada:
-
-```json
-{
-  "message": "Usuario registrado com sucesso",
-  "user": {
-    "id": 1,
-    "nome": "Teste",
-    "email": "teste@teste.com"
-  },
-  "token": "<TOKEN_DE_TESTE>"
-}
-```
-
-**Guarde o token!** Voce vai precisar dele para as rotas protegidas.
-
-## 5. Testar Login
-
-### Usando cURL:
-
-```bash
-curl -X POST http://localhost:3000/api/auth/login \
-  -H "Content-Type: application/json" \
+```powershell
+curl.exe -X POST http://localhost:3000/api/auth/login `
+  -H "Content-Type: application/json" `
   -d '{"email":"teste@teste.com","senha":"123456"}'
 ```
 
-### Resposta esperada:
+Copie o token somente para o teste local.
 
-```json
-{
-  "message": "Login realizado com sucesso",
-  "user": {
-    "id": 1,
-    "nome": "Teste",
-    "email": "teste@teste.com"
-  },
-  "token": "<TOKEN_DE_TESTE>"
-}
-```
+## Rota protegida
 
-## 6. Testar Rota Protegida (/api/auth/me)
-
-Agora use o token que voce recebeu:
-
-### Usando cURL:
-
-```bash
-curl -X GET http://localhost:3000/api/auth/me \
+```powershell
+curl.exe -X GET http://localhost:3000/api/auth/me `
   -H "Authorization: Bearer SEU_TOKEN_AQUI"
 ```
 
-Substitua `SEU_TOKEN_AQUI` pelo token que voce recebeu no login/registro.
+Substitua `SEU_TOKEN_AQUI` pelo token retornado no login.
 
-### Resposta esperada:
+## Casos de erro
 
-```json
-{
-  "user": {
-    "id": 1,
-    "nome": "Teste",
-    "email": "teste@teste.com",
-    "created_at": "2026-08-15T12:00:00.000Z"
-  }
-}
+Token ausente ou inválido deve resultar em `401`:
+
+```powershell
+curl.exe -X GET http://localhost:3000/api/auth/me
 ```
 
-## 7. Testar Erros
+Também teste e-mail inválido, senha curta e e-mail duplicado. A resposta pode variar conforme o middleware, mas deve indicar erro de validação ou conflito.
 
-### Token invalido:
+## Teste via frontend
 
-```bash
-curl -X GET http://localhost:3000/api/auth/me \
-  -H "Authorization: Bearer token-invalido"
-```
+1. Abra a URL exibida pelo Vite.
+2. Crie uma conta.
+3. Faça login.
+4. Confira no DevTools se as requisições protegidas enviam o header `Authorization`.
+5. Confirme que o token não aparece na URL.
 
-Resposta:
-```json
-{
-  "error": "Token invalido ou expirado"
-}
-```
+## Cloudflare Tunnel
 
-### Sem token:
-
-```bash
-curl -X GET http://localhost:3000/api/auth/me
-```
-
-Resposta:
-```json
-{
-  "error": "Token nao fornecido"
-}
-```
-
-## 8. Testar Validacao
-
-### Email invalido:
-
-```bash
-curl -X POST http://localhost:3000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"nome":"Teste","email":"email-invalido","senha":"123456"}'
-```
-
-Resposta:
-```json
-{
-  "error": "Email invalido"
-}
-```
-
-### Senha curta:
-
-```bash
-curl -X POST http://localhost:3000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"nome":"Teste","email":"teste2@teste.com","senha":"123"}'
-```
-
-Resposta:
-```json
-{
-  "error": "Senha deve ter no minimo 6 caracteres"
-}
-```
-
-### Email duplicado:
-
-```bash
-curl -X POST http://localhost:3000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"nome":"Teste","email":"teste@teste.com","senha":"123456"}'
-```
-
-Resposta:
-```json
-{
-  "error": "Email ja cadastrado"
-}
-```
-
-## Endpoints Disponiveis
-
-| Metodo | Endpoint | Descricao | Autenticado? |
-|--------|----------|-----------|--------------|
-| POST | /api/auth/register | Registrar usuario | Nao |
-| POST | /api/auth/login | Login | Nao |
-| GET | /api/auth/me | Dados do usuario | Sim |
-
-## Proximos Passos
-
-Agora que a autenticacao esta funcionando, voce pode:
-
-1. **Proteger outras rotas** - Adicionar o middleware `authMiddleware` nas rotas de transacoes, categorias, etc.
-2. **Criar frontend** - Implementar telas de login e registro no React
-3. **Armazenar token** - Usar localStorage ou contexto React para guardar o token
-4. **Enviar token** - Incluir header `Authorization: Bearer <token>` em todas as requisicoes
-
-## Exemplo de Uso no Frontend
-
-```javascript
-// Login
-const response = await fetch('http://localhost:3000/api/auth/login', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ email, senha })
-});
-
-const data = await response.json();
-
-// Salvar token
-localStorage.setItem('token', data.token);
-
-// Usar em requisicoes protegidas
-const meResponse = await fetch('http://localhost:3000/api/auth/me', {
-  headers: {
-    'Authorization': `Bearer ${localStorage.getItem('token')}`
-  }
-});
-```
-
----
-
-Precisa de ajuda? Abra uma issue no GitHub!
+Para testar externamente, configure o frontend com a URL atual da API e mantenha o backend ativo. Um quick tunnel pode mudar de domínio; atualize `VITE_API_URL`, CORS e reinicie o frontend quando isso ocorrer.

@@ -1,114 +1,68 @@
 # Changelog
 
-Todas as mudancas importantes neste projeto estao documentadas neste arquivo.
+Todas as mudanças importantes devem ser registradas neste arquivo. O formato segue a ideia do [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
-O formato e baseado em [Keep a Changelog](https://keepachangelog.com/).
-
-## [1.3.0] - 2026-08-18
+## [1.3.0] — 2026-08-18
 
 ### Adicionado
 
-- **Pagamento de despesas**
-  - Campo `paga` no modelo Transacao
-  - Botao para marcar/desmarcar despesa como paga
-  - Somente despesas podem ser marcadas como pagas (receitas nao)
-  - Endpoint `PATCH /api/transacoes/:id/pagamento`
-
-- **Pagamento em lote**
-  - Checkbox para selecao de multiplas despesas
-  - Botao "Pagar selecionadas"
-  - Atualizacao sequencial para evitar bloqueio do SQLite
-
-- **Pagamento antecipado**
-  - Visualizacao de todas as parcelas (sem filtro de mes)
-  - Endpoint `GET /api/transacoes/todas`
-  - Capacidade de pagar parcelas de meses futuros
-
-- **Exclusao de parcelas futuras**
-  - Botao "Excluir futuras"
-  - Endpoint `DELETE /api/transacoes/:id/futuras`
-  - Remove parcela selecionada e todas as posteriores
-
-- **Documentacao atualizada**
-  - Todos os arquivos de documentacao revisados
-  - Remocao de referencias a PostgreSQL
-  - Foco em SQLite + Prisma
-  - Instrucoes de instalacao simplificadas
+- Status de pagamento para despesas.
+- Pagamento individual, em lote e antecipado.
+- Visualização de todas as parcelas, incluindo futuras.
+- Exclusão da parcela atual ou da parcela atual e posteriores.
+- Endpoint para atualizar pagamento.
+- Documentação revisada para SQLite e Prisma.
 
 ### Modificado
 
-- **Backend**
-  - Schema do Prisma atualizado com campos `paga` e `grupoParcelasId`
-  - CORS atualizado para incluir metodo PATCH
-  - Remocao de dependencias nao utilizadas (Sequelize, Knex, pg)
-
-- **Frontend**
-  - Dashboard com controles de pagamento
-  - Selecao multipla de despesas
-  - Visualizacao de parcelas futuras
-  - Fluxo de pagamento em lote
+- Modelo de transação com `paga` e `grupoParcelasId`.
+- CORS com suporte aos métodos usados pela aplicação.
+- Dashboard com controles de pagamento e parcelas.
 
 ### Removido
 
-- Dependencias Sequelize, Knex e PostgreSQL
-- Migracoes antigas nao Prisma
-- Referencias a banco de dados externo
+- Referências e dependências antigas de PostgreSQL, Sequelize e Knex, quando não utilizadas pelo projeto atual.
 
-### Seguranca
+### Segurança
 
-- Geracao de nova chave JWT recomendada antes de publicar
-- `.env` deve estar no `.gitignore`
-- Dados armazenados localmente em SQLite
+- Recomendação de gerar uma nova chave JWT antes de publicar.
+- Arquivos `.env` devem permanecer fora do Git.
+- Origens externas devem ser explicitamente configuradas no CORS.
 
-## [1.2.0] - 2026-08-15
+## [1.2.0] — 2026-08-15
 
 ### Adicionado
 
-- Autenticacao de usuarios com JWT
-- Registro e login de usuarios
-- CRUD completo de transacoes
-- CRUD de categorias
-- Dashboard com resumo financeiro
-- Scripts de setup automatico
-- Documentacao completa
-
-### Modificado
-
-- Estrutura organizada em backend/frontend
-- Migracao para TypeScript
-- Melhorias com TailwindCSS
+- Cadastro e login com JWT.
+- CRUD de transações e categorias.
+- Dashboard financeiro.
+- Scripts de instalação.
+- Documentação inicial.
 
 ### Corrigido
 
-- Problemas de CORS
-- Validacao de dados
+- Problemas de CORS e validação.
 
-## [1.1.0] - 2026-08-15
-
-### Adicionado
-
-- Transacoes recorrentes com parcelas
-- Geracao automatica de parcelas
-- Badge visual de parcelas
-- Filtro por mes/ano corrigido
-- Documentacao atualizada
-
-## [1.0.0] - 2026-01-01
+## [1.1.0] — 2026-08-15
 
 ### Adicionado
 
-- Estrutura inicial
-- Backend Node.js + Express
-- Frontend React + Vite
-- SQLite + Prisma ORM
+- Transações recorrentes.
+- Geração automática de parcelas.
+- Indicadores visuais de parcelamento.
+- Filtros por mês e ano.
 
----
+## [1.0.0] — 2026-01-01
 
-## Formato
+### Adicionado
 
-- **[Versao]** - Data
-- **Adicionado** - Novas funcionalidades
-- **Modificado** - Mudancas em funcionalidades existentes
-- **Removido** - Funcionalidades removidas
-- **Corrigido** - Bugs corrigidos
-- **Seguranca** - Melhorias de seguranca
+- Estrutura inicial do backend e frontend.
+- Node.js, Express, React, Vite, SQLite e Prisma.
+
+## Categorias do changelog
+
+- **Adicionado:** novos recursos.
+- **Modificado:** alterações em recursos existentes.
+- **Corrigido:** correções de erros.
+- **Removido:** recursos ou dependências retirados.
+- **Segurança:** melhorias e recomendações de segurança.

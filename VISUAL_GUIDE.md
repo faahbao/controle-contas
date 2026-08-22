@@ -2,30 +2,31 @@
 
 ## Login
 
-1. Abra o frontend.
-2. Cadastre um usuario ou faca login.
-3. Apos o login, o Dashboard sera exibido.
+1. Abra a URL do frontend.
+2. Cadastre um usuário ou informe e-mail e senha.
+3. Após a autenticação, o dashboard será exibido.
 
 ## Dashboard
 
-O Dashboard possui:
+A tela principal reúne:
 
 ```text
-Cabecalho
-Filtros de mes e ano
+Cabeçalho
+Filtros de mês e ano
 Cards de receitas, despesas e saldo
-Grafico de receitas versus despesas
-Formulario Nova Transacao
-Formulario Nova Categoria
-Secao Transacoes
+Gráficos
+Formulário de nova transação
+Gerenciador de categorias
+Lista de transações
+Ações de pagamento e exclusão
 ```
 
-## Nova transacao
+## Nova transação
 
 Preencha:
 
 ```text
-Descricao
+Descrição
 Valor
 Data
 Tipo
@@ -34,67 +35,64 @@ Categoria
 
 Para criar parcelas:
 
-1. Marque `Recorrente?`.
-2. Selecione diaria, semanal ou mensal.
+1. Ative `Recorrente?`.
+2. Escolha a frequência.
 3. Informe a quantidade de parcelas.
-4. Clique em `Adicionar`.
+4. Clique em adicionar.
 
-## Lista de transacoes
+## Lista de transações
 
-Cada transacao exibe:
+Cada item pode mostrar:
 
 ```text
-Descricao
+Descrição
 Categoria
 Data
 Valor
-Botao de editar
-Botao de excluir
+Parcela atual/total
+Editar
+Excluir
 ```
 
-Despesas tambem exibem:
+Despesas também podem mostrar:
 
 ```text
-Checkbox de selecao
+Checkbox
 Pagar ou Desmarcar
-Badge Paga quando aplicavel
+Badge Paga
 ```
 
-Transacoes parceladas tambem exibem:
+Para parcelas, as ações podem ser:
 
 ```text
-Esta
-Futuras
+Excluir esta
+Excluir futuras
 ```
 
-`Esta` exclui somente a parcela atual.
-
-`Futuras` exclui a parcela atual e as posteriores.
+A primeira remove somente a parcela atual. A segunda remove a parcela atual e as posteriores do mesmo grupo.
 
 ## Todas as parcelas
 
-No cabecalho da secao Transacoes existe o botao:
+Ao selecionar `Ver todas as parcelas`:
 
-```text
-Ver todas as parcelas
-```
-
-Ao clicar:
-
-- Parcelas de meses futuros aparecem.
 - O filtro mensal deixa de limitar a lista.
-- Parcelas futuras podem ser selecionadas.
-- O usuario pode pagar parcelas antecipadamente.
+- Parcelas futuras aparecem.
+- Despesas futuras podem ser selecionadas.
+- O pagamento antecipado fica disponível.
 
 ## Pagamento em lote
 
-1. Clique em `Selecionar nao pagas` ou marque checkboxes individuais.
-2. Clique em `Pagar X selecionadas`.
-3. Aguarde a conclusao.
-4. As despesas receberao o badge `Paga`.
+1. Selecione despesas pendentes.
+2. Clique em `Pagar selecionadas`.
+3. Aguarde as atualizações.
+4. Confira o badge de pagamento.
 
-## Relatorio PDF
+## Relatório PDF
 
-1. Escolha mes e ano.
+1. Selecione o mês e o ano.
 2. Clique em `Gerar PDF`.
-3. O navegador baixa o relatorio do periodo selecionado.
+3. O navegador fará o download do arquivo.
+
+## Responsividade
+
+Em telas pequenas, filtros, ações e formulários ficam empilhados. Tabelas extensas usam rolagem horizontal dentro do próprio painel, sem aumentar a largura da página.

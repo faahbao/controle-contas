@@ -2,161 +2,64 @@
 
 ## Sistema de Controle Financeiro
 
-Sistema fullstack para gestao financeira pessoal com foco em transacoes recorrentes parceladas, pagamento de despesas e visualizacao de parcelas futuras.
+Aplicação fullstack para gestão financeira pessoal. O sistema organiza receitas, despesas, categorias e transações recorrentes, com controle de pagamento, parcelas futuras, dashboard e relatórios em PDF.
 
----
+## Objetivo
 
-## Objetivo Principal
-
-Permitir que usuarios lancem despesas recorrentes (como aluguel, financiamento, etc.) uma unica vez, e o sistema distribui automaticamente as parcelas nos meses seguintes, com capacidade de pagamento individual, em lote e antecipado.
-
----
-
-## Funcionalidades Principais
-
-### 1. Autenticacao
-
-- Cadastro e login com JWT
-- Protecao de rotas
-- Contexto de autenticacao no frontend
-
-### 2. Transacoes
-
-- Receitas e despesas
-- Categorias personalizaveis
-- **Recorrente com parcelas** (feature principal)
-- Pagamento de despesas (individual e em lote)
-- Pagamento antecipado de parcelas futuras
-- Visualizacao de todas as parcelas
-- Exclusao de parcela unica ou futuras
-
-### 3. Dashboard
-
-- Cards com totais do mes
-- Grafico receitas vs despesas
-- Filtro por mes/ano
-
-### 4. Relatorios
-
-- Exportacao em PDF
-
----
+Permitir que o usuário registre uma despesa recorrente uma única vez e acompanhe suas parcelas ao longo dos meses, sem perder o histórico e sem precisar repetir o lançamento manualmente.
 
 ## Arquitetura
 
 ```text
-┌─────────────┐         ┌──────────────┐         ┌──────────────┐
-│   Frontend  │ ──────> │    Backend   │ ──────> │    SQLite    │
-│   (React)   │  HTTP   │ (Express.js) │  Prisma │   (Dados)    │
-└─────────────┘         └──────────────┘         └──────────────┘
+┌──────────────┐      HTTP       ┌──────────────┐      Prisma      ┌──────────┐
+│ React/Vite   │ ──────────────> │ Express API  │ ───────────────> │ SQLite   │
+│ Frontend     │ <────────────── │ Backend      │ <─────────────── │ Banco    │
+└──────────────┘                └──────────────┘                  └──────────┘
 ```
 
----
+## Recursos principais
 
-## Estrutura de Arquivos
+- Autenticação com JWT.
+- CRUD de transações.
+- Categorias personalizáveis.
+- Parcelas recorrentes.
+- Pagamento individual e em lote.
+- Pagamento antecipado.
+- Exclusão da parcela atual ou das futuras.
+- Dashboard com filtros e gráficos.
+- Relatório PDF.
+- Interface responsiva.
 
-```text
-controle-contas/
-├── README.md
-├── BACKEND.md
-├── FRONTEND.md
-├── FEATURES.md
-├── INSTALL.md
-├── API.md
-├── SUMMARY.md
-├── QUICKSTART.md
-├── PROJECT_STRUCTURE.md
-├── CHANGELOG.md
-├── UPDATES_V1.1.md
-└── VISUAL_GUIDE.md
-│
-├── backend/
-│   ├── prisma/
-│   │   └── schema.prisma
-│   └── src/
-│       └── server.js
-│
-└── frontend/
-    └── src/
-        ├── pages/
-        │   ├── Login.jsx
-        │   └── Dashboard.jsx
-        └── styles/
-            └── Dashboard.css
-```
+## Stack
 
----
+| Camada | Tecnologias |
+|---|---|
+| Frontend | React, Vite, Axios, React Router DOM, CSS |
+| Backend | Node.js, Express, JWT, bcrypt, Joi, Helmet, CORS |
+| Persistência | Prisma ORM e SQLite |
+| Relatórios | PDFKit |
 
-## Destaques
+## Fluxo de uma parcela
 
-### Transacao Recorrente com Parcelas
-
-**Problema resolvido:** Usuario nao precisa lancar manualmente a mesma despesa todo mes.
-
-**Solucao:**
-
-1. Usuario lanca "Aluguel - R$ 1.000 - 5 parcelas" em agosto
-2. Backend cria automaticamente 5 transacoes
-3. Cada transacao aparece no mes correto
-4. Badge visual identifica: mensal (2/5)
-
-### Pagamento de Despesas
-
-**Funcionalidades:**
-
-- Marcar/desmarcar despesa como paga
-- Pagamento em lote de varias despesas
-- Pagamento antecipado de parcelas futuras
-- Visualizacao de todas as parcelas (sem filtro de mes)
-
-**Tecnologias:**
-
-- Frontend: React + CSS3
-- Backend: Node.js + Express + Prisma
-- Banco: SQLite
-
----
+1. Usuário informa valor, frequência e quantidade de parcelas.
+2. Backend cria um grupo de parcelas.
+3. Cada lançamento recebe data e número da parcela.
+4. O frontend mostra a parcela no período correspondente.
+5. O usuário pode pagar ou excluir cada parcela conforme necessário.
 
 ## Status
 
-- Autenticacao JWT
-- CRUD de transacoes
-- Transacoes recorrentes com parcelas
-- Dashboard com filtros
-- Categorias
-- Relatorio PDF
-- Pagamento de despesas (individual e em lote)
-- Pagamento antecipado de parcelas futuras
-- Visualizacao de todas as parcelas
-- Exclusao de parcela unica ou futuras
-- Documentacao completa
+O projeto possui a base funcional de autenticação, transações, recorrência, categorias, pagamentos, dashboard e relatórios. A documentação deve ser mantida junto com as rotas e arquivos reais do projeto.
 
----
+## Próximos aprimoramentos
 
-## Stack Completo
+- Exportação CSV/XLSX.
+- Notificações de vencimento.
+- Metas de economia.
+- Backup e restauração assistidos.
+- Testes automatizados de API e interface.
+- Tunnel persistente ou domínio fixo para acesso externo.
 
-| Camada | Tecnologia |
-|---|---|
-| Frontend | React, CSS3, Axios |
-| Backend | Node.js, Express |
-| ORM | Prisma |
-| Banco | SQLite |
-| Auth | JWT |
-| PDF | PDFKit |
+## Licença
 
----
-
-## Proximos Passos (Sugestoes)
-
-- Graficos mais avancados (Chart.js ou Recharts)
-- Notificacoes de vencimento
-- Metas de economia
-- Integracao com banco (importacao de extrato)
-- App mobile
-- Exportacao em Excel/CSV
-
----
-
-## Licenca
-
-MIT
+MIT.

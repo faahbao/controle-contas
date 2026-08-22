@@ -1,107 +1,93 @@
 # Quick Start
 
-Guia rapido para colocar o projeto no ar em menos de 5 minutos.
+## Pré-requisitos
 
-## Pre-requisitos
+- Node.js 20 ou superior.
+- npm.
+- Git, se o projeto for obtido de um repositório.
 
-- Node.js 20+
-- Git
+## Backend
 
-## Instalacao Rapida
-
-### Windows
+No primeiro terminal:
 
 ```powershell
-cd D:\Projetos\controle-contas
+cd D:\Projetos\controle-contas\backend
+npm install
+npx prisma generate
+npx prisma migrate dev
+npm run dev
+```
 
+Deixe o terminal aberto. Confirme a porta indicada pelo servidor.
+
+## Frontend
+
+No segundo terminal:
+
+```powershell
+cd D:\Projetos\controle-contas\frontend
+npm install
+npm run dev
+```
+
+Abra a URL mostrada pelo Vite.
+
+## Variável da API
+
+Em `frontend/.env`:
+
+```env
+VITE_API_URL="http://localhost:3000/api"
+```
+
+Reinicie o Vite depois de alterar essa variável.
+
+## Primeiro acesso
+
+1. Abra o frontend.
+2. Cadastre um usuário.
+3. Faça login.
+4. Lance uma receita ou despesa.
+5. Explore dashboard, categorias, parcelas e relatórios.
+
+## Tunnel externo
+
+Depois que o serviço local estiver funcionando, publique a porta correta:
+
+```powershell
+cloudflared tunnel --url http://127.0.0.1:3000
+```
+
+Se o tunnel estiver publicando o frontend, use a porta do Vite. Um quick tunnel pode gerar um domínio diferente a cada inicialização; atualize a URL da API e o CORS quando isso acontecer.
+
+## Comandos úteis
+
+```powershell
 # Backend
 cd backend
-npm install
+npm run dev
 npx prisma generate
 npx prisma migrate dev
-npm run dev
+npx prisma studio
 
-# Em outro terminal, frontend
-cd ..\frontend
-npm install
-npm run dev
-```
-
-### Linux/Mac
-
-```bash
-cd controle-contas
-
-# Backend
-cd backend
-npm install
-npx prisma generate
-npx prisma migrate dev
-npm run dev
-
-# Em outro terminal, frontend
-cd ../frontend
-npm install
-npm run dev
-```
-
-## Acesso
-
-Apos iniciar, acesse:
-
-```text
-http://localhost:3001
-```
-
-Ou a URL exibida pelo Vite no terminal.
-
-## Primeiro Acesso
-
-1. Acesse a aplicacao no navegador
-2. Clique em "Registrar" ou "Cadastre-se"
-3. Crie sua conta com nome, email e senha
-4. Faca login
-5. Comece a lancar suas receitas e despesas!
-
-## Comandos Uteis
-
-### Backend
-
-```powershell
-cd backend
-npm run dev      # Desenvolvimento
-npm run build    # Build producao (se houver)
-npx prisma generate
-npx prisma migrate dev
-npx prisma studio  # Visualizar banco
-```
-
-### Frontend
-
-```powershell
+# Frontend
 cd frontend
-npm run dev      # Desenvolvimento
-npm run build    # Build producao
-npm run preview  # Preview producao
+npm run dev
+npm run build
+npm run preview
 ```
 
-## Problemas Comuns
+## Problemas comuns
 
-### Porta 3000 ocupada
+### Conexão recusada pelo Cloudflare
 
-Altere a porta no `backend/.env`:
+O backend não está escutando na porta configurada no tunnel. Verifique a porta e prefira `127.0.0.1` em vez de `localhost`.
 
-```env
-PORT=3001
-```
+### Erro de login
 
-E atualize o frontend se necessario:
+Confira `VITE_API_URL`, o endpoint efetivo de login no backend, CORS, a aba Network do navegador e se o backend continua ativo.
 
-```env
-VITE_API_URL=http://localhost:3001/api
-```
-
-### Erro no Prisma
+### Prisma com erro
 
 ```powershell
 cd backend
@@ -109,21 +95,4 @@ npx prisma generate
 npx prisma migrate dev
 ```
 
-### Erro de login 404
-
-Confirme:
-
-- Backend rodando na porta 3000 (ou a porta configurada)
-- Frontend usando a URL correta da API
-- Rota `POST /api/auth/login` presente no `server.js`
-
-## Documentacao Completa
-
-- [README.md](./README.md) - Visao geral
-- [INSTALL.md](./INSTALL.md) - Guia de instalacao detalhado
-- [API.md](./API.md) - Documentacao da API
-- [FEATURES.md](./FEATURES.md) - Todas as funcionalidades
-
----
-
-Precisa de ajuda? Consulte a documentacao completa ou abra uma issue no GitHub!
+Não use reset forçado sem backup.

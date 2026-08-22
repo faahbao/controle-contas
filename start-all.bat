@@ -13,7 +13,7 @@ start "Controle de Contas - Frontend" cmd /k ""%~dp0start-frontend.bat""
 
 echo.
 echo Backend:  http://localhost:3000
-echo Frontend: http://localhost:5173
+echo Frontend: http://localhost:3001
 echo.
 echo Duas janelas foram abertas. Nao feche as janelas do backend e frontend.
 pause

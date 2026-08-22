@@ -1,57 +1,42 @@
-# API - Documentacao
+# API
 
 ## Base URL
+
+Em desenvolvimento:
 
 ```text
 http://localhost:3000/api
 ```
 
-## Autenticacao
+Se o backend estiver publicado por Cloudflare Tunnel, substitua a origem pelo domínio atual e mantenha o sufixo `/api`.
 
-Todas as rotas (exceto login e cadastro) requerem o header:
+## Autenticação
+
+As rotas protegidas exigem:
 
 ```http
 Authorization: Bearer <token>
 ```
 
----
+As rotas de cadastro e login não exigem token.
 
-## Auth
+## Autenticação
 
-### POST /auth/cadastro
+### POST `/auth/cadastro`
 
-Cadastrar novo usuario
-
-**Body:**
+Cadastra um usuário.
 
 ```json
 {
-  "nome": "Joao Silva",
+  "nome": "João Silva",
   "email": "joao@email.com",
   "senha": "123456"
 }
 ```
 
-**Resposta:**
+### POST `/auth/login`
 
-```json
-{
-  "token": "jwt_token_aqui",
-  "user": {
-    "id": 1,
-    "email": "joao@email.com",
-    "nome": "Joao Silva"
-  }
-}
-```
-
----
-
-### POST /auth/login
-
-Login de usuario
-
-**Body:**
+Realiza login.
 
 ```json
 {
@@ -60,7 +45,7 @@ Login de usuario
 }
 ```
 
-**Resposta:**
+Resposta esperada:
 
 ```json
 {
@@ -68,32 +53,30 @@ Login de usuario
   "user": {
     "id": 1,
     "email": "joao@email.com",
-    "nome": "Joao Silva"
+    "nome": "João Silva"
   }
 }
 ```
 
----
+> Confirme no código do backend se a rota de cadastro usa `/cadastro` ou `/register` antes de integrar clientes externos. O frontend deve usar a rota efetivamente registrada pelo servidor.
 
 ## Dashboard
 
-### GET /dashboard
+### GET `/dashboard`
 
-Resumo do mes com receitas, despesas, saldo e grafico
+Retorna o resumo financeiro do período.
 
-**Query params:**
+Query parameters opcionais:
 
-- `mes` (opcional): 01-12
-- `ano` (opcional): 2024, 2025, 2026, etc
-
-**Resposta:**
+- `mes`: mês de `01` a `12`.
+- `ano`: ano com quatro dígitos.
 
 ```json
 {
   "receitas": 5000,
   "despesas": 3000,
   "saldo": 2000,
-  "transacoes": [...],
+  "transacoes": [],
   "grafico": {
     "receitas": 5000,
     "despesas": 3000,
@@ -103,68 +86,19 @@ Resumo do mes com receitas, despesas, saldo e grafico
 }
 ```
 
----
+## Transações
 
-## Transacoes
+### GET `/transacoes`
 
-### GET /transacoes
+Lista as transações do mês e ano informados.
 
-Listar transacoes do mes selecionado
+### GET `/transacoes/todas`
 
-**Query params:**
+Lista todas as transações do usuário, incluindo parcelas futuras.
 
-- `mes` (opcional): 01-12
-- `ano` (opcional): 2024, 2025, etc
+### POST `/transacoes`
 
-**Resposta:**
-
-```json
-{
-  "receitas": 5000,
-  "despesas": 3000,
-  "saldo": 2000,
-  "transacoes": [...],
-  "grafico": { ... }
-}
-```
-
----
-
-### GET /transacoes/todas
-
-Listar todas as transacoes do usuario, sem filtro de mes
-
-Usado para visualizar parcelas futuras e pagar antecipadamente
-
-**Resposta:**
-
-```json
-[
-  {
-    "id": 1,
-    "descricao": "Aluguel (1/5)",
-    "valor": 1000,
-    "tipo": "despesa",
-    "categoria": "Moradia",
-    "data": "2026-08-18T00:00:00.000Z",
-    "recorrente": true,
-    "frequencia": "mensal",
-    "parcelas": 5,
-    "parcelaAtual": 1,
-    "grupoParcelasId": "abc123",
-    "paga": false,
-    "userId": 1
-  }
-]
-```
-
----
-
-### POST /transacoes
-
-Criar transacao
-
-**Body:**
+Cria uma transação. Exemplo:
 
 ```json
 {
@@ -179,85 +113,23 @@ Criar transacao
 }
 ```
 
-**Resposta (transacao unica):**
+Uma transação parcelada gera registros com `parcelaAtual`, `parcelas` e `grupoParcelasId`.
 
-```json
-{
-  "id": 1,
-  "descricao": "Aluguel",
-  ...
-}
-```
+### PUT `/transacoes/:id`
 
-**Resposta (recorrente com parcelas):**
+Atualiza uma transação existente.
 
-```json
-{
-  "mensagem": "5 parcelas criadas com sucesso!",
-  "transacoes": [...]
-}
-```
+### DELETE `/transacoes/:id`
 
----
+Exclui somente a transação ou parcela indicada.
 
-### PUT /transacoes/:id
+### DELETE `/transacoes/:id/futuras`
 
-Atualizar transacao
+Exclui a parcela indicada e as parcelas posteriores do mesmo grupo.
 
-**Body:**
+### PATCH `/transacoes/:id/pagamento`
 
-```json
-{
-  "descricao": "Novo Aluguel",
-  "valor": 1200,
-  "tipo": "despesa",
-  "categoria": "Moradia",
-  "data": "2026-08-15",
-  "recorrente": true,
-  "frequencia": "mensal",
-  "parcelas": 5
-}
-```
-
----
-
-### DELETE /transacoes/:id
-
-Deletar transacao (parcela unica)
-
-**Resposta:**
-
-```json
-{
-  "id": 1,
-  ...
-}
-```
-
----
-
-### DELETE /transacoes/:id/futuras
-
-Excluir parcela selecionada e todas as parcelas futuras do mesmo grupo
-
-**Resposta:**
-
-```json
-{
-  "mensagem": "Parcelas futuras excluidas com sucesso!",
-  "excluidas": 3
-}
-```
-
----
-
-### PATCH /transacoes/:id/pagamento
-
-Marcar ou desmarcar transacao como paga
-
-Somente despesas podem ser marcadas como pagas
-
-**Body:**
+Marca ou desmarca uma despesa como paga.
 
 ```json
 {
@@ -265,58 +137,17 @@ Somente despesas podem ser marcadas como pagas
 }
 ```
 
-**Resposta:**
-
-```json
-{
-  "mensagem": "Transacao marcada como paga.",
-  "transacao": {
-    "id": 27,
-    "paga": true
-  }
-}
-```
-
-Para desfazer pagamento:
-
-```json
-{
-  "paga": false
-}
-```
-
----
+Somente despesas devem utilizar o status de pagamento.
 
 ## Categorias
 
-### GET /categorias
+### GET `/categorias`
 
-Listar categorias
+Lista categorias disponíveis.
 
-**Resposta:**
+### POST `/categorias`
 
-```json
-[
-  {
-    "id": 1,
-    "nome": "Alimentacao",
-    "tipo": "despesa"
-  },
-  {
-    "id": 2,
-    "nome": "Salario",
-    "tipo": "receita"
-  }
-]
-```
-
----
-
-### POST /categorias
-
-Criar categoria
-
-**Body:**
+Cria uma categoria:
 
 ```json
 {
@@ -325,17 +156,25 @@ Criar categoria
 }
 ```
 
----
+## Relatórios
 
-## Relatorios
+### GET `/relatorio/pdf`
 
-### GET /relatorio/pdf
+Gera o relatório PDF do período informado.
 
-Gerar PDF do mes
+Query parameters:
 
-**Query params:**
+- `mes`: mês de `01` a `12`.
+- `ano`: ano com quatro dígitos.
 
-- `mes`: 01-12
-- `ano`: 2024, 2025, etc
+A resposta é um arquivo PDF para download.
 
-**Resposta:** Blob PDF para download
+## Erros
+
+Clientes devem tratar pelo menos:
+
+- `400`: dados inválidos.
+- `401`: token ausente, inválido ou expirado.
+- `404`: rota ou registro não encontrado.
+- `409`: conflito, como e-mail já cadastrado.
+- `500`: erro interno do servidor.
